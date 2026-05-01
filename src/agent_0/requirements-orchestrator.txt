@@ -1,0 +1,4 @@
+# Orchestrator host requirements (CPU, no GPU).
+# Run on James's machine; dispatches to Modal apps.
+modal>=0.64
+biopython>=1.83
