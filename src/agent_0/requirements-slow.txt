@@ -1,0 +1,6 @@
+# Slow-path Modal container (GPU). Mirrored in slow_app/modal_app.py.
+biopython>=1.83
+orfipy>=0.0.4
+torch>=2.2
+transformers>=4.40
+accelerate>=0.30

@@ -1,0 +1,2 @@
+# Fast-path Modal container (CPU only). Mirrored in fast_app/modal_app.py.
+biopython>=1.83
