@@ -51,6 +51,20 @@ image = (
     .apt_install("git", "wget")
     .pip_install(
         f"boltz=={BOLTZ_VERSION}",
+        # Boltz 2.2.1 calls into cuequivariance for the kernel triangular
+        # multiplicative update. It is not a hard dep of the boltz wheel, so
+        # we must add it explicitly. The `-ops-torch-cu12` package supplies
+        # the CUDA 12 kernels matching the cu121 PyTorch wheels above.
+        # Pinned: latest cuequivariance links against CUDA 13 NVRTC
+        # (libnvrtc-builtins.so.13.0), which is incompatible with cu121
+        # PyTorch. We need a version that (a) still targets CUDA 12,
+        # (b) exposes `cuequivariance_torch.primitives.triangle` in the
+        # frontend, and (c) provides `triangle_multiplicative_update` in
+        # the ops kernel. 0.4.0 missed (b); 0.5.0 had (b) but missed (c).
+        # 0.6.0 should have both. If it pulls cu13, escalate to bumping
+        # PyTorch index to cu128 with latest cuequivariance.
+        "cuequivariance-torch==0.6.0",
+        "cuequivariance-ops-torch-cu12==0.6.0",
         "biopython",       # for output parsing
         "numpy",
         extra_options="--extra-index-url https://download.pytorch.org/whl/cu121",
@@ -74,6 +88,10 @@ def _write_boltz_yaml(sequence: str, structure_id: str, stoichiometry: int, work
     """Build a minimal Boltz-2 input YAML for a protein-only prediction."""
     # Boltz expects one protein entry per chain; for a homo-oligomer we repeat
     # the sequence under different chain IDs.
+    # `msa: empty` declares single-sequence mode explicitly. Without it Boltz
+    # 2.2.1 errors out demanding either an MSA path or `--use_msa_server`.
+    # Single-sequence is the v1 design intent, so we declare it in the YAML
+    # rather than pulling MSAs from the public ColabFold server.
     chain_ids = [chr(ord("A") + i) for i in range(stoichiometry)]
     lines = ["version: 1", "sequences:"]
     for cid in chain_ids:
@@ -81,6 +99,7 @@ def _write_boltz_yaml(sequence: str, structure_id: str, stoichiometry: int, work
             f"  - protein:",
             f"      id: {cid}",
             f"      sequence: {sequence}",
+            f"      msa: empty",
         ]
     yaml_path = workdir / f"{structure_id}.yaml"
     yaml_path.write_text("\n".join(lines) + "\n")
