@@ -26,7 +26,15 @@ import json
 import time
 from pathlib import Path
 
-from modal_app import fetch_cif, predict_structure
+import modal
+
+# Look up the deployed Modal functions by name. The app must already be
+# deployed (`modal deploy modal_app.py`) before running this script — calling
+# `.remote()` on a locally-imported function raises ExecutionError because the
+# function is not hydrated with deployment metadata.
+_APP_NAME = "agent1-step1-boltz2"
+predict_structure = modal.Function.from_name(_APP_NAME, "predict_structure")
+fetch_cif = modal.Function.from_name(_APP_NAME, "fetch_cif")
 
 
 def parse_fasta(fasta_path: Path) -> tuple[str, str]:
