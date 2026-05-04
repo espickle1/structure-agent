@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from collections import Counter
 
-from agent0.shared.config import (
+from agent_0.config import (
     IUPAC_NUCLEOTIDE_ALPHABET,
     NUCLEOTIDE_PURITY_MIN,
     PROTEIN_PURITY_MIN,
 )
-from agent0.shared.schemas import NormalizedRecord, SequenceType, TypedRecord
+from agent_0.schemas import NormalizedRecord, SequenceType, TypedRecord
 
 
 # Canonical 20 AAs plus selenocysteine and pyrrolysine (rare but real).

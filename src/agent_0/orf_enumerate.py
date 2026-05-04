@@ -11,12 +11,12 @@ import re
 from Bio.Data import CodonTable
 from Bio.Seq import Seq
 
-from agent0.shared.config import (
+from agent_0.config import (
     AMBIGUITY_RESIDUES,
     MAX_ORF_LENGTH_NT,
     MIN_ORF_LENGTH_NT,
 )
-from agent0.shared.schemas import ORFCandidate
+from agent_0.schemas import ORFCandidate
 
 
 _FRAME_RE = re.compile(r"ORF_frame=(-?\d+)")

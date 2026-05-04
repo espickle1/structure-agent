@@ -15,11 +15,11 @@ fallback cascade. If the cascade exhausts, the record is rejected.
 
 from __future__ import annotations
 
-from agent0.shared.config import (
+from agent_0.config import (
     PERPLEXITY_REJECT_ABOVE,
     PERPLEXITY_TIE_FRACTION,
 )
-from agent0.shared.schemas import ORFCandidate
+from agent_0.schemas import ORFCandidate
 
 
 def select_orfs(

@@ -39,32 +39,46 @@ input.fasta ─┐
 
 | Stage         | Module                          | Output                       |
 | ------------- | ------------------------------- | ---------------------------- |
-| Ingest        | `fast_app/ingest.py`            | `NormalizedRecord`           |
-| Type detect   | `fast_app/type_detect.py`       | `TypedRecord` (DNA/RNA/AA)   |
-| Fast translate| `fast_app/fast_translate.py`    | clean-CDS shortcut, code 11  |
-| ORF enumerate | `slow_app/orf_enumerate.py`     | `list[ORFCandidate]`         |
-| Score         | `slow_app/perplexity_score.py`  | ESM-2 650M perplexity        |
-| Select        | `slow_app/orf_select.py`        | accepted candidates          |
-| Gate          | `fast_app/quality_gate.py`      | length / X gates             |
+| Ingest        | `agent_0/ingest.py`             | `NormalizedRecord`           |
+| Type detect   | `agent_0/type_detect.py`        | `TypedRecord` (DNA/RNA/AA)   |
+| Fast translate| `agent_0/fast_translate.py`     | clean-CDS shortcut, code 11  |
+| ORF enumerate | `agent_0/orf_enumerate.py`      | `list[ORFCandidate]`         |
+| Score         | `agent_0/perplexity_score.py`   | ESM-2 650M perplexity        |
+| Select        | `agent_0/orf_select.py`         | accepted candidates          |
+| Gate          | `agent_0/quality_gate.py`       | length / X gates             |
 
 Module independence: each stage receives one dataclass and returns another.
 No module reads internal state of another's records.
 
 ## Deployment
 
+All commands below assume the working directory is `src/` (the parent of the
+`agent_0/` package). Run them from there so Python's import system can resolve
+`agent_0` as an implicit namespace package.
+
 ```bash
 # 1. Install dependencies for the host orchestrator:
-pip install -r requirements-orchestrator.txt
+pip install -r agent_0/requirements-orchestrator.txt
 
-# 2. Deploy Modal apps (one-time, or after image changes):
-modal deploy agent0.fast_app.modal_app
-modal deploy agent0.slow_app.modal_app
+# 2. Deploy Modal apps (one-time, or after image changes).
+#    The `-m` flag tells Modal to interpret the argument as a Python module
+#    path (required by recent Modal versions; bare module paths are deprecated).
+python -m modal deploy -m agent_0.modal_app
+# Slow path is not yet implemented; deploy when added:
+# python -m modal deploy -m agent_0.slow_modal_app
 
 # 3. Run a batch:
-python -m agent0.orchestrator \
+python -m agent_0.orchestrator \
     --input /path/to/input.fasta \
     --output-dir /path/to/output \
     [--client-metadata /path/to/metadata.json]
+```
+
+On Windows PowerShell, if Modal's image build fails with a `'charmap' codec`
+encoding error, set UTF-8 mode for the shell session before retrying:
+
+```powershell
+$env:PYTHONUTF8 = "1"
 ```
 
 ## Outputs
@@ -88,7 +102,7 @@ python -m agent0.orchestrator \
 
 ## Configuration
 
-All thresholds in `shared/config.py`. Single source of truth.
+All thresholds in `agent_0/config.py`. Single source of truth.
 
 | Parameter                  | Default | Notes                                     |
 | -------------------------- | ------- | ----------------------------------------- |
@@ -107,7 +121,7 @@ All thresholds in `shared/config.py`. Single source of truth.
 
 1. **ESM-2 max length is 1024.** Sequences 1024–2000 aa truncate during
    scoring. Fix: chunked-mean perplexity. Located in
-   `slow_app/perplexity_score.py`. **Not yet implemented.**
+   `agent_0/perplexity_score.py`. **Not yet implemented.**
 
 2. **Three thresholds need real-data calibration:**
    `PERPLEXITY_REJECT_ABOVE`, `PERPLEXITY_TIE_FRACTION`,
@@ -125,9 +139,11 @@ All thresholds in `shared/config.py`. Single source of truth.
 
 ## Tests
 
+Run from `src/`:
+
 ```bash
 pip install pytest biopython
-python -m pytest agent0/tests/ -v
+python -m pytest agent_0/ -v
 ```
 
 17 fast-path smoke tests, no Modal/GPU dependencies. Slow-path testing

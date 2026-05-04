@@ -60,7 +60,7 @@ FAST_APP_CPU_REQUEST = 1.0
 FAST_APP_MEMORY_MB = 1024
 
 # ----- Output / volume layout -------------------------------------------------
-VOLUME_NAME = "agent0-shared"
+VOLUME_NAME = "agent_0-shared"
 OUTPUT_FASTA_NAME = "cleaned.faa"
 OUTPUT_SIDECAR_NAME = "sidecar.jsonl"
 OUTPUT_REJECTIONS_NAME = "rejections.jsonl"

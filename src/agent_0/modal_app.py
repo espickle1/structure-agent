@@ -16,16 +16,16 @@ from __future__ import annotations
 
 import modal
 
-from agent0.fast_app.fast_translate import attempt_fast_path
-from agent0.fast_app.ingest import normalize_record
-from agent0.fast_app.quality_gate import gate_translation
-from agent0.fast_app.type_detect import classify_record, has_non_iupac_nucleotide
-from agent0.shared.config import (
+from agent_0.fast_translate import attempt_fast_path
+from agent_0.ingest import normalize_record
+from agent_0.quality_gate import gate_translation
+from agent_0.type_detect import classify_record, has_non_iupac_nucleotide
+from agent_0.config import (
     FAST_APP_CPU_REQUEST,
     FAST_APP_MEMORY_MB,
     NON_IUPAC_FRACTION_MAX,
 )
-from agent0.shared.schemas import (
+from agent_0.schemas import (
     InputRecord,
     RejectedRecord,
     RejectionReason,
@@ -35,15 +35,15 @@ from agent0.shared.schemas import (
 )
 
 
-app = modal.App("agent0-fast")
+app = modal.App("agent_0-fast")
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install(
         "biopython>=1.83",
     )
-    # Mount the agent0 package into the container.
-    .add_local_python_source("agent0")
+    # Mount the agent_0 package into the container.
+    .add_local_python_source("agent_0")
 )
 
 

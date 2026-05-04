@@ -11,7 +11,7 @@ from typing import Iterator
 
 from Bio import SeqIO
 
-from agent0.shared.schemas import InputRecord, NormalizedRecord
+from agent_0.schemas import InputRecord, NormalizedRecord
 
 
 _GAP_CHARS = set("-.~ ")

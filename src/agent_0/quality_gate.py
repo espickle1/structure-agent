@@ -6,7 +6,7 @@ order of severity (cheapest checks first).
 
 from __future__ import annotations
 
-from agent0.shared.config import (
+from agent_0.config import (
     AMBIGUITY_RESIDUES,
     LENGTH_MAX_AA,
     LENGTH_MIN_AA,
@@ -14,7 +14,7 @@ from agent0.shared.config import (
     X_RUN_MAX,
     X_TERMINAL_BUFFER,
 )
-from agent0.shared.schemas import RejectionReason
+from agent_0.schemas import RejectionReason
 
 
 def gate_length(aa_seq: str) -> tuple[bool, str]:

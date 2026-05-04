@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import math
 
-from agent0.shared.config import ESM_BATCH_SIZE, ESM_MODEL_NAME
-from agent0.shared.schemas import ORFCandidate
+from agent_0.config import ESM_BATCH_SIZE, ESM_MODEL_NAME
+from agent_0.schemas import ORFCandidate
 
 
 class ESM2Scorer:

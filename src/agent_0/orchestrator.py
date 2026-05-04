@@ -8,7 +8,7 @@ code cascade, and writes:
     <output_dir>/rejections.jsonl   — audit log of all rejections
 
 Usage:
-    python -m agent0.orchestrator \\
+    python -m agent_0.orchestrator \\
         --input /path/to/input.fasta \\
         --output-dir /path/to/output \\
         [--client-metadata /path/to/metadata.json]
@@ -24,15 +24,15 @@ from pathlib import Path
 
 import modal
 
-from agent0.fast_app.ingest import parse_fasta
-from agent0.shared.config import (
+from agent_0.ingest import parse_fasta
+from agent_0.config import (
     DEFAULT_GENETIC_CODE,
     FALLBACK_GENETIC_CODES,
     OUTPUT_FASTA_NAME,
     OUTPUT_REJECTIONS_NAME,
     OUTPUT_SIDECAR_NAME,
 )
-from agent0.shared.schemas import InputRecord
+from agent_0.schemas import InputRecord
 
 
 def _load_client_metadata(path: Path | None) -> dict[str, dict]:
@@ -85,7 +85,7 @@ def run(input_path: Path, output_dir: Path, metadata_path: Path | None) -> None:
     print(f"[orchestrator] loaded {len(inputs)} records", file=sys.stderr)
 
     # 2. Fast-path fanout. Look up the deployed function by app+name.
-    process_record = modal.Function.from_name("agent0-fast", "process_record")
+    process_record = modal.Function.from_name("agent_0-fast", "process_record")
     fast_results = list(
         process_record.map([asdict(r) for r in inputs])
     )
@@ -114,7 +114,7 @@ def run(input_path: Path, output_dir: Path, metadata_path: Path | None) -> None:
     # 3. Slow-path with code cascade. The cascade runs *inside* each container
     # so ESM-2 loads once per worker.
     if slow_payloads:
-        SlowPathWorker = modal.Cls.from_name("agent0-slow", "SlowPathWorker")
+        SlowPathWorker = modal.Cls.from_name("agent_0-slow", "SlowPathWorker")
         worker = SlowPathWorker()
         code_cascade = [DEFAULT_GENETIC_CODE, *FALLBACK_GENETIC_CODES]
 
