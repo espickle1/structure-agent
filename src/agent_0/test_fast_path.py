@@ -1,17 +1,17 @@
 """Local smoke tests for fast-path components. No Modal, no GPU.
 
-Run with:  pytest agent0/tests/
+Run with:  pytest agent_0/
 """
 
 from __future__ import annotations
 
-from agent0.fast_app.fast_translate import is_clean_cds, attempt_fast_path
-from agent0.fast_app.ingest import normalize_record
-from agent0.fast_app.quality_gate import (
+from agent_0.fast_translate import is_clean_cds, attempt_fast_path
+from agent_0.ingest import normalize_record
+from agent_0.quality_gate import (
     gate_length, gate_translation, gate_x_fraction, gate_x_run, gate_x_terminal,
 )
-from agent0.fast_app.type_detect import detect_type
-from agent0.shared.schemas import InputRecord, SequenceType
+from agent_0.type_detect import detect_type
+from agent_0.schemas import InputRecord, SequenceType
 
 
 # ----- type detection ---------------------------------------------------------
@@ -120,7 +120,7 @@ def test_attempt_fast_path_succeeds_on_clean_input():
     cds = "ATG" + "GCT" * 60 + "TAA"  # M + 60×A + *
     rec = InputRecord(record_id="r1", sequence=cds)
     norm = normalize_record(rec)
-    from agent0.fast_app.type_detect import classify_record
+    from agent_0.type_detect import classify_record
     typed = classify_record(norm)
     ok, aa, _ = attempt_fast_path(typed)
     assert ok

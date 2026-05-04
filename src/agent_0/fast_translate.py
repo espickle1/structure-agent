@@ -17,8 +17,8 @@ from __future__ import annotations
 from Bio.Data import CodonTable
 from Bio.Seq import Seq
 
-from agent0.shared.config import DEFAULT_GENETIC_CODE
-from agent0.shared.schemas import (
+from agent_0.config import DEFAULT_GENETIC_CODE
+from agent_0.schemas import (
     SequenceType,
     TypedRecord,
 )
