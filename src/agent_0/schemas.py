@@ -28,6 +28,7 @@ class RejectionReason(str, Enum):
     X_AT_TERMINUS = "x_at_terminus"
     NO_VIABLE_ORF = "no_viable_orf"
     PERPLEXITY_BELOW_THRESHOLD = "perplexity_below_threshold"
+    SLOW_PATH_UNAVAILABLE = "slow_path_unavailable"
     INTERNAL_ERROR = "internal_error"
 
 

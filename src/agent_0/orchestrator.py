@@ -26,13 +26,11 @@ import modal
 
 from agent_0.ingest import parse_fasta
 from agent_0.config import (
-    DEFAULT_GENETIC_CODE,
-    FALLBACK_GENETIC_CODES,
     OUTPUT_FASTA_NAME,
     OUTPUT_REJECTIONS_NAME,
     OUTPUT_SIDECAR_NAME,
 )
-from agent_0.schemas import InputRecord
+from agent_0.schemas import InputRecord, RejectedRecord, RejectionReason
 
 
 def _load_client_metadata(path: Path | None) -> dict[str, dict]:
@@ -111,34 +109,26 @@ def run(input_path: Path, output_dir: Path, metadata_path: Path | None) -> None:
         file=sys.stderr,
     )
 
-    # 3. Slow-path with code cascade. The cascade runs *inside* each container
-    # so ESM-2 loads once per worker.
+    # 3. Slow-path is not yet deployed. Convert any slow-path candidates into
+    # rejections with reason SLOW_PATH_UNAVAILABLE so the batch still completes
+    # and provenance is preserved. Restore Modal-driven slow-path dispatch here
+    # once the slow_app is implemented.
     if slow_payloads:
-        SlowPathWorker = modal.Cls.from_name("agent_0-slow", "SlowPathWorker")
-        worker = SlowPathWorker()
-        code_cascade = [DEFAULT_GENETIC_CODE, *FALLBACK_GENETIC_CODES]
-
-        # .map over payloads; code_cascade is a constant kwarg on every call.
-        slow_results = list(
-            worker.process_with_cascade.map(
-                slow_payloads,
-                kwargs={"code_cascade": code_cascade},
+        for payload in slow_payloads:
+            rejected = RejectedRecord(
+                record_id=payload["record_id"],
+                parent_id=payload["parent_id"],
+                reason=RejectionReason.SLOW_PATH_UNAVAILABLE,
+                stage="orchestrator.slow_path_dispatch",
+                detail="slow_app not deployed; record requires ORF resolution",
+                original_sequence=payload["original_sequence"],
+                client_metadata=payload.get("client_metadata", {}),
             )
-        )
-
-        n_resolved = sum(1 for r in slow_results if "translated" in r["kind"])
-        n_rejected = sum(1 for r in slow_results if r["kind"] == "rejected")
-        for res in slow_results:
-            kind = res["kind"]
-            if kind in ("translated_single", "translated_multi"):
-                translated.extend(res["payload"])
-            elif kind == "rejected":
-                rejections.append(res["payload"])
-            else:
-                raise RuntimeError(f"unexpected slow-path verdict: {kind}")
+            rejections.append(rejected.to_log_dict())
 
         print(
-            f"[orchestrator] slow-path: {n_resolved} resolved, {n_rejected} rejected",
+            f"[orchestrator] slow-path: 0 resolved, {len(slow_payloads)} rejected "
+            "(slow_app not deployed)",
             file=sys.stderr,
         )
 
