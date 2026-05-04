@@ -52,22 +52,19 @@ image = (
     .pip_install(
         f"boltz=={BOLTZ_VERSION}",
         # Boltz 2.2.1 calls into cuequivariance for the kernel triangular
-        # multiplicative update. It is not a hard dep of the boltz wheel, so
-        # we must add it explicitly. The `-ops-torch-cu12` package supplies
-        # the CUDA 12 kernels matching the cu121 PyTorch wheels above.
-        # Pinned: latest cuequivariance links against CUDA 13 NVRTC
-        # (libnvrtc-builtins.so.13.0), which is incompatible with cu121
-        # PyTorch. We need a version that (a) still targets CUDA 12,
-        # (b) exposes `cuequivariance_torch.primitives.triangle` in the
-        # frontend, and (c) provides `triangle_multiplicative_update` in
-        # the ops kernel. 0.4.0 missed (b); 0.5.0 had (b) but missed (c).
-        # 0.6.0 should have both. If it pulls cu13, escalate to bumping
-        # PyTorch index to cu128 with latest cuequivariance.
-        "cuequivariance-torch==0.6.0",
-        "cuequivariance-ops-torch-cu12==0.6.0",
+        # multiplicative update. The latest cuequivariance ships kernels
+        # built against CUDA 13 (libnvrtc-builtins.so.13.0), so we align
+        # the whole stack to CUDA 13:
+        #   - PyTorch wheels from whl/cu130 (CUDA 13 build)
+        #   - cuequivariance-ops-torch-cu13 (CUDA 13 kernels)
+        # Walking down the cu12 version pin space (0.4 → 0.5 → 0.6) hit
+        # API/kernel gaps; aligning to cu13 lets us use the latest
+        # cuequivariance release that Boltz expects.
+        "cuequivariance-torch",
+        "cuequivariance-ops-torch-cu13",
         "biopython",       # for output parsing
         "numpy",
-        extra_options="--extra-index-url https://download.pytorch.org/whl/cu121",
+        extra_options="--extra-index-url https://download.pytorch.org/whl/cu130",
     )
 )
 
