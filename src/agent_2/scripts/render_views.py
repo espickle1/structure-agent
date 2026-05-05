@@ -162,8 +162,8 @@ def build_scene(
     up: np.ndarray,
     color_mode: str,
     chain_ids: list[str],
-) -> dict:
-    """Build a molviewspec MVS state for a single view."""
+) -> str:
+    """Build a molviewspec MVS state for a single view. Returns serialized JSON."""
     builder = mvs.create_builder()
 
     parsed = (
@@ -204,13 +204,15 @@ def build_scene(
         target=[float(x) for x in target],
         up=[float(x) for x in up],
     )
-    return builder.get_state()
+    # State is a Pydantic model — serialize via its own JSON encoder, since
+    # it contains enum/special types that json.dumps can't handle.
+    return builder.get_state().json()
 
 
 # =========================================================================
 # Render primitive
 # =========================================================================
-def run_mvs_render(scene: dict, output_path: Path, size: tuple[int, int]):
+def run_mvs_render(scene_json: str, output_path: Path, size: tuple[int, int]):
     """Single render call. Raises RenderError on any failure."""
     if shutil.which("mvs-render") is None:
         raise RenderError("mvs-render not on PATH (npm install -g molstar)")
@@ -220,7 +222,7 @@ def run_mvs_render(scene: dict, output_path: Path, size: tuple[int, int]):
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".mvsj", delete=False
     ) as tmp:
-        json.dump(scene, tmp)
+        tmp.write(scene_json)
         scene_path = Path(tmp.name)
 
     try:
@@ -250,10 +252,10 @@ def run_mvs_render(scene: dict, output_path: Path, size: tuple[int, int]):
 
 
 def log_render_failure(
-    failure_dir: Path, view_name: str, scene: dict, error: Exception
+    failure_dir: Path, view_name: str, scene_json: str, error: Exception
 ):
     failure_dir.mkdir(parents=True, exist_ok=True)
-    (failure_dir / f"{view_name}.mvsj").write_text(json.dumps(scene, indent=2))
+    (failure_dir / f"{view_name}.mvsj").write_text(scene_json)
     (failure_dir / f"{view_name}.error").write_text(str(error))
 
 

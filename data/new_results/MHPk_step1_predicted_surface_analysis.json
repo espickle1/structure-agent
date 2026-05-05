@@ -1,0 +1,100 @@
+{
+  "file": "MHPk_step1_predicted.cif",
+  "shape": {
+    "radius_of_gyration": 23.49,
+    "asphericity": 0.2677,
+    "principal_eigenvalues": [
+      373.92,
+      98.09,
+      79.72
+    ],
+    "axis_ratios": {
+      "long_mid": 3.81,
+      "long_short": 4.69
+    },
+    "approximate_dimensions": {
+      "long_axis": 75.6,
+      "mid_axis": 49.0,
+      "short_axis": 41.0,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 381
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 153,
+      "fraction": 0.402
+    },
+    "sheet": {
+      "count": 96,
+      "fraction": 0.252
+    },
+    "coil": {
+      "count": 132,
+      "fraction": 0.346
+    },
+    "total_assigned": 381
+  },
+  "fold_classification": {
+    "scop_class": "alpha/beta",
+    "fold_candidates": [
+      {
+        "fold": "alpha/beta hydrolase",
+        "scop_id": "c.69",
+        "cath_id": "3.40.50",
+        "confidence": "high",
+        "basis": "SS content consistent with canonical alpha/beta hydrolase fold (central beta-sheet flanked by alpha-helices)"
+      },
+      {
+        "fold": "TIM barrel (alpha/beta barrel)",
+        "scop_id": "c.1",
+        "cath_id": "3.20.20",
+        "confidence": "moderate",
+        "basis": "SS content and shape compatible with (beta/alpha)8 barrel topology"
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 381,
+    "exposed": {
+      "count": 99,
+      "fraction": 0.26
+    },
+    "partial": {
+      "count": 116,
+      "fraction": 0.304
+    },
+    "buried": {
+      "count": 166,
+      "fraction": 0.436
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.861,
+      "std": 2.625
+    },
+    "surface_net_charge": 0,
+    "surface_positive_residues": 21,
+    "surface_negative_residues": 21,
+    "total_sasa": 19214.4,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 29,
+        "end_resid": 31,
+        "length": 3,
+        "mean_hydrophobicity": 3.13
+      },
+      {
+        "start_resid": 125,
+        "end_resid": 127,
+        "length": 3,
+        "mean_hydrophobicity": 1.83
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "MHPk_step1_predicted_surface_profile.png",
+    "exposure_pie": "MHPk_step1_predicted_exposure_pie.png"
+  },
+  "surface_csv": "MHPk_step1_predicted_surface.csv"
+}
