@@ -1,8 +1,9 @@
 # Agent 2 — Deterministic structural description
 
 Geometric measurement and spatial-pattern description of predicted protein
-structures. Consumes Agent 1 output (PDB / mmCIF + sidecar metadata) and
-emits structured JSON / CSV / PNG for Agent 3 interpretation.
+structures. Final node of Stage 1: consumes Agent 1 output (PDB / mmCIF +
+sidecar metadata) and emits the Stage 1 bundle — synthesis markdown plus
+structured JSON / CSV / PNG — for Stage 2 (Agent 3+) consumption.
 
 Operates strictly in measurement / description mode — no biological
 interpretation of what structures mean.
@@ -43,12 +44,12 @@ The intended workflow:
 
    > "Run Agent 2 on `./data/`."
    > "Analyse the structures in `./src/agent_1/step1_results/`."
-   > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
+   > "Use `src/stage_1/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
 
-3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs
+3. Claude reads `src/stage_1/agent_2/SKILL.md`, follows its decision tree, runs
    the four scripts on each structure, and presents the assembled result.
 
-The skill currently lives inside the codebase at `src/agent_2/SKILL.md`,
+The skill currently lives inside the codebase at `src/stage_1/agent_2/SKILL.md`,
 not at a Claude-Code-auto-discovery path. Until that changes, the skill
 will not auto-trigger on uploads or keywords — you have to point Claude at
 it once per session (or install it; see below).
@@ -57,7 +58,7 @@ it once per session (or install it; see below).
 
 ```bash
 mkdir -p .claude/skills
-ln -s ../../src/agent_2 .claude/skills/protein-analysis
+ln -s ../../src/stage_1/agent_2 .claude/skills/protein-analysis
 ```
 
 After this, opening Claude Code in the repo root will surface the skill
@@ -67,7 +68,7 @@ list in `SKILL.md`).
 
 ### claude.ai
 
-Package `src/agent_2/` (the `SKILL.md`, `scripts/`, and `references/`
+Package `src/stage_1/agent_2/` (the `SKILL.md`, `scripts/`, and `references/`
 subtree) and install it as a skill in your claude.ai workspace. Then:
 
 1. Upload one or more structure files in a conversation.
@@ -88,47 +89,38 @@ debugging, scripting, or one-off use; it bypasses the orchestration in
 Per-script signatures are documented in §Internals below.
 
 ```bash
-python src/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./out
+python src/stage_1/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./out
 ```
 
 ## Environment differences — claude.ai vs Claude Code
 
-Same `SKILL.md`, same scripts, different runtime. Deltas worth remembering
-before picking a path:
+Same `SKILL.md`, same scripts, different runtime. Stage 1's contract is
+uniform across environments: synthesis markdown plus the JSON / CSV / PNG
+bundle. Polished deliverables (PDF, HTML dashboard) live in Stage 2 and
+are out of scope here.
 
-1. **Pipeline framing is real only in Claude Code.** Agent 0 → 1 → 2 → 3
-   chains via filesystem. claude.ai has no shared state across agents and
-   treats Agent 2 as a standalone analyser.
-2. **claude.ai gets polished deliverables for free.** PDF + React HTML
-   dashboard come from built-in skills (`/mnt/skills/public/pdf/`,
-   `/mnt/skills/public/frontend-design/`) that `SKILL.md` Step 9 wires
-   into. In Claude Code those skills do not exist; report rendering is
-   improvised in-session (e.g. inline markdown + base64-embedded PNG HTML)
-   or deferred to Agent 3.
-3. **Persistence inverts the iteration model.** Claude Code: outputs
+1. **Pipeline framing is real only in Claude Code.** Stage 1 (Agent 0 → 1 →
+   2) chains via filesystem; Stage 2 reads the bundle. claude.ai has no
+   shared state across agents and treats Agent 2 as a standalone analyser.
+2. **Persistence inverts the iteration model.** Claude Code: outputs
    persist in the repo, re-runs are diffable, scripts are editable and
    version-controlled. claude.ai: ephemeral container — fixes evaporate at
    session end, every run starts fresh, no cross-session cache.
-4. **Neither path is push-button yet.** `SKILL.md` is not symlinked under
+3. **Neither path is push-button yet.** `SKILL.md` is not symlinked under
    `.claude/skills/protein-analysis/` for Claude Code auto-discovery, and
    not packaged for claude.ai upload. Both work today only when Claude is
    pointed at `SKILL.md` explicitly.
 
 **Practical fit:**
 
-- *claude.ai* → ad-hoc single-structure analysis with a polished report.
+- *claude.ai* → ad-hoc single-structure analysis.
 - *Claude Code* → pipeline use, batch processing, iteration on the agent
-  itself. No free rendering layer.
-
-**Open question for future work.** `SKILL.md` Step 9's PDF / HTML branch
-assumes the external skills exist and silently fails outside claude.ai.
-Candidate fix: detect the environment and fall back to inline rendering
-when the built-in skills are absent.
+  itself.
 
 ## Architecture
 
 ```
-src/agent_2/
+src/stage_1/agent_2/
 ├── SKILL.md                          # Claude skill — orchestration decision tree
 ├── README.md                         # This file (agent contract)
 ├── modal_app.py                      # Modal wrapper for batch rendering on /scratch
@@ -189,10 +181,11 @@ not consumed by Agent 2 scripts.
 
 All plots are 300 DPI PNG. All JSON is indented for diff-friendliness.
 
-Final report formatting (PDF, interactive HTML dashboard) is **not** produced
-by Agent 2. `SKILL.md` delegates those to external Claude Code skills
-(`/mnt/skills/public/pdf/`, `/mnt/skills/public/frontend-design/`) when run
-in skill mode. Agent 2's contract ends at JSON / CSV / PNG.
+Agent 2 also emits a `<batch_id>_stage1_synthesis.md` — the human-readable
+Stage 1 synthesis assembled by `SKILL.md` Step 9. Polished deliverables (PDF,
+interactive HTML dashboard) are **not** Stage 1's concern; Stage 2 owns
+presentation. Agent 2's contract ends at the synthesis markdown plus the
+JSON / CSV / PNG bundle.
 
 ## Internals — per-script reference
 
@@ -368,6 +361,6 @@ CPU only — no GPU required for any Agent 2 script.
    misleading for multi-domain or oligomeric inputs. Per-chain or
    per-domain classification needed.
 4. **Skill not at an auto-discovery path.** `SKILL.md` is at
-   `src/agent_2/SKILL.md`, not `.claude/skills/protein-analysis/`. Until
+   `src/stage_1/agent_2/SKILL.md`, not `.claude/skills/protein-analysis/`. Until
    symlinked or installed, Claude Code does not auto-trigger the skill on
    structure-file references — you have to point Claude at it explicitly.
