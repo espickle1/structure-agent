@@ -1,225 +1,298 @@
-# Protein Structure Analysis Skill (v3)
+# Agent 2 — Deterministic structural description
 
-A reproducible, agentic pipeline for protein structure analysis. Drop a PDB or mmCIF file into Claude and get a standardized analysis — parsing, multi-structure comparison, binding site detection, and interaction classification — assembled into a PDF report.
+Geometric measurement and spatial-pattern description of predicted protein
+structures. Consumes Agent 1 output (PDB / mmCIF + sidecar metadata) and
+emits structured JSON / CSV / PNG for Agent 3 interpretation.
 
----
+Operates strictly in measurement / description mode — no biological
+interpretation of what structures mean.
 
-## What's New in v3
+The user-facing entry point is **Claude itself** (Claude Code in this repo,
+or claude.ai with the skill installed). Claude reads `SKILL.md`, runs the
+scripts in the right order, and assembles the result. Direct script
+invocation exists as a debug / fallback path; it is not the primary surface.
 
-- **Identity-agnostic analysis.** Phase 1 never identifies a protein by name or function.
-  Filenames are opaque labels. Fold classification reports structural categories, not
-  specific protein names. Literature search targets observed features, not guessed identities.
-- **User context intake.** The agent asks for biological context (organism, function, known
-  features) in free-text form. Context is validated against structural data, feeds into
-  literature search, and is transparently reported.
-- **Disorder gate.** After initial scripts run, the agent assesses whether the structure
-  contains sufficient ordered content for meaningful analysis. Uses structural signals only
-  (SS content, SASA, shape metrics, missing residues) — not pLDDT or B-factors. If the
-  structure is predominantly disordered, the agent says so directly instead of generating
-  a report full of meaningless metrics.
-- **Structural context search.** Literature search is keyed to observed features — fold
-  class, cofactor coordination, domain architecture, unusual structural elements.
-  Results are framed as structural analogy ("this fold is characteristic of..."),
-  never as identification ("this protein is...").
-- **Consistency gate.** User-provided claims are cross-checked against Phase 1 output.
-  Discrepancies are flagged, not silently accepted.
-- **Disulfide bonds removed.** No longer detected, reported, or mentioned in any output.
+## Scope (Zone discipline)
 
----
+Per the project's architectural rules:
+
+- **Zone 1** — direct geometric measurement. Distances, angles, RMSD,
+  SASA, radius of gyration, asphericity, residue contacts.
+- **Zone 2** — spatial pattern description. Secondary-structure content,
+  shape classification, fold-class assignment by SS/shape signature,
+  pocket composition, interaction-type counts.
+- **Zone 3** — interpretation. Function inference, identity assignment,
+  mechanistic reasoning. **Forbidden in Agent 2.** Lives in Agent 3.
+
+Identity-agnostic: filenames are opaque labels. Fold classification reports
+structural categories, never specific protein names.
+
+Metadata passthrough: any sidecar metadata from Agent 1 is forwarded to
+Agent 3 unmodified. It never influences geometric measurements.
+
+Errors are logged, not escalated. No human-in-the-loop.
+
+## How to run
+
+### Claude Code (in this repo)
+
+The intended workflow:
+
+1. Open Claude Code at the repo root.
+2. Ask Claude to analyse a directory of structures, e.g.:
+
+   > "Run Agent 2 on `./data/`."
+   > "Analyse the structures in `./src/agent_1/step1_results/`."
+   > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
+
+3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs
+   the four scripts on each structure, and presents the assembled result.
+
+The skill currently lives inside the codebase at `src/agent_2/SKILL.md`,
+not at a Claude-Code-auto-discovery path. Until that changes, the skill
+will not auto-trigger on uploads or keywords — you have to point Claude at
+it once per session (or install it; see below).
+
+**Optional — make the skill auto-discoverable in this repo:**
+
+```bash
+mkdir -p .claude/skills
+ln -s ../../src/agent_2 .claude/skills/protein-analysis
+```
+
+After this, opening Claude Code in the repo root will surface the skill
+automatically on any `.pdb` / `.cif` / `.mmcif` reference or relevant
+keywords (binding pocket, RMSD, AlphaFold, pLDDT, etc. — see the trigger
+list in `SKILL.md`).
+
+### claude.ai
+
+Package `src/agent_2/` (the `SKILL.md`, `scripts/`, and `references/`
+subtree) and install it as a skill in your claude.ai workspace. Then:
+
+1. Upload one or more structure files in a conversation.
+2. The skill auto-triggers on `.pdb` / `.cif` / `.mmcif` extensions or on
+   keywords like "binding pocket", "superposition", "AlphaFold".
+3. The skill installs Python dependencies in the ephemeral container at
+   runtime, runs the scripts, and assembles the result.
+
+DSSP (`mkdssp`) is required for secondary-structure assignment in
+`surface_analysis.py`. Confirm the runtime container has it before relying
+on the claude.ai path.
+
+### Direct CLI (debug / fallback)
+
+You can run any script by hand without Claude in the loop. This is for
+debugging, scripting, or one-off use; it bypasses the orchestration in
+`SKILL.md` (no disorder gate, no multi-structure routing, no validation).
+Per-script signatures are documented in §Internals below.
+
+```bash
+python src/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./out
+```
 
 ## Architecture
 
 ```
-protein-analysis/
-├── SKILL.md                          # Orchestration decision tree
-├── README.md                         # This file
+src/agent_2/
+├── SKILL.md                          # Claude skill — orchestration decision tree
+├── README.md                         # This file (agent contract)
 ├── scripts/
 │   ├── parse_structure.py            # Structure parsing & metadata extraction
 │   ├── compare_structures.py         # Multi-structure superposition & RMSD
-│   ├── binding_site.py               # Ligand detection & pocket analysis
+│   ├── binding_site.py               # Ligand detection & pocket / interaction analysis
 │   └── surface_analysis.py           # SASA, surface properties, shape, fold classification
 └── references/
-    └── interpretation_guide.md       # Passive reference for result contextualization
+    └── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
 ```
 
-**SKILL.md** is the orchestrator. It contains the decision tree that routes inputs to the correct scripts in the correct order. No code snippets — pure workflow logic.
+The four scripts are independent. They do not import each other and do not
+share state. Each takes a structure file (and optional flags), emits files
+into `--output-dir`, and prints a human-readable summary to stdout.
 
-**Scripts** are the Phase 1 standardized baseline. They run identically every time with fixed parameters. They are never modified during a session.
+`SKILL.md` is the orchestration layer Claude follows. It is allowed to
+diverge from this README — README documents the agent's contract and how
+to invoke it; SKILL.md documents how a Claude session orchestrates the
+internals.
 
-**interpretation_guide.md** is a passive reference. Claude reads it after scripts produce results to contextualize numbers, flag significance, and apply domain-specific interpretation.
+`references/interpretation_guide.md` is a passive document for Agent 3 (or
+a Claude session running the skill) to consult during synthesis. Agent 2's
+scripts never read it.
 
----
+## Inputs and outputs
 
-## Installation
+**Inputs** (typical paths):
 
-### Claude Code (preferred)
+- `./data/` — ad-hoc structure files you drop in for analysis.
+- `./src/agent_1/step1_results/` — predicted structures from Agent 1
+  (available once Agent 1 is implemented; Agent 1 is currently designed
+  but not yet coded).
+- Anywhere else — point Claude at any directory containing PDB or mmCIF.
 
-Place the `protein-analysis/` directory in your project's skill location, or install the packaged `.skill` file.
+Optional sidecar metadata from Agent 1 is forwarded by the orchestrator,
+not consumed by Agent 2 scripts.
 
-Dependencies (installed automatically by the skill):
+**Outputs (per structure):**
 
-```
-pip install biopython matplotlib numpy scipy pandas seaborn
-apt-get install dssp
-```
+- `<stem>_metadata.json` — chain inventory, residues / atoms, ligands /
+  metals, AlphaFold detection, resolution, B-factor / pLDDT stats.
+- `<stem>_surface_analysis.json` + `<stem>_surface.csv` +
+  `<stem>_surface_profile.png` + `<stem>_exposure_pie.png` — SASA,
+  hydrophobicity, charge, secondary structure, shape metrics, fold class.
+- `<stem>_binding_sites.json` + per-ligand `<stem>_<lig>_<chain><resid>_pocket.csv`
+  + `<stem>_<lig>_<chain><resid>_summary.png` — pocket composition and
+  interaction classification (only if non-solvent ligands are present).
+- `<reference_stem>_comparisons.json` + per-pair `<ref>_vs_<query>_chain<X>_deviations.csv`
+  + `<ref>_vs_<query>_chain<X>_deviation.png` + `<ref>_vs_<query>_chain<X>_bfactor.png`
+  — superposition stats, per-residue deviations, B-factor / pLDDT
+  comparison (only if multiple structures are provided).
 
-### claude.ai
+All plots are 300 DPI PNG. All JSON is indented for diff-friendliness.
 
-Upload structure files directly. The skill installs dependencies in the ephemeral container at runtime.
+Final report formatting (PDF, interactive HTML dashboard) is **not** produced
+by Agent 2. `SKILL.md` delegates those to external Claude Code skills
+(`/mnt/skills/public/pdf/`, `/mnt/skills/public/frontend-design/`) when run
+in skill mode. Agent 2's contract ends at JSON / CSV / PNG.
 
----
+## Internals — per-script reference
 
-## Usage
+You normally do not invoke these directly. `SKILL.md` runs them on your
+behalf. Documented here so you can audit what the orchestrator is doing,
+or invoke a single script for debugging.
 
-Upload one or more structure files and ask Claude to analyze them. Examples:
+### `parse_structure.py`
 
-- "Analyze this structure"
-- "Compare these two PDB files"
-- "What's in the binding site?"
-- "Give me a full structural analysis"
-
-The skill triggers on `.pdb`, `.cif`, and `.mmcif` files, and on keywords like superposition, RMSD, binding pocket, B-factor, pLDDT, and AlphaFold.
-
----
-
-## Two-Phase Workflow
-
-### Phase 1: Standardized Analysis
-
-Every structure gets the same treatment. Same scripts, same parameters, same output format.
-
-Pipeline order:
-1. Detect inputs
-2. Gather user context (free-text, optional)
-3. `parse_structure.py` on every uploaded file
-4. `surface_analysis.py` on every uploaded file
-5. **Disorder gate** — assess whether structure has sufficient ordered content
-6. `compare_structures.py` if multiple structures are provided
-7. `binding_site.py` if any structure contains non-solvent ligands
-8. Validate user context against structural data
-9. Read interpretation guide
-10. **Structural context search** — literature search keyed to observed features
-11. Assemble PDF report
-
-If any script fails, the pipeline halts and presents the error.
-
-### Phase 2: Iterative Consultation
-
-After Phase 1 completes, Claude presents findings and offers targeted follow-up. Bespoke code is written only here, at the user's direction, to investigate specific questions arising from the standardized results.
-
-New user context can arrive at any point during Phase 2. Phase 1 data doesn't change — interpretation adjusts.
-
----
-
-## Analysis Priorities
-
-1. **Fold, shape & surface** — overall architecture, fold classification, surface character
-2. **Comparative / multi-structure analysis** — superposition, RMSD, conformational changes
-3. **Binding sites & ligand interactions** — pocket detection, interaction classification
-4. **Structure quality & validation** — B-factors/pLDDT, chain breaks, resolution caveats
-5. **Sequence-structure mapping** — SASA, conservation, mutation context (typically Phase 2)
-
----
-
-## Design Decisions
-
-| Decision | Setting |
-|---|---|
-| Error handling | Halt on script failure, present error to user |
-| Phase 1 parameters | Fixed — no user overrides; parameter changes are Phase 2 work |
-| Multi-structure reference | First uploaded file is reference unless user specifies otherwise |
-| Chain matching | By sequence length (5% tolerance), ties broken by sequence identity |
-| Default deliverable | PDF report |
-| Ligand exclusion | Built-in list of solvents, ions, and crystallization additives; user can extend |
-| Pocket cutoff | 5.0 Å (fixed in Phase 1) |
-| Deviation threshold | 2.0 Å Cα displacement defines "high-deviation" regions |
-| Interaction cutoffs | H-bond: 3.5 Å, salt bridge: 4.0 Å, hydrophobic: 4.5 Å, π-stack: 5.5 Å |
-| Identity inference | Never in Phase 1; structural description only |
-| Disorder assessment | Structure-derived signals only; not pLDDT or B-factor based |
-| Disulfide bonds | Not detected or reported |
-| User context | Free-text, validated against data, transparently reported |
-
----
-
-## Deliverable Formats
-
-- **PDF report** (default) — Executive summary, user context, structure overview, comparative analysis, binding sites, structural context, quality notes, methods
-- **Interactive HTML dashboard** — React single-file artifact with tabbed sections and interactive plots
-- **Raw data + figures** — CSV/TSV files and 300 DPI PNG plots
-- **All of the above**
-
----
-
-## Scripts
-
-### parse_structure.py
-
-```
+```bash
 python parse_structure.py <structure_file> [--output-dir <dir>]
 ```
 
-Reads PDB or mmCIF. Auto-detects format and AlphaFold predictions. Outputs `<stem>_metadata.json` and a human-readable summary to stdout.
+Reads PDB or mmCIF. Auto-detects format and AlphaFold predictions
+(heuristic: filename + B-factor distribution + missing resolution).
 
-### compare_structures.py
+**Outputs:** `<stem>_metadata.json` + human-readable summary to stdout.
 
-```
-python compare_structures.py <reference> <query1> [query2 ...] [--output-dir <dir>]
-```
+### `compare_structures.py`
 
-Compares queries against the reference. Produces per-comparison RMSD statistics, per-residue deviation CSVs, deviation profile plots, and B-factor comparison plots. Outputs `<reference_stem>_comparisons.json`.
-
-### binding_site.py
-
-```
-python binding_site.py <structure_file> [--output-dir <dir>] [--exclude-ligands HOH,SO4]
+```bash
+python compare_structures.py <reference> <query1> [<query2> ...] [--output-dir <dir>]
 ```
 
-Finds non-solvent ligands, defines pockets via KD-tree neighbor search, classifies interactions, computes pocket composition. Outputs `<stem>_binding_sites.json`, pocket CSVs, and summary plots.
+Greedy chain matching by sequence length (5 % tolerance, ties broken by
+sequence identity), Cα superposition via SVD, per-residue deviation
+profile, high-deviation region detection (contiguous stretches above
+2.0 Å), B-factor / pLDDT comparison plots.
 
-### surface_analysis.py
+**Outputs:** `<reference_stem>_comparisons.json` + per matched chain per
+query: `<ref>_vs_<query>_chain<X>_deviations.csv`,
+`<ref>_vs_<query>_chain<X>_deviation.png`,
+`<ref>_vs_<query>_chain<X>_bfactor.png`.
 
+### `binding_site.py`
+
+```bash
+python binding_site.py <structure_file> [--output-dir <dir>] \
+                       [--cutoff <Å>] [--exclude-ligands HOH,SO4,...]
 ```
+
+Finds non-solvent ligands, defines pockets via KD-tree neighbour search at
+`--cutoff` (default 5.0 Å), classifies interactions (H-bond, salt bridge,
+hydrophobic contact, π-stack), computes pocket composition by chemical
+class.
+
+**Flags:**
+
+- `--cutoff <float>` — pocket definition radius in Å (default 5.0).
+  Phase-1 default; override only for Phase-2 / bespoke work.
+- `--exclude-ligands HOH,SO4,...` — comma-separated residue names to add
+  to the built-in exclusion list (see §Fixed parameters).
+
+**Outputs:** `<stem>_binding_sites.json` + per ligand:
+`<stem>_<lig>_<chain><resid>_pocket.csv`,
+`<stem>_<lig>_<chain><resid>_summary.png`.
+
+### `surface_analysis.py`
+
+```bash
 python surface_analysis.py <structure_file> [--output-dir <dir>]
 ```
 
-Computes per-residue SASA (Shrake-Rupley) and exposure classification, surface hydrophobicity (Kyte-Doolittle), charge distribution, secondary structure (DSSP), shape metrics (radius of gyration, asphericity, principal dimensions), and fold classification (SCOP class + common fold matching with SCOP/CATH identifiers). Outputs `<stem>_surface_analysis.json`, per-residue CSV, surface profile plot, and exposure distribution plot.
+Per-residue SASA (Shrake–Rupley) and exposure classification, surface
+hydrophobicity (Kyte–Doolittle), charge distribution at pH 7, hydrophobic
+patch detection, secondary structure (DSSP via `mkdssp`, with PDB-record
+fallback), shape metrics (radius of gyration, asphericity, principal-axis
+ratios), and fold classification (SCOP class + canonical-fold matching with
+SCOP / CATH IDs).
 
----
+**Outputs:** `<stem>_surface_analysis.json`, `<stem>_surface.csv`,
+`<stem>_surface_profile.png`, `<stem>_exposure_pie.png`.
 
-## Ligand Exclusion List
+## Fixed parameters
 
-The following are excluded from ligand analysis by default:
+Phase 1 parameters are fixed. Per-run overrides exist only where a flag is
+documented above (`binding_site.py --cutoff`, `--exclude-ligands`).
+Parameter sweeps are Phase-2 / bespoke work, not Agent 2's concern.
 
-**Water:** HOH, WAT, H2O, DOD
+| Parameter                | Value  | Source                                |
+| ------------------------ | ------ | ------------------------------------- |
+| Pocket cutoff            | 5.0 Å  | `binding_site.py:75` `POCKET_CUTOFF`  |
+| H-bond distance          | 3.5 Å  | `binding_site.py:71` `HBOND_DIST_CUTOFF` |
+| Salt bridge distance     | 4.0 Å  | `binding_site.py:72` `SALT_BRIDGE_CUTOFF` |
+| Hydrophobic contact      | 4.5 Å  | `binding_site.py:73` `HYDROPHOBIC_CUTOFF` |
+| π-stack centroid         | 5.5 Å  | `binding_site.py:74` `PI_STACK_CUTOFF` |
+| High-deviation threshold | 2.0 Å  | `compare_structures.py:54` `DEVIATION_THRESHOLD` |
+| Chain-match tolerance    | 5 %    | `compare_structures.py:118` `length_tolerance` |
+| Disorder gate signals    | structural only | SS content, SASA, shape, missing residues — **never** pLDDT or B-factor |
+| Disulfide bonds          | not detected | by design; not reported in any output |
 
-**Common ions:** NA, CL, K, CA, MG, ZN, FE, MN, CO, CU, NI, CD, SO4, PO4, NO3
+### Ligand exclusion list
 
-**Crystallization additives:** GOL, EDO, PEG, PGE, MPD, DMS, ACT, FMT, TRS, CIT, BME, EOH, IMD, EPE, MES, IPA, CAC
+Residues skipped by ligand analysis by default (in `parse_structure.py` and
+`binding_site.py`):
 
-**Buffer components:** HED, TAR, MLI, BIG, BCT
+- **Water**: HOH, WAT, H2O, DOD
+- **Common ions / metals**: NA, CL, K, CA, MG, ZN, FE, MN, CO, CU, NI, CD,
+  SO4, PO4, NO3
+- **Crystallisation additives**: GOL, EDO, PEG, PGE, MPD, DMS, ACT, FMT,
+  TRS, CIT, BME, EOH, IMD, EPE, MES, IPA, CAC
+- **Buffer components**: HED, TAR, MLI, BIG, BCT
+- **Unknowns**: UNX, UNL, UNK
 
-**Unknowns:** UNX, UNL, UNK
+Extend per-run via `binding_site.py --exclude-ligands` (or ask Claude to
+extend the list).
 
-Users can extend this list via `--exclude-ligands` or specify replacements during Phase 2.
+## Dependencies
 
----
-
-## Open Architectural Questions
-
-1. **Multiple protein complexes** — Interface analysis at subunit boundaries (treating inter-chain interfaces like binding sites). Decision logic to be added to SKILL.md.
-2. **Function inference** — Confident annotation requires external databases (UniProt, Pfam, EC) or user input. Fold-level structural analogy is possible but always framed as inference, not identification.
-3. **Phylogeny and functional annotation as inputs** — Upgrades interpretation from descriptive to hypothesis-driven. Conservation scores distinguish constrained positions from drift; known function prioritizes mechanistically relevant findings.
-4. **Sequence-based identification** — BLAST or similar searches are out of scope for this skill; best handled by a dedicated sequence analysis agent.
-5. **Chain matching tolerance** — The 5% length tolerance is too strict when signal peptides are present. Pairwise sequence alignment fallback should be integrated.
-6. **Per-domain fold classification** — Averaging SS content over multi-chain complexes is misleading. Per-chain or per-domain classification needed for oligomeric structures.
-
----
-
-## Requirements
+When run via Claude (Claude Code or claude.ai), `SKILL.md` installs
+dependencies on first use. For direct CLI use you install them yourself:
 
 - Python 3.10+
-- BioPython
-- matplotlib, seaborn
-- numpy, scipy, pandas
-- DSSP (mkdssp) — for secondary structure assignment
-- No GPU required — all computation is lightweight CPU work
+- `biopython`, `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`
+- `mkdssp` (DSSP binary) for secondary structure assignment
+
+```bash
+pip install biopython matplotlib numpy scipy pandas seaborn
+
+# DSSP binary
+apt-get install -y dssp                  # Debian / Ubuntu / Modal containers
+brew install brewsci/bio/dssp            # macOS
+```
+
+CPU only — no GPU required for any Agent 2 script.
+
+## Known limitations / open questions
+
+1. **Multiple-protein interface analysis.** Inter-chain interfaces in
+   oligomeric complexes are not currently treated as binding sites. Decision
+   logic still owed.
+2. **Chain-matching tolerance is brittle.** The 5 % length tolerance fails
+   when signal peptides, expression tags, or unresolved termini cause
+   length mismatch between otherwise-identical chains. Pairwise sequence
+   alignment fallback should be added in `compare_structures.py:match_chains`.
+3. **Per-domain fold classification.** `surface_analysis.py` averages SS
+   content over the full structure (or full multi-chain complex), which is
+   misleading for multi-domain or oligomeric inputs. Per-chain or
+   per-domain classification needed.
+4. **Skill not at an auto-discovery path.** `SKILL.md` is at
+   `src/agent_2/SKILL.md`, not `.claude/skills/protein-analysis/`. Until
+   symlinked or installed, Claude Code does not auto-trigger the skill on
+   structure-file references — you have to point Claude at it explicitly.
