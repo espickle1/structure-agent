@@ -131,11 +131,13 @@ when the built-in skills are absent.
 src/agent_2/
 ├── SKILL.md                          # Claude skill — orchestration decision tree
 ├── README.md                         # This file (agent contract)
+├── modal_app.py                      # Modal wrapper for batch rendering on /scratch
 ├── scripts/
 │   ├── parse_structure.py            # Structure parsing & metadata extraction
 │   ├── compare_structures.py         # Multi-structure superposition & RMSD
 │   ├── binding_site.py               # Ligand detection & pocket / interaction analysis
-│   └── surface_analysis.py           # SASA, surface properties, shape, fold classification
+│   ├── surface_analysis.py           # SASA, surface properties, shape, fold classification
+│   └── render_views.py               # Mol* axis-aligned cartoon renders (3 views per structure)
 └── references/
     └── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
 ```
@@ -180,6 +182,10 @@ not consumed by Agent 2 scripts.
   + `<ref>_vs_<query>_chain<X>_deviation.png` + `<ref>_vs_<query>_chain<X>_bfactor.png`
   — superposition stats, per-residue deviations, B-factor / pLDDT
   comparison (only if multiple structures are provided).
+- `<stem>_render_views.json` + `<stem>_axis{1,2,3}.png` — three axis-aligned
+  cartoon views (down long / mid / short principal axis) and a sidecar with
+  camera parameters and color mode. Soft-fails: a missing render is logged
+  to `render_failures/<stem>/<view>.{mvsj,error}` and the pipeline continues.
 
 All plots are 300 DPI PNG. All JSON is indented for diff-friendliness.
 
@@ -244,6 +250,33 @@ class.
 `<stem>_<lig>_<chain><resid>_pocket.csv`,
 `<stem>_<lig>_<chain><resid>_summary.png`.
 
+### `render_views.py`
+
+```bash
+python render_views.py <structure_file> [--output-dir <dir>] \
+                       [--color {pLDDT,chain}] [--size 1024x1024]
+```
+
+Three axis-aligned cartoon renders driven by Mol* (`mvs-render`) with
+molviewspec-built scenes. Camera vectors come from the inertia tensor of
+the Cα coordinates (long / mid / short principal axes); the script computes
+them itself and does not consume any other Agent 2 output.
+
+Default coloring is pLDDT via the mmCIF `atom_site.B_iso_or_equiv` field
+(matches Boltz-2 outputs). `--color chain` switches to a per-chain palette.
+
+**Flags:**
+
+- `--color {pLDDT,chain}` — coloring scheme (default `pLDDT`).
+- `--size <W>x<H>` — image size in pixels (default `1024x1024`).
+
+**Outputs:** `<stem>_render_views.json` + `<stem>_axis1.png`,
+`<stem>_axis2.png`, `<stem>_axis3.png`. Per-view failures land in
+`render_failures/<stem>/<view>.{mvsj,error}` and do not stop the run.
+
+**Fixed parameters:** 30° vertical FOV (15° half-angle) for camera distance,
+1024×1024 image size, 60 s mvs-render timeout per view, minimum 10 Cα atoms.
+
 ### `surface_analysis.py`
 
 ```bash
@@ -302,13 +335,21 @@ dependencies on first use. For direct CLI use you install them yourself:
 - Python 3.10+
 - `biopython`, `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`
 - `mkdssp` (DSSP binary) for secondary structure assignment
+- `molviewspec` (Python) and `mvs-render` (Mol* CLI, shipped with the
+  `molstar` npm package) for `render_views.py`. Headless GL libs
+  (`libgl1`, `libglu1-mesa`, `libxi6`, `libxext6`) are required on Linux
+  containers.
 
 ```bash
-pip install biopython matplotlib numpy scipy pandas seaborn
+pip install biopython matplotlib numpy scipy pandas seaborn molviewspec
 
 # DSSP binary
 apt-get install -y dssp                  # Debian / Ubuntu / Modal containers
 brew install brewsci/bio/dssp            # macOS
+
+# Mol* CLI for render_views.py
+apt-get install -y nodejs npm libgl1 libglu1-mesa libxi6 libxext6   # Debian / Ubuntu
+npm install -g molstar                                              # provides mvs-render
 ```
 
 CPU only — no GPU required for any Agent 2 script.

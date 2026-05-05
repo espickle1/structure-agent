@@ -72,6 +72,21 @@ For mmCIF files, also install gemmi:
 pip install --break-system-packages -q gemmi
 ```
 
+Install Mol* CLI for structure renders. **Soft-fail:** if any of these
+commands fail (e.g. claude.ai sandbox without npm global install), log the
+warning and continue — `render_views.py` will be skipped per-structure later
+and the report will note "Renders unavailable" instead of HALTing the
+pipeline.
+
+```
+apt-get install -y -qq nodejs npm libgl1 libglu1-mesa libxi6 libxext6 \
+    || echo "WARN: GL/Node install failed — renders will be skipped"
+npm install -g molstar@latest \
+    || echo "WARN: molstar install failed — renders will be skipped"
+pip install --break-system-packages -q molviewspec \
+    || echo "WARN: molviewspec install failed — renders will be skipped"
+```
+
 Copy uploaded structure files from `/mnt/user-data/uploads/` to `/home/claude/work/`.
 Create an output directory: `/home/claude/work/results/`.
 
@@ -213,6 +228,29 @@ B-factors as primary disorder evidence — low confidence in a structure predict
 not necessarily mean disorder, and high B-factors in experimental structures may reflect
 anisotropic motion in a well-folded protein.
 
+### Step 4c: Render Structure Views (Every Surviving Structure)
+
+For every structure that passes the disorder gate (predominantly disordered
+structures are skipped — rendering uniformly coiled chains is wasted work),
+run:
+
+```
+python scripts/render_views.py <file> --output-dir results/
+```
+
+Produces three axis-aligned cartoon views (`axis1` long, `axis2` mid,
+`axis3` short) plus a `<stem>_render_views.json` sidecar with camera params.
+Default coloring is pLDDT (B-factor column).
+
+**Renders are presentation-layer, not measurement.** Unlike Steps 2/4/5/6, a
+non-zero exit from `render_views.py` is **logged and skipped, not HALT-ed**.
+Per-view failures inside the script also log and continue (the script returns
+0 even if some views failed). The agent's contract (JSON/CSV) is unaffected.
+Possible failure causes: Phase 0 install failed, `mvs-render` missing,
+headless GL unavailable. If the script exits non-zero or all three views
+fail, note "Renders unavailable for `<stem>`" in the Step 9 report and
+proceed.
+
 ### Step 5: Binding Site Analysis (If Ligands Present)
 
 Check the parse metadata: does `has_ligands` == true for any structure?
@@ -257,6 +295,8 @@ After all scripts complete, gather:
 - All `*_surface_analysis.json` files
 - All `*_comparisons.json` files (if comparative)
 - All `*_binding_sites.json` files (if ligands present)
+- All `*_render_views.json` files and `*_axis{1,2,3}.png` renders (when
+  rendering succeeded — may be absent for some or all structures)
 - All PNG plots
 - All CSV files
 
@@ -354,6 +394,14 @@ Report structure:
    If no context: "No prior biological context provided."
 3. **Structure overview** — Metadata table for each structure (chains, residues,
    resolution, source, ligands). Flag AlphaFold predictions explicitly.
+3b. **Structural views** — For each structure, embed the three axis-aligned
+   renders as a row: `axis1` (down long axis), `axis2` (mid), `axis3` (short).
+   Caption with the per-axis dimensions from `<stem>_render_views.json`'s
+   `cameras` block ("Long axis ≈ X Å, mid ≈ Y Å, short ≈ Z Å") and the color
+   mode used. If a structure has no usable renders (Phase 0 install failed,
+   or all three views failed), state "Renders unavailable for `<stem>`" and
+   continue without inserting a placeholder image. For HTML dashboard mode,
+   include the same row in each per-structure card.
 4. **Fold & shape** — Overall fold classification (SCOP class, closest fold match),
    shape (globular, elongated, etc.), dimensions, secondary structure content.
    Include the secondary structure strip in the sequence view.
