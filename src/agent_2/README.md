@@ -91,6 +91,40 @@ Per-script signatures are documented in §Internals below.
 python src/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./out
 ```
 
+## Environment differences — claude.ai vs Claude Code
+
+Same `SKILL.md`, same scripts, different runtime. Deltas worth remembering
+before picking a path:
+
+1. **Pipeline framing is real only in Claude Code.** Agent 0 → 1 → 2 → 3
+   chains via filesystem. claude.ai has no shared state across agents and
+   treats Agent 2 as a standalone analyser.
+2. **claude.ai gets polished deliverables for free.** PDF + React HTML
+   dashboard come from built-in skills (`/mnt/skills/public/pdf/`,
+   `/mnt/skills/public/frontend-design/`) that `SKILL.md` Step 9 wires
+   into. In Claude Code those skills do not exist; report rendering is
+   improvised in-session (e.g. inline markdown + base64-embedded PNG HTML)
+   or deferred to Agent 3.
+3. **Persistence inverts the iteration model.** Claude Code: outputs
+   persist in the repo, re-runs are diffable, scripts are editable and
+   version-controlled. claude.ai: ephemeral container — fixes evaporate at
+   session end, every run starts fresh, no cross-session cache.
+4. **Neither path is push-button yet.** `SKILL.md` is not symlinked under
+   `.claude/skills/protein-analysis/` for Claude Code auto-discovery, and
+   not packaged for claude.ai upload. Both work today only when Claude is
+   pointed at `SKILL.md` explicitly.
+
+**Practical fit:**
+
+- *claude.ai* → ad-hoc single-structure analysis with a polished report.
+- *Claude Code* → pipeline use, batch processing, iteration on the agent
+  itself. No free rendering layer.
+
+**Open question for future work.** `SKILL.md` Step 9's PDF / HTML branch
+assumes the external skills exist and silently fails outside claude.ai.
+Candidate fix: detect the environment and fall back to inline rendering
+when the built-in skills are absent.
+
 ## Architecture
 
 ```
