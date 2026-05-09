@@ -92,10 +92,17 @@ The pipeline runs primarily on [Modal](https://modal.com). Each agent's
 
 ### Stage 1 quick start
 
+> **Important:** all `python` and `modal` commands below must be run from
+> `src/stage_1/`, not from the repo root. The agents import each other as
+> top-level packages (`from agent_0.X import Y`), which only resolve when
+> `src/stage_1/` is the working directory. Running from the repo root or
+> passing full script paths will raise `ModuleNotFoundError: No module
+> named 'agent_0'`.
+
 ```bash
 # From the repo root:
 source .venv/bin/activate
-cd src/stage_1
+cd src/stage_1          # required — stay here for all commands below
 
 # Deploy each Modal app (one-time per change):
 modal deploy agent_0/modal_app.py
@@ -112,6 +119,7 @@ python agent_0/orchestrator.py <input.fasta> [...]
 ### Local tests
 
 ```bash
+source .venv/bin/activate
 cd src/stage_1
 python -m pytest agent_0/test_fast_path.py -v
 ```
