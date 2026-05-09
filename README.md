@@ -93,7 +93,8 @@ The pipeline runs primarily on [Modal](https://modal.com). Each agent's
 ### Stage 1 quick start
 
 ```bash
-# From the repo root, with .venv activated:
+# From the repo root:
+source .venv/bin/activate
 cd src/stage_1
 
 # Deploy each Modal app (one-time per change):
