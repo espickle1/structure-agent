@@ -1,0 +1,12 @@
+mvs-render exit 1: node:internal/modules/cjs/loader:1478
+  throw err;
+  ^
+
+Error: Cannot find module 'gl'
+Require stack:
+- /opt/homebrew/lib/node_modules/molstar/lib/commonjs/cli/mvs/mvs-render.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1475:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1048:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1072:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1093:12)
+    at Module._load (no

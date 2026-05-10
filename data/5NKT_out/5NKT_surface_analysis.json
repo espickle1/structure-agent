@@ -1,0 +1,80 @@
+{
+  "file": "5NKT.cif",
+  "shape": {
+    "radius_of_gyration": 15.82,
+    "asphericity": 0.3472,
+    "principal_eigenvalues": [
+      181.68,
+      37.56,
+      31.07
+    ],
+    "axis_ratios": {
+      "long_mid": 4.84,
+      "long_short": 5.85
+    },
+    "approximate_dimensions": {
+      "long_axis": 50.2,
+      "mid_axis": 24.1,
+      "short_axis": 22.2,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 151
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 4,
+      "fraction": 0.026
+    },
+    "sheet": {
+      "count": 88,
+      "fraction": 0.583
+    },
+    "coil": {
+      "count": 59,
+      "fraction": 0.391
+    },
+    "total_assigned": 151
+  },
+  "fold_classification": {
+    "scop_class": "all-beta",
+    "fold_candidates": [
+      {
+        "fold": "immunoglobulin-like beta-sandwich",
+        "scop_id": "b.1",
+        "cath_id": "2.60.40",
+        "confidence": "moderate",
+        "basis": "High beta-sheet content with minimal helix, consistent with beta-sandwich"
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 151,
+    "exposed": {
+      "count": 22,
+      "fraction": 0.146
+    },
+    "partial": {
+      "count": 42,
+      "fraction": 0.278
+    },
+    "buried": {
+      "count": 87,
+      "fraction": 0.576
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.414,
+      "std": 2.53
+    },
+    "surface_net_charge": 2,
+    "surface_positive_residues": 2,
+    "surface_negative_residues": 0,
+    "total_sasa": 4202.5,
+    "hydrophobic_patches": []
+  },
+  "plots": {
+    "surface_profile": "5NKT_surface_profile.png",
+    "exposure_pie": "5NKT_exposure_pie.png"
+  },
+  "surface_csv": "5NKT_surface.csv"
+}

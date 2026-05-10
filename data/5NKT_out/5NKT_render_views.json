@@ -1,0 +1,71 @@
+{
+  "file": "5NKT.cif",
+  "format": "mmcif",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "views": {},
+  "cameras": {
+    "axis1": {
+      "position": [
+        -18.422,
+        20.472,
+        -72.515
+      ],
+      "target": [
+        -10.181,
+        12.577,
+        -28.46
+      ],
+      "up": [
+        0.973,
+        -0.112,
+        -0.202
+      ],
+      "distance": 45.509
+    },
+    "axis2": {
+      "position": [
+        90.969,
+        0.951,
+        -49.463
+      ],
+      "target": [
+        -10.181,
+        12.577,
+        -28.46
+      ],
+      "up": [
+        0.143,
+        0.978,
+        0.149
+      ],
+      "distance": 103.96
+    },
+    "axis3": {
+      "position": [
+        4.717,
+        114.299,
+        -13.017
+      ],
+      "target": [
+        -10.181,
+        12.577,
+        -28.46
+      ],
+      "up": [
+        -0.181,
+        0.173,
+        -0.968
+      ],
+      "distance": 103.96
+    }
+  },
+  "failures": {
+    "axis1": "mvs-render exit 1: node:internal/modules/cjs/loader:1478\n  throw err;\n  ^\n\nError: Cannot find module 'gl'\nRequire stack:\n- /opt/homebrew/lib/node_modules/molstar/lib/commonjs/cli/mvs/mvs-render.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1475:15)\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1048:27)\n    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1072:10)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1093:12)\n    at Module._load (no",
+    "axis2": "mvs-render exit 1: node:internal/modules/cjs/loader:1478\n  throw err;\n  ^\n\nError: Cannot find module 'gl'\nRequire stack:\n- /opt/homebrew/lib/node_modules/molstar/lib/commonjs/cli/mvs/mvs-render.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1475:15)\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1048:27)\n    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1072:10)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1093:12)\n    at Module._load (no",
+    "axis3": "mvs-render exit 1: node:internal/modules/cjs/loader:1478\n  throw err;\n  ^\n\nError: Cannot find module 'gl'\nRequire stack:\n- /opt/homebrew/lib/node_modules/molstar/lib/commonjs/cli/mvs/mvs-render.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1475:15)\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1048:27)\n    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1072:10)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1093:12)\n    at Module._load (no"
+  }
+}
