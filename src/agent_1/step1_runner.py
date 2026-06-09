@@ -14,8 +14,9 @@ Usage (from local machine):
                            --output-dir ./step1_results/
 
 Design notes:
-- This is a local driver, not deployed to Modal. It invokes the remote
-  function via `modal_app.predict_structure.remote(...)`.
+- This is a local driver, not deployed to Modal. It looks up the deployed
+  functions by name via `modal.Function.from_name(app.name, ...)` and calls
+  `.remote(...)`, so `modal deploy modal_app.py` must have run first.
 - The CIF is written to the local output dir so validate.py can run
   without any Modal dependency.
 - Boltz runtime and GPU cost are logged for the beta-calibration record.
@@ -26,7 +27,13 @@ import json
 import time
 from pathlib import Path
 
-from modal_app import fetch_cif, predict_structure
+import modal
+
+# Bind to the *deployed* app (run `modal deploy modal_app.py` first). Importing
+# the function objects from modal_app and calling .remote() on them only works
+# inside an `with app.run():` context; looking them up by name attaches to the
+# already-running deployment, which is the deploy-then-run workflow we use.
+from modal_app import app
 
 
 def parse_fasta(fasta_path: Path) -> tuple[str, str]:
@@ -53,6 +60,10 @@ def main():
     args = ap.parse_args()
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Look up the deployed functions by name (the app must already be deployed).
+    predict_structure = modal.Function.from_name(app.name, "predict_structure")
+    fetch_cif = modal.Function.from_name(app.name, "fetch_cif")
 
     header, sequence = parse_fasta(args.fasta)
     print(f"[step1] FASTA header: {header}")

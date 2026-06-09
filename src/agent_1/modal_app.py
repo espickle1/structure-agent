@@ -36,15 +36,15 @@ AGENT1_STEP = "step1_standalone"
 # ---------------------------------------------------------------------------
 # Container image
 # ---------------------------------------------------------------------------
-# Baking Boltz weights into the image (via `boltz predict --help` run after
-# install) is not sufficient — weights download on first actual prediction.
-# Instead we do a tiny throwaway prediction during image build to prime the
-# weight cache in /root/.boltz. This makes cold starts significantly faster
-# for all downstream invocations.
+# This image installs Boltz but does NOT pre-download its weights at build
+# time. The first prediction pays the one-time weight-download cost (~few
+# minutes into /root/.boltz); subsequent invocations on the same warm
+# container reuse them. Pre-caching is deferred as an optimization — get the
+# happy path working first (see README_step1.md "Image build weight caching").
 #
-# NOTE: if the tiny warm-up prediction proves too slow/unreliable during
-# image build, an alternative is to download the weights archive directly
-# from the Boltz release and place them in /root/.boltz during build.
+# To pre-cache later, add a build step here: either a `.run_function()` that
+# runs a tiny throwaway prediction to prime /root/.boltz, or download the
+# weights archive directly from the Boltz release and place them there.
 
 image = (
     modal.Image.debian_slim(python_version=PYTHON_VERSION)
@@ -56,6 +56,13 @@ image = (
         extra_options="--extra-index-url https://download.pytorch.org/whl/cu121",
     )
 )
+# NOTE: we deliberately do NOT install NVIDIA cuequivariance. Boltz-2's
+# Pairformer can run its triangular multiplicative update through cuequivariance
+# CUDA kernels, but those only ship for cu12 and would drag in a CUDA-12 nvrtc
+# stack that conflicts with this image's cu13 torch (it shadows torch's own
+# nvrtc and breaks PyTorch's JIT). We run with `--no_kernels` instead (see the
+# boltz command below), which uses the pure-PyTorch path — fine at single-
+# monomer scale. Revisit kernel acceleration if throughput becomes a concern.
 
 # ---------------------------------------------------------------------------
 # Modal Volume — scratch location for Step 1 output
@@ -77,10 +84,15 @@ def _write_boltz_yaml(sequence: str, structure_id: str, stoichiometry: int, work
     chain_ids = [chr(ord("A") + i) for i in range(stoichiometry)]
     lines = ["version: 1", "sequences:"]
     for cid in chain_ids:
+        # `msa: empty` selects single-sequence mode (v1 design: no MSA). It is
+        # required: without an explicit msa key, Boltz-2 aborts with "Missing
+        # MSA's in input and --use_msa_server flag not set" — it does NOT
+        # silently default to single-sequence.
         lines += [
             f"  - protein:",
             f"      id: {cid}",
             f"      sequence: {sequence}",
+            f"      msa: empty",
         ]
     yaml_path = workdir / f"{structure_id}.yaml"
     yaml_path.write_text("\n".join(lines) + "\n")
@@ -162,8 +174,10 @@ def predict_structure(
     # 1. Write the Boltz YAML input
     yaml_path = _write_boltz_yaml(sequence, structure_id, stoichiometry, workdir)
 
-    # 2. Run Boltz predict as subprocess
-    #    --use_msa_server is FALSE by default in v1 (we're single-sequence).
+    # 2. Run Boltz predict as subprocess.
+    #    Single-sequence mode is selected by `msa: empty` in the YAML (see
+    #    _write_boltz_yaml), NOT by omitting --use_msa_server. We deliberately
+    #    do not pass --use_msa_server (v1 is single-sequence per design doc).
     #    --output_format mmcif gives us .cif output (matches PDB convention
     #    and what Agent 2 v4.0 prefers).
     out_dir = workdir / "out"
@@ -177,9 +191,12 @@ def predict_structure(
         "--diffusion_samples", str(diffusion_samples),
         "--output_format", "mmcif",
         "--use_potentials",  # Boltz-2 steering potentials (default good)
+        "--no_kernels",      # pure-PyTorch triangle ops; skips the cuequivariance
+                             # CUDA kernels (not installed — see image note above).
     ]
-    # NOTE: no MSA in v1 (per design doc). Boltz's default is single-sequence
-    # unless --use_msa_server is passed.
+    # NOTE: single-sequence per v1 design doc — the `msa: empty` key in the
+    # input YAML is what enables it. Boltz-2 does NOT default to single-sequence;
+    # without msa: empty (and without --use_msa_server) it aborts.
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:

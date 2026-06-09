@@ -26,6 +26,8 @@ Usage:
         --reference /path/to/rcsb_pdb_6EQE.cif
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path

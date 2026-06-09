@@ -219,3 +219,10 @@ __marimo__/
 
 # Claude Code project instructions
 CLAUDE.md
+
+# macOS
+.DS_Store
+
+# Agent 1 — local prediction outputs and reference data (downloadable / generated)
+src/agent_1/step1_results/
+src/agent_1/test_data/
