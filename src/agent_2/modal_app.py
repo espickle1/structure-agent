@@ -39,17 +39,30 @@ image = (
     modal.Image.debian_slim(python_version="3.12")
     .apt_install(
         "curl",
+        "build-essential",
+        "pkg-config",
+        "xvfb",                  # virtual framebuffer — node-gl needs an X display
         "libgl1",
+        "libglu1-mesa",
         "libxi6",
         "libxext6",
-        "libglu1-mesa",
-        "build-essential",
+        "libgl1-mesa-dev",       # headers to build the node `gl` (headless-gl) module
+        "libxi-dev",
+        "libxext-dev",
+        "libcairo2-dev",         # node-canvas build deps (molstar's image backend)
+        "libpango1.0-dev",
+        "libjpeg-dev",
+        "libgif-dev",
+        "librsvg2-dev",
     )
     .run_commands(
         "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -",
         "apt-get install -y nodejs",
-        "npm install -g molstar@latest",
+        # `gl` (headless-gl) is the WebGL backend mvs-render requires; install it
+        # in the same global node_modules as molstar.
+        "npm install -g molstar@latest canvas gl jpeg-js pngjs",
     )
+    .env({"NODE_PATH": "/usr/lib/node_modules"})  # let mvs-render resolve global `gl`
     .pip_install(
         "molviewspec",
         "biopython",
@@ -75,7 +88,7 @@ app = modal.App("agent_2-render")
     image=image,
     cpu=2,
     memory=2048,
-    timeout=180,
+    timeout=600,
     volumes={"/scratch": SCRATCH_VOLUME},
 )
 def render_structure_remote(
