@@ -1,0 +1,88 @@
+{
+  "file": "6EQE.cif",
+  "shape": {
+    "radius_of_gyration": 19.81,
+    "asphericity": 0.166,
+    "principal_eigenvalues": [
+      233.17,
+      105.06,
+      54.06
+    ],
+    "axis_ratios": {
+      "long_mid": 2.22,
+      "long_short": 4.31
+    },
+    "approximate_dimensions": {
+      "long_axis": 81.1,
+      "mid_axis": 45.9,
+      "short_axis": 33.0,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 298
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "sheet": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "coil": {
+      "count": 298,
+      "fraction": 1.0
+    },
+    "total_assigned": 298,
+    "source": "unavailable",
+    "reliable": false
+  },
+  "fold_classification": {
+    "scop_class": "undetermined (secondary structure unavailable)",
+    "fold_candidates": [],
+    "note": "DSSP unavailable; SS could not be assigned, so fold class is not determined. Install DSSP (mkdssp) for classification."
+  },
+  "surface_stats": {
+    "total_residues": 298,
+    "exposed": {
+      "count": 82,
+      "fraction": 0.275
+    },
+    "partial": {
+      "count": 74,
+      "fraction": 0.248
+    },
+    "buried": {
+      "count": 142,
+      "fraction": 0.477
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.083,
+      "std": 2.489
+    },
+    "surface_net_charge": 8.6,
+    "surface_positive_residues": 15,
+    "surface_negative_residues": 1,
+    "total_sasa": 12966.9,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 12,
+        "end_resid": 15,
+        "length": 4,
+        "mean_hydrophobicity": 2.9
+      },
+      {
+        "start_resid": 18,
+        "end_resid": 21,
+        "length": 4,
+        "mean_hydrophobicity": 2.92
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "6EQE_surface_profile.png",
+    "exposure_pie": "6EQE_exposure_pie.png"
+  },
+  "surface_csv": "6EQE_surface.csv"
+}
