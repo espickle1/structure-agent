@@ -99,12 +99,10 @@ before picking a path:
 1. **Pipeline framing is real only in Claude Code.** Agent 0 → 1 → 2 → 3
    chains via filesystem. claude.ai has no shared state across agents and
    treats Agent 2 as a standalone analyser.
-2. **claude.ai gets polished deliverables for free.** PDF + React HTML
-   dashboard come from built-in skills (`/mnt/skills/public/pdf/`,
-   `/mnt/skills/public/frontend-design/`) that `SKILL.md` Step 9 wires
-   into. In Claude Code those skills do not exist; report rendering is
-   improvised in-session (e.g. inline markdown + base64-embedded PNG HTML)
-   or deferred to Agent 3.
+2. **Report rendering is identical in both.** Step 9 emits a self-contained
+   markdown report (`scripts/assemble_report.py` + in-session synthesis) with
+   no dependency on claude.ai's built-in PDF / `frontend-design` skills. The
+   old claude.ai-only "polished deliverable" asymmetry is gone.
 3. **Persistence inverts the iteration model.** Claude Code: outputs
    persist in the repo, re-runs are diffable, scripts are editable and
    version-controlled. claude.ai: ephemeral container — fixes evaporate at
@@ -116,14 +114,13 @@ before picking a path:
 
 **Practical fit:**
 
-- *claude.ai* → ad-hoc single-structure analysis with a polished report.
+- *claude.ai* → ad-hoc single-structure analysis.
 - *Claude Code* → pipeline use, batch processing, iteration on the agent
-  itself. No free rendering layer.
+  itself. Same self-contained markdown report either way.
 
-**Open question for future work.** `SKILL.md` Step 9's PDF / HTML branch
-assumes the external skills exist and silently fails outside claude.ai.
-Candidate fix: detect the environment and fall back to inline rendering
-when the built-in skills are absent.
+**Resolved.** Step 9 previously assumed claude.ai's external PDF/HTML skills and
+silently failed elsewhere; it now emits self-contained markdown via
+`scripts/assemble_report.py`, produced identically in Claude Code and claude.ai.
 
 ## Architecture
 
@@ -137,9 +134,11 @@ src/agent_2/
 │   ├── compare_structures.py         # Multi-structure superposition & RMSD
 │   ├── binding_site.py               # Ligand detection & pocket / interaction analysis
 │   ├── surface_analysis.py           # SASA, surface properties, shape, fold classification
-│   └── render_views.py               # Mol* axis-aligned cartoon renders (3 views per structure)
+│   ├── render_views.py               # Mol* axis-aligned cartoon renders (3 views per structure)
+│   └── assemble_report.py            # Deterministic markdown report (facts + figures + profile matrix)
 └── references/
-    └── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
+    ├── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
+    └── profiles/                     # Optional expected-parameter profiles (+ schema README)
 ```
 
 The four scripts are independent. They do not import each other and do not
@@ -161,9 +160,11 @@ scripts never read it.
 
 - `./data/` — ad-hoc structure files you drop in for analysis.
 - `./src/agent_1/step1_results/` — predicted structures from Agent 1
-  (available once Agent 1 is implemented; Agent 1 is currently designed
-  but not yet coded).
+  (ESMFold2-Fast; one CIF per folded record).
 - Anywhere else — point Claude at any directory containing PDB or mmCIF.
+- *(optional)* expected-parameter profiles from `references/profiles/` — pass
+  one or more to flag deviations against an explicit baseline (see that dir's
+  README).
 
 Optional sidecar metadata from Agent 1 is forwarded by the orchestrator,
 not consumed by Agent 2 scripts.
@@ -187,12 +188,18 @@ not consumed by Agent 2 scripts.
   camera parameters and color mode. Soft-fails: a missing render is logged
   to `render_failures/<stem>/<view>.{mvsj,error}` and the pipeline continues.
 
+- `<stem>_analysis.md` — the markdown analysis report. `scripts/assemble_report.py`
+  fills it with deterministic facts, embedded figures, the prediction-quality /
+  coherence signals, and an expected-parameter comparison matrix; the Claude
+  session then fills the marked synthesis sections (executive summary,
+  independent observations, coherence assessment, "what cannot be determined"),
+  each claim cited to a measurement.
+
 All plots are 300 DPI PNG. All JSON is indented for diff-friendliness.
 
-Final report formatting (PDF, interactive HTML dashboard) is **not** produced
-by Agent 2. `SKILL.md` delegates those to external Claude Code skills
-(`/mnt/skills/public/pdf/`, `/mnt/skills/public/frontend-design/`) when run
-in skill mode. Agent 2's contract ends at JSON / CSV / PNG.
+Report formatting is **self-contained markdown** — no PDF/HTML or external-skill
+dependency, identical in Claude Code and claude.ai. (An optional PDF is a
+separate render step if ever wanted; the embedded figures carry over.)
 
 ## Internals — per-script reference
 

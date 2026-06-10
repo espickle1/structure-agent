@@ -4,8 +4,8 @@ description: >
   End-to-end protein structure analysis from PDB, mmCIF, or AlphaFold prediction files.
   Performs structure parsing, quality validation, binding site detection, ligand interaction
   analysis, and multi-structure comparison (superposition, RMSD, conformational changes).
-  Produces PDF reports, interactive HTML dashboards, and raw data with publication-quality
-  figures. Use this skill whenever the user uploads or references a protein structure file
+  Produces a markdown analysis report with embedded publication-quality figures, plus the
+  raw data (JSON/CSV/PNG). Use this skill whenever the user uploads or references a protein structure file
   (.pdb, .cif, .mmcif), mentions protein structure analysis, asks about binding pockets,
   active sites, structural alignment, superposition, RMSD, Ramachandran analysis, B-factors,
   ligand interactions, or any structural biology workflow. Also trigger for AlphaFold
@@ -33,7 +33,7 @@ written during iterative consultation with the user (Phase 2).
 **Error handling:** If any script exits non-zero, HALT the pipeline and present the error
 to the user. Do not skip failed analyses or attempt workarounds.
 
-**Default deliverable:** PDF report unless the user requests otherwise.
+**Default deliverable:** a markdown synthesis report (`results/<stem>_analysis.md`) — deterministic facts assembled by a script, interpretive sections authored here. No external PDF/HTML skill dependency; runs the same in Claude Code and claude.ai.
 
 ---
 
@@ -129,7 +129,7 @@ from nothing to extensive annotation. Examples of what users might provide:
 - Classify each claim as **checkable** (can be validated against Phase 1 output) or
   **contextual** (steers interpretation but cannot be confirmed from structure alone).
 - Checkable claims will be cross-validated after Phase 1 scripts run (see Step 7b).
-- Contextual claims feed into literature search (Step 8b) and synthesis weighting (Step 9).
+- Contextual claims feed synthesis weighting (Step 9); literature grounding is Agent 3's job.
 
 **If the user provides nothing:** Proceed with identity-agnostic analysis. Note in the
 report: "No prior biological context provided; all findings derived from structural observation."
@@ -341,95 +341,60 @@ Read `references/interpretation_guide.md`. Use it to:
 Do NOT parrot the guide. Synthesize findings into a coherent narrative that a structural
 biologist would find useful.
 
-### Step 8b: Structural Context Search
+### Step 8b: (literature context → Agent 3 / Stage 2)
 
-Search literature to contextualize observed structural features. This step uses
-**web search** keyed to structural observations — never to filenames, never to guessed
-protein names.
+Agent 2 does **no web/literature search**. Identity-, homolog-, and
+literature-grounded interpretation is Zone 3 and belongs to Agent 3 (Foldseek +
+PubMed). Hand off the structural observations — and any expected-parameter
+consistency hypotheses from Step 9 — as seeds for Agent 3; do not search the web
+here.
 
-**Search by what you observe, not by what you think the protein is.**
+### Step 9: Assemble the Markdown Report
 
-Construct search queries from Phase 1 outputs in this priority order:
+Produce one markdown report, `results/<stem>_analysis.md`, in two layers.
 
-1. **Fold class:** Search for the identified fold and its functional landscape.
-   Example: "alpha/beta hydrolase fold catalytic mechanism" or "TIM barrel active site
-   geometry." This returns what proteins with this architecture typically do.
+**(a) Deterministic facts — run the assembler. Do NOT hand-transcribe numbers.**
 
-2. **Cofactor coordination geometry:** If metals or cofactors are present, search for
-   the coordination arrangement. Example: "histidine-coordinated magnesium
-   phosphotransfer" or "zinc tetrahedral coordination cysteine histidine." Coordination
-   geometry is structurally diagnostic.
+```
+python scripts/assemble_report.py <stem> --results-dir results/ \
+    [--profile references/profiles/<name>.md ...]
+```
 
-3. **Unusual structural elements:** Phase 1 may flag atypical features — proline kinks
-   in helices, unusually high coil content, extended loops, anomalous surface properties.
-   Search for these specifically. Example: "proline kink transmembrane helix function."
+It writes the report with every measured fact, the embedded figures, the
+prediction-quality / coherence signals, and the expected-parameter comparison
+matrix already filled — and leaves `<!-- SYNTHESIS ... -->` placeholder comments
+for you. Pass `--profile` once per expected-parameter profile the user selected
+(none is fine — the default for novel / low-homology targets; pass several to
+compare against multiple profiles at once). If the script exits non-zero: **HALT
+and present the error.**
 
-4. **Domain architecture (multi-chain / multi-domain):** Search by the combination of
-   domain types, not by individual domains. Example: "PAS domain coupled to histidine
-   phosphotransfer domain bacterial signaling."
+**(b) Synthesis — replace each `<!-- SYNTHESIS ... -->` placeholder** with prose
+you author from the measured facts plus the interpretation guide (Step 8):
 
-5. **User-provided context terms:** If the user provided organism, pathway, or function,
-   append these to observation-driven queries. "PAS domain" becomes "PAS domain bacterial
-   two-component signaling" if the user said it's in a signaling system.
+- **Cite every claim** to the specific measurement it rests on. No claim without
+  a number behind it.
+- **Executive summary** — 3–5 sentences, the most notable structural observations.
+- **Independent observations** — what is notable or unexpected from the
+  measurements + generic physical baselines **alone**; do **not** consult the
+  expected-parameter profiles here (that keeps it an independent lens). Flag
+  internal inconsistencies (e.g. fold class vs SS content). Anchor every
+  "unexpected" to the baseline you compared against.
+- **Coherence assessment** — state whether the structural-coherence signals
+  (compactness, core, coil, fold confidence) agree with the confidence score, or
+  whether a low pLDDT sits alongside a coherent fold (common for low-homology
+  targets). pLDDT is reported context, **never** a gate.
+- **What cannot be determined** — identity, function, mechanism, homology. These
+  are Agent 3's job; list them as the explicit handoff.
+- **Stay in Zone 1–2:** describe and compare. "Consistent with profile X" —
+  never "is an X." Leave the deterministic facts the assembler wrote intact; only
+  fill the placeholders.
 
-**Multiple-hypothesis framing:** Even when literature search returns strong hits, present
-them as structural analogs, not identifications. The language is "this fold is characteristic
-of proteins that..." not "this protein is a..." If fold class and cofactor coordination
-independently point to the same functional family, note the convergence — but still as
-structural inference, not identification.
-
-If no web search is available (e.g., sandboxed environment), skip this step and note it:
-"Literature contextualization unavailable in this environment. Interpretation is based
-on the interpretation guide and structural observations alone."
-
-### Step 9: Assemble Deliverable
-
-**Default: PDF report.** Read `/mnt/skills/public/pdf/SKILL.md` before generating.
-
-Report structure:
-1. **Executive summary** — Key findings in 3–5 sentences. What is most notable?
-   Frame in terms of structural observations, not protein identity.
-2. **User-provided context** — If any context was provided, state it here. Clearly
-   separate what was provided by the user from what was observed in the structure.
-   If no context: "No prior biological context provided."
-3. **Structure overview** — Metadata table for each structure (chains, residues,
-   resolution, source, ligands). Flag AlphaFold predictions explicitly.
-3b. **Structural views** — For each structure, embed the three axis-aligned
-   renders as a row: `axis1` (down long axis), `axis2` (mid), `axis3` (short).
-   Caption with the per-axis dimensions from `<stem>_render_views.json`'s
-   `cameras` block ("Long axis ≈ X Å, mid ≈ Y Å, short ≈ Z Å") and the color
-   mode used. If a structure has no usable renders (Phase 0 install failed,
-   or all three views failed), state "Renders unavailable for `<stem>`" and
-   continue without inserting a placeholder image. For HTML dashboard mode,
-   include the same row in each per-structure card.
-4. **Fold & shape** — Overall fold classification (SCOP class, closest fold match),
-   shape (globular, elongated, etc.), dimensions, secondary structure content.
-   Include the secondary structure strip in the sequence view.
-5. **Surface properties** — SASA distribution, surface hydrophobicity character,
-   charge distribution, hydrophobic patches, exposure statistics.
-6. **Comparative analysis** (if applicable) — RMSD table, high-deviation regions,
-   what drives the differences. Include deviation profile plots.
-7. **Binding site analysis** (if applicable) — For each ligand: pocket residues,
-   interaction counts, composition. Include summary plots. Flag quality concerns.
-8. **Structural context** — Literature-informed contextualization of observations.
-   Framed as "structures with these features are associated with..." not
-   "this protein is..." Note any convergence between independent structural signals.
-9. **Quality notes** — B-factor/pLDDT distributions, chain breaks, modified residues,
-   any red flags from the interpretation guide.
-10. **Context validation** (if user provided context) — Which claims were confirmed
-    by structural data, which had discrepancies, which could not be checked.
-11. **Methods** — Scripts used, fixed parameters, software versions.
-
-If the user requests a different format:
-- **Interactive HTML dashboard**: Read `/mnt/skills/public/frontend-design/SKILL.md`.
-  Single-file React artifact with tabbed sections, interactive plots (Recharts),
-  residue-level data tables.
-- **Raw data + figures**: Present all CSV and PNG files directly.
-- **All of the above**: Generate PDF first, then dashboard, then present raw files.
+The report is the deliverable bundle's human-readable centerpiece, alongside the
+machine-readable JSON/CSV and the figure PNGs from Step 7.
 
 ### Step 10: Present Results
 
-Present the PDF (or other deliverable) to the user. Include a brief spoken summary of
+Present the report (`results/<stem>_analysis.md`) to the user. Include a brief spoken summary of
 the most important findings — do not just dump the report without commentary.
 
 Then transition to Phase 2.
