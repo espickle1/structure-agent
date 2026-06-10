@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Project: Agent 1 local test fixtures (regenerable; not tracked) ---
+# Reference structures / FASTAs fetched from RCSB (incl. the large *-sf.cif
+# structure-factor files). Re-download from files.rcsb.org as needed.
+src/agent_1/test_data/
