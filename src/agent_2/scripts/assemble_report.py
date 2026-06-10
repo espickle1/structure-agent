@@ -232,6 +232,11 @@ def fold_shape_section(surf: dict) -> str:
     lines.append(f"- **Secondary structure:** helix {fmt_pct(_dig(ss, 'helix', 'fraction'))}, "
                  f"sheet {fmt_pct(_dig(ss, 'sheet', 'fraction'))}, "
                  f"coil {fmt_pct(_dig(ss, 'coil', 'fraction'))}")
+    if ss.get("reliable") is False:
+        lines.append("- **⚠ Secondary structure unavailable** "
+                     f"(source: {ss.get('source', '?')}) — the SS fractions above are "
+                     "not a real measurement (DSSP missing); fold class and any "
+                     "disorder assessment are unreliable until DSSP is installed.")
     lines.append(f"- **Fold class:** {fold.get('scop_class', '—')}")
     for c in (fold.get("fold_candidates") or [])[:3]:
         lines.append(f"  - {c.get('fold')} (SCOP {c.get('scop_id')}, CATH {c.get('cath_id')}; "

@@ -201,7 +201,15 @@ def compute_surface_properties(sasa_data):
 # Secondary structure
 # =========================================================================
 def compute_secondary_structure(structure, filepath, fmt):
-    """Compute per-residue secondary structure using DSSP."""
+    """Compute per-residue secondary structure.
+
+    Returns (assignments, content). `content` carries `source` and `reliable`:
+    DSSP is the only path that yields trustworthy SS here. The mmCIF fallback in
+    `extract_ss_from_file` does NOT parse SS records, so a DSSP failure on an
+    mmCIF (e.g. an ESMFold2 / AlphaFold prediction) yields all-coil — which is
+    not a measurement. Downstream (fold classification, disorder gate) must not
+    trust SS when `reliable` is False.
+    """
     model = list(structure.get_models())[0]
 
     ss_assignments = []
@@ -235,6 +243,26 @@ def compute_secondary_structure(structure, filepath, fmt):
     if not dssp_success:
         ss_assignments = extract_ss_from_file(filepath, fmt, model)
 
+    # Reliability. DSSP is trustworthy. The PDB-record fallback is trustworthy
+    # only if it actually found helix/sheet; the mmCIF fallback never does, so
+    # all-coil-without-DSSP is NOT a real measurement.
+    found_ss = any(s["ss_simple"] in ("H", "E") for s in ss_assignments)
+    if dssp_success:
+        ss_source, reliable = "DSSP", True
+    elif found_ss:
+        ss_source, reliable = "file_records", True
+    else:
+        ss_source, reliable = "unavailable", False
+
+    if not reliable:
+        print(
+            "  WARNING: secondary structure UNAVAILABLE (DSSP missing and no SS "
+            "records parsed). All residues default to coil — this is NOT a real "
+            "measurement. Fold classification and the disorder gate are UNRELIABLE "
+            "for this structure; install DSSP (mkdssp) for valid SS.",
+            file=sys.stderr,
+        )
+
     # Compute content ratios
     if ss_assignments:
         codes = [s["ss_simple"] for s in ss_assignments]
@@ -253,6 +281,8 @@ def compute_secondary_structure(structure, filepath, fmt):
                    "sheet": {"count": 0, "fraction": 0},
                    "coil": {"count": 0, "fraction": 0}, "total_assigned": 0}
 
+    content["source"] = ss_source
+    content["reliable"] = reliable
     return ss_assignments, content
 
 
@@ -385,6 +415,16 @@ def classify_fold(ss_content, shape_metrics):
     Classify fold using SS content ratios + shape.
     Reports SCOP class and best-match common fold.
     """
+    # Fold class is driven entirely by SS content; if SS is unreliable (e.g. DSSP
+    # missing on an mmCIF → all-coil), do not emit a misleading classification.
+    if not ss_content.get("reliable", True):
+        return {
+            "scop_class": "undetermined (secondary structure unavailable)",
+            "fold_candidates": [],
+            "note": "DSSP unavailable; SS could not be assigned, so fold class is "
+                    "not determined. Install DSSP (mkdssp) for classification.",
+        }
+
     h_frac = ss_content["helix"]["fraction"]
     e_frac = ss_content["sheet"]["fraction"]
     c_frac = ss_content["coil"]["fraction"]
