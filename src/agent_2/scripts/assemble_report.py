@@ -199,20 +199,24 @@ def views_section(stem: str, results_dir: Path, img_prefix: str) -> str:
         lines.append("_Renders unavailable for this structure (Mol*/headless GL not "
                      "present, or rendering was skipped)._")
         return "\n".join(lines) + "\n"
-    caps = {"axis1": "down long axis", "axis2": "mid axis", "axis3": "short axis"}
     rv = results_dir / f"{stem}_render_views.json"
-    dims = {}
+    meta = {}
     if rv.exists():
         try:
-            dims = json.loads(rv.read_text())
+            meta = json.loads(rv.read_text())
         except (json.JSONDecodeError, OSError):
-            dims = {}
+            meta = {}
+    cams = meta.get("cameras", {})
+    default_caps = {"axis1": "down long axis", "axis2": "down mid axis", "axis3": "down short axis"}
     for a in present:
         key = a.stem.split("_")[-1]
-        lines.append(f"![{stem} — {caps.get(key, key)}]({img_prefix}{a.name})")
-    color = _dig(dims, "color_mode") or _dig(dims, "color") or "pLDDT"
-    lines.append("")
-    lines.append(f"_Axis-aligned cartoon views (long / mid / short principal axis); coloured by {color}._")
+        label = (cams.get(key) or {}).get("label") or default_caps.get(key, key)
+        lines.append(f"![{stem} — {label}]({img_prefix}{a.name})")
+        lines.append("")
+    color = meta.get("color_mode") or "pLDDT"
+    kind = ("Cα backbone trace (Agent 2.2 matplotlib placeholder)"
+            if meta.get("renderer") == "matplotlib-ca-trace" else "Mol* cartoon views")
+    lines.append(f"_{kind}, down the long / mid / short principal axes; coloured by {color}._")
     return "\n".join(lines) + "\n"
 
 
