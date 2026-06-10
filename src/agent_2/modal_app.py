@@ -60,7 +60,9 @@ image = (
         "apt-get install -y nodejs",
         # `gl` (headless-gl) is the WebGL backend mvs-render requires; install it
         # in the same global node_modules as molstar.
-        "npm install -g molstar@latest canvas gl jpeg-js pngjs",
+        # Pin molstar: @latest regressed the headless DOM path (document is not
+        # defined in PluginLayout). 4.11.0 is the docs-referenced mvs-render release.
+        "npm install -g molstar@4.11.0 canvas gl jpeg-js pngjs",
     )
     .env({"NODE_PATH": "/usr/lib/node_modules"})  # let mvs-render resolve global `gl`
     .pip_install(

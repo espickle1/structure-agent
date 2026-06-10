@@ -235,7 +235,7 @@ def run_mvs_render(scene_json: str, output_path: Path, size: tuple[int, int]):
             "mvs-render",
             "-i", str(scene_path),
             "-o", str(output_path),
-            "-s", f"{size[0]}x{size[1]}",
+            "--size", f"{size[0]}x{size[1]}",
         ]
         # Headless WebGL (node `gl`) needs an X display on Linux servers; run it
         # under a throwaway virtual framebuffer when xvfb-run is available.
