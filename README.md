@@ -1,19 +1,20 @@
 # structure-agent
 
 Multi-agent pipeline for high-throughput protein structure prediction and
-analysis, focused on phage receptor-binding proteins (RBPs) and
-metagenomic samples. Sequences in, structures + analysis out.
+analysis, focused on novel and metagenomic single-chain proteins — targets
+where homologs and MSAs are scarce. Sequences in, structures + analysis out.
 
 ## What it does
 
 Heterogeneous FASTA (DNA / RNA / protein, mixed quality) goes in. The
-pipeline cleans and translates it, predicts structures with Boltz-2,
-extracts deterministic geometric and surface measurements, and — in the
-exploratory half — surfaces structural homologs and the literature that
-has been published on them. The motivating use case is phage RBPs and
-metagenomes, where sequences arrive far faster than humans can analyse
-them; this repo is the automation layer between "we have sequences" and
-"we have something worth reading."
+pipeline cleans and translates it, predicts structures with ESMFold2-Fast
+(single-sequence, no MSA — suited to low-homology targets; Boltz-2 stays a
+documented fallback for multimers), extracts deterministic geometric and
+surface measurements, and — in the exploratory half — surfaces structural
+homologs and the literature that has been published on them. The motivating
+use case is novel and metagenomic proteins, where sequences arrive far
+faster than humans can analyse them; this repo is the automation layer
+between "we have sequences" and "we have something worth reading."
 
 ## Architecture: Stage 1 / Stage 2
 
@@ -32,7 +33,7 @@ See [STAGE_SPLIT.md](STAGE_SPLIT.md) for the full rationale.
 | Agent | Role | Status |
 | --- | --- | --- |
 | Agent 0 | Input preprocessing — FASTA cleanup, ORF selection, ESM-2 perplexity gate | Complete |
-| Agent 1 | Structure prediction orchestrator — Boltz-2 on Modal | Step 1 only (single-sequence proof) |
+| Agent 1 | Structure prediction orchestrator — ESMFold2-Fast on Modal (single-sequence); Boltz-2 fallback | Operational (batch fold + annotate) |
 | Agent 2 | Deterministic structural description — geometry, surface, binding sites, comparison | Complete (v4.0) |
 | Agent 3 | Foldseek-anchored homolog & literature retrieval | v0 designed, not coded |
 | Agent 4 | Literature search (PubMed) | Scaffolded directory only |
@@ -62,14 +63,14 @@ outputs from a deterministic measurement layer.
 
 ## Stack
 
-Python · BioPython · orfipy · ESM-2 650M · Boltz-2 · Modal (CPU + GPU
-apps) · DSSP · Mol*. Outputs: PDB / mmCIF, JSON sidecars, CSV, PNG,
-markdown synthesis.
+Python · BioPython · orfipy · ESM-2 650M · ESMFold2-Fast · Boltz-2 ·
+Modal (CPU + GPU apps) · DSSP · Mol*. Outputs: PDB / mmCIF, JSON sidecars,
+CSV, PNG, markdown synthesis.
 
 ## Pointers
 
 - Per-agent setup and invocation: [src/agent_0/README.md](src/agent_0/README.md),
-  [src/agent_1/README_step1.md](src/agent_1/README_step1.md),
+  [src/agent_1/README.md](src/agent_1/README.md),
   [src/agent_2/README.md](src/agent_2/README.md).
 - Stage 1 / Stage 2 design rationale: [STAGE_SPLIT.md](STAGE_SPLIT.md).
 - Architectural rules and working style: [CLAUDE.md](CLAUDE.md).

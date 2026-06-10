@@ -1,11 +1,11 @@
 # CLAUDE.md
 
-Multi-agent pipeline for high-throughput protein structure prediction and analysis, focused on phage receptor-binding proteins (RBPs) and metagenomic samples. Sequences in, structures + analysis out.
+Multi-agent pipeline for high-throughput protein structure prediction and analysis, focused on novel and metagenomic single-chain proteins — targets where homologs and MSAs are scarce. Sequences in, structures + analysis out.
 
 ## Agents
 
 - **Agent 0** (complete): heterogeneous nucleotide/protein FASTA → clean amino acid FASTA + provenance metadata. Stack: BioPython, orfipy, ESM-2 650M, Modal (CPU fast app + GPU slow app).
-- **Agent 1** (designed, not yet coded): structure prediction orchestrator. Runs Boltz-2, quality-gates, hands coordinates + metadata to Agent 2.
+- **Agent 1** (operational): structure prediction orchestrator. Folds single sequences with ESMFold2-Fast (no MSA) on Modal, annotates a mean-pLDDT confidence tier (never gates on quality), hands coordinates + metadata to Agent 2. Boltz-2 retained as a documented fallback for multimers (`src/agent_1/boltz_fallback/`).
 - **Agent 2** (complete, v4.0): deterministic structural description. Geometric measurements and spatial patterns only.
 - **Agent 3** (not started): interpretation layer.
 
@@ -26,6 +26,6 @@ Multi-agent pipeline for high-throughput protein structure prediction and analys
 ## Stack
 
 - Python; BioPython, orfipy, ESM-2 650M
-- Boltz-2 (production), ESMFold (cheap CPU pre-screen)
+- ESMFold2-Fast (production structure prediction; single-sequence, no MSA); Boltz-2 (documented fallback for multimers)
 - Modal (serverless GPU/CPU; CPU fast + GPU slow apps chained by orchestrator)
 - Outputs: PDB/mmCIF, JSON sidecars, PDF reports
