@@ -17,6 +17,8 @@ Exit codes:
     1 — fatal error (file not found, parse failure, no valid models)
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys
