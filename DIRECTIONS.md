@@ -4,7 +4,7 @@ How to deploy and run `structure-agent`. Assumes you have read [`README.md`](REA
 
 The pipeline runs four agents in sequence; each can also be invoked standalone. Below covers prerequisites, then per-agent deployment and invocation in pipeline order.
 
-> **Current state.** Agent 1 exists only as Step 1 — a standalone single-monomer Boltz-2 proof on Modal. Batch fan-out, orchestration, retry logic, and LLM intake are not yet implemented and are not covered here. Agent 2 is documented as a Claude skill; direct CLI invocation of its scripts is not covered.
+> **Current state.** Agent 1 is operational — ESMFold2-Fast on Modal with a batch orchestrator (covered below). Retry logic and LLM-driven intake are deferred. Agent 2 is documented as a Claude skill; direct CLI invocation of its scripts is not covered.
 
 ---
 
@@ -27,11 +27,11 @@ pip install modal
 modal token set --token-id <YOUR_ID> --token-secret <YOUR_SECRET>
 ```
 
-Confirm GPU access on your Modal account before deploying Agent 1 (A100 required).
+Confirm GPU access on your Modal account before deploying Agent 1 (ESMFold2-Fast runs on H100 by default; right-sizable to a cheaper GPU).
 
 ### Anthropic API key
 
-Stored as a Modal secret. Not used by Agent 0 or by Agent 1 Step 1. Will be needed when Agent 1's LLM intake step is implemented.
+Stored as a Modal secret. Not used by Agent 0 or Agent 1. Will be needed when Agent 1's LLM intake step is implemented.
 
 ### Claude harness (required for Agents 2 and 3)
 
@@ -90,69 +90,65 @@ See [`src/agent_0/README.md`](src/agent_0/README.md) for module-by-module detail
 
 ---
 
-## Agent 1 — structure prediction (Step 1)
+## Agent 1 — structure prediction
 
-**Scope of Step 1:** prove Boltz-2 runs cleanly on Modal and produces a usable prediction for a single monomer. No orchestration, no batch fan-out, no quality gate, no Agent 0 integration.
+ESMFold2-Fast (Biohub) on Modal — single-sequence, no MSA — folds Agent 0's curated FASTA into structures with confidence-annotated metadata for Agent 2. Operational: a warm-model Modal app plus a batch orchestrator.
 
-**Install local driver dependencies:**
-
-```bash
-pip install modal biopython numpy
-```
-
-**Deploy the Modal app:**
+**Install the local driver dependency:**
 
 ```bash
-cd src/agent_1
-modal deploy modal_app.py
+pip install modal
 ```
 
-The first invocation pulls Boltz weights (~few GB) and builds the container image. Subsequent runs reuse the cached image and volume.
+The fold runs on Modal; the orchestrator is a thin local driver. `validate.py` additionally needs `biopython numpy`.
 
-**Run a prediction:**
+**Deploy the fold app (one-time, or after image changes):**
 
 ```bash
-python step1_runner.py \
-    --fasta /path/to/input.fasta \
-    --output-dir ./step1_results/ \
-    --structure-id <run_id>
+modal deploy src/agent1/fold_app/modal_app.py
 ```
+
+The first deploy builds the `esm` image; the first fold downloads ESMFold2-Fast weights to a Modal Volume. Both are cached for subsequent runs.
+
+**Run a batch (from `src/`, so the `agent1` package imports):**
+
+```bash
+cd src
+python3 -m agent1.orchestrator \
+    --input-fasta /path/to/cleaned.faa \
+    [--sidecar /path/to/sidecar.jsonl] \
+    --output-dir /path/to/out/
+```
+
+`--input-fasta` is Agent 0's `cleaned.faa`; pass its `sidecar.jsonl` to carry Agent 0 metadata through unmodified. Without a sidecar, `parent_id` falls back to `record_id`.
 
 **Outputs (in `--output-dir`):**
 
-| File                          | Contents                                                                          |
-|-------------------------------|-----------------------------------------------------------------------------------|
-| `<run_id>_predicted.cif`      | Predicted structure                                                               |
-| `<run_id>_result.json`        | Confidence metrics, runtime, Boltz version, Modal scheduling overhead             |
+| File                          | Contents                                                                                          |
+|-------------------------------|---------------------------------------------------------------------------------------------------|
+| `structures/<record_id>.cif`  | Predicted structure, one per folded record                                                        |
+| `structures.jsonl`            | Per fold: pLDDT / pTM / iPTM, confidence tier, model, fold params, + Agent 0 metadata passthrough |
+| `rejections.jsonl`            | Per errored fold: stage, detail, passthrough. Fold failures are logged, not escalated             |
 
-**Validate against a reference:**
+**Confidence is annotated, not gated.** Every fold is emitted and tagged with a mean-pLDDT tier (`PLDDT_HIGH` / `PLDDT_MEDIUM` in `src/agent1/shared/config.py`, both **calibrate-on-real-data**). Agent 1 never rejects on quality; Agent 2 decides.
+
+**Validate against a reference (local, no GPU):**
 
 ```bash
-python validate.py \
-    --predicted ./step1_results/<run_id>_predicted.cif \
+python3 src/agent1/validate.py \
+    --predicted /path/to/out/structures/<record_id>.cif \
     --reference /path/to/reference.cif
 ```
 
-Reports BioPython-based Cα RMSD on the overlap region.
+Reports Cα RMSD over the residue-number overlap. Tolerant of minimal mmCIF — works on both ESMFold2 and RCSB / Boltz output.
 
-**Pinned versions:** Boltz `2.2.1`, Python `3.11`, A100 GPU.
+**Benchmarks (single-sequence, vs crystal):** 6EQE PETase 0.91 Å; 1UBQ ubiquitin 0.58 Å on the ordered core. Both are easy, well-characterized targets — they confirm the engine, not performance on the novel / metagenomic target class.
 
-**Step 1 success criteria — all four must hold:**
+**GPU:** the fold app requests H100; the 0.2B Fast model likely fits a cheaper GPU (A10G / L4). Right-size in `src/agent1/fold_app/modal_app.py` before scaling batches.
 
-1. Image builds and the Modal function runs end-to-end.
-2. Predicted CIF parses and residue count matches input within tolerance.
-3. Confidence metrics in expected range: `complex_plddt > 0.75`, `ptm > 0.7` for well-characterized targets.
-4. Global Cα RMSD < 2.5 Å on the overlap region.
+**Fallback:** the prior Boltz-2 Step 1 engine is preserved under `src/agent1/boltz_fallback/` — see its `README_step1.md`.
 
-**Cost expectations:** Modal A100 ~$3–4/GPU-hr. A 290 aa monomer at default recycling and sampling runs in 1–3 minutes — pennies per prediction. The one-time image build dominates upfront cost.
-
-**Known caveats:**
-
-- Residue numbering: experimental crystals start at the first resolved residue; predictions number from residue 1 of the submitted sequence. Validator falls back to recursive search if naive numbering matching fails.
-- Signal peptide and His-tag in the submitted FASTA fold as disordered extensions and inflate RMSD against the mature crystal. Inspect per-residue deviation to localize.
-- Boltz output path: parser looks for `<out_dir>/predictions/<stem>/<stem>_model_0.cif` then falls back to recursive `*_model_0.cif` search. Watch for parse errors if Boltz changes its layout.
-
-See [`src/agent_1/README_step1.md`](src/agent_1/README_step1.md) for the full Step 1 spec.
+See [`src/agent1/README.md`](src/agent1/README.md) for the full package spec.
 
 ---
 
@@ -272,6 +268,13 @@ Operator-tunable thresholds across the pipeline:
 | `PERPLEXITY_REJECT_ABOVE` | 15.0    | **Calibrate on real data**                |
 | `PERPLEXITY_TIE_FRACTION` | 0.15    | Multi-ORF emission band                   |
 
+**Agent 1** (`src/agent1/shared/config.py`):
+
+| Parameter      | Default | Notes                                  |
+|----------------|---------|----------------------------------------|
+| `PLDDT_HIGH`   | 0.90    | ≥ → HIGH tier (annotation, not a gate) |
+| `PLDDT_MEDIUM` | 0.70    | ≥ → MEDIUM; below → LOW. Calibrate.    |
+
 **Agent 2:** Phase 1 parameters fixed; override only in Phase 2.
 
 **Agent 3:** TM-score and e-value thresholds calibration-deferred. User can override per run.
@@ -283,7 +286,7 @@ Operator-tunable thresholds across the pipeline:
 | Agent   | Test                                       | Notes                                       |
 |---------|--------------------------------------------|---------------------------------------------|
 | Agent 0 | `pytest src/agent_0/test_fast_path.py`     | 17 fast-path tests, no Modal / GPU          |
-| Agent 1 | Step 1 success criteria above              | Image build + RMSD against a reference      |
+| Agent 1 | `validate.py` Cα RMSD vs a reference       | 6EQE 0.91 Å, 1UBQ 0.58 Å core (single-seq)  |
 | Agent 2 | None (yet)                                 | Skill is exercised manually via Claude      |
 | Agent 3 | None (yet)                                 | Agent is exercised manually via Claude      |
 
@@ -292,6 +295,6 @@ Operator-tunable thresholds across the pipeline:
 ## Where to find more detail
 
 - Agent 0: [`src/agent_0/README.md`](src/agent_0/README.md)
-- Agent 1: [`src/agent_1/README_step1.md`](src/agent_1/README_step1.md)
+- Agent 1: [`src/agent1/README.md`](src/agent1/README.md)
 - Agent 2: [`src/agent_2/README.md`](src/agent_2/README.md), [`src/agent_2/SKILL.md`](src/agent_2/SKILL.md)
 - Agent 3: [`src/agent_3/AGENT.foldseek-literature-retrieval.md`](src/agent_3/AGENT.foldseek-literature-retrieval.md), [`src/agent_3/OBJECT.foldseek_results.md`](src/agent_3/OBJECT.foldseek_results.md), [`src/agent_3/VERB.pubmed-search-skill.md`](src/agent_3/VERB.pubmed-search-skill.md)

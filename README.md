@@ -34,8 +34,8 @@ JSONL sidecars thread through every stage as the pipeline's metadata bus.
 Heterogeneous FASTA → clean amino-acid FASTA. Type detects DNA / RNA / protein, enumerates ORFs, scores them with ESM-2 650M perplexity, applies a length and ambiguity quality gate, and emits a per-record provenance sidecar. Two Modal apps (CPU fast path, GPU slow path) chained by a local orchestrator.
 See [`src/agent_0/README.md`](src/agent_0/README.md).
 
-**Agent 1 — structure prediction** *(engine validated; batch orchestrator built, live run pending).*
-ESMFold2-Fast on Modal — single-sequence, no MSA — purpose-built for novel, metagenomic, and low-homology targets. On the 6EQE PETase benchmark it reaches **0.91 Å Cα RMSD from a bare sequence** (vs 7.85 Å for single-sequence Boltz-2). A batch orchestrator consumes Agent 0's `cleaned.faa` + `sidecar.jsonl`, fans folds across a warm-model Modal app, and emits confidence-annotated `structures.jsonl` — every fold is kept and tagged with a pLDDT tier, never rejected on quality. A live batch run on Modal is the next checkpoint. The prior Boltz-2 Step 1 is kept as a documented fallback under `boltz_fallback/`.
+**Agent 1 — structure prediction** *(operational).*
+ESMFold2-Fast on Modal — single-sequence, no MSA — purpose-built for novel, metagenomic, and low-homology targets. On the 6EQE PETase benchmark it reaches **0.91 Å Cα RMSD from a bare sequence** (vs 7.85 Å for single-sequence Boltz-2). A batch orchestrator consumes Agent 0's `cleaned.faa` + `sidecar.jsonl`, fans folds across a warm-model Modal app, and emits confidence-annotated `structures.jsonl` — every fold is kept and tagged with a pLDDT tier, never rejected on quality. Verified end-to-end on a 2-record batch (6EQE 0.91 Å, 1UBQ 0.58 Å ordered core). The prior Boltz-2 Step 1 is kept as a documented fallback under `boltz_fallback/`.
 See [`src/agent1/`](src/agent1/) — orchestrator, fold app, and the ESMFold2 eval; Boltz fallback in [`src/agent1/boltz_fallback/`](src/agent1/boltz_fallback/).
 
 **Agent 2 — structural description** *(complete, v3).*
@@ -86,7 +86,7 @@ Each agent ships its own README / SKILL / AGENT document with the operational de
 | Agent   | Status                  | Next milestone                                       |
 |---------|-------------------------|------------------------------------------------------|
 | Agent 0 | Complete                | Threshold calibration on real data                   |
-| Agent 1 | Engine validated; batch orchestrator built | Live batch run on Modal; confidence-tier calibration            |
+| Agent 1 | Operational (batch fold + annotate) | Agent 2 handoff; confidence-tier + GPU calibration            |
 | Agent 2 | Complete (v3)           | Per-domain fold classification for oligomers         |
 | Agent 3 | v0                      | Structural-feature query construction; bioRxiv coverage |
 
