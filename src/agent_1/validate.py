@@ -1,73 +1,91 @@
 """
-Agent 1 — Step 1 validator.
+Agent 1 — structure prediction validator.
 
-Structural comparison of the Boltz-2 prediction against the reference
-6EQE experimental structure.
+Lightweight structural sanity check: compares a predicted structure against a
+reference experimental structure by global Cα RMSD over the residue-number
+overlap, with a per-residue deviation breakdown. This is NOT the full Agent 2
+pipeline — just a fast "is the fold broadly right?" check.
 
-Scope: quick sanity check, NOT the full Agent 2 pipeline. Uses BioPython's
-Superimposer on matched Cα atoms to compute global RMSD and a per-chain
-breakdown. This is a lightweight validator that runs locally and tells us
-whether the Step 1 prediction is broadly correct before we commit to
-building the rest of the pipeline.
+Parses the mmCIF ``_atom_site`` loop directly via BioPython's ``MMCIF2Dict``
+rather than the full structure builder, so it tolerates minimal mmCIF files —
+notably ESMFold2 output, which omits the ``_atom_site.occupancy`` column that
+BioPython's ``MMCIFParser`` hard-requires.
 
-Success criteria for Step 1 (PETase 6EQE, 290 aa monomer):
-    - Predicted CIF parses cleanly
-    - Residue count matches input (minor tolerance for crystal missing
-      density — the reference may have fewer resolved residues than
-      the prediction)
-    - Global Cα RMSD on the resolved overlap region < 2.5 Å
-      (well-characterized enzyme, single-sequence Boltz-2 prediction
-      should reach experimental-quality for a protein with lots of
-      close homologs in the training set)
+Reference RMSD bands (Cα, over the resolved overlap region):
+    < 2.0 Å   excellent — prediction is structurally sound
+    < 2.5 Å   acceptable
+    < 4.0 Å   marginal — inspect before trusting (flexible loops/termini?)
+    >= 4.0 Å  concerning — likely a genuinely wrong fold or a numbering mismatch
 
 Usage:
     python validate.py \\
-        --predicted ./step1_results/6EQE_step1_predicted.cif \\
-        --reference /path/to/rcsb_pdb_6EQE.cif
+        --predicted ./step1_results/prediction.cif \\
+        --reference /path/to/reference.cif
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
-from Bio.PDB import MMCIFParser, Superimposer
-from Bio.PDB.Polypeptide import is_aa
+from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 
 
-def extract_ca_by_resid(structure, chain_id: str | None = None) -> dict[int, np.ndarray]:
-    """Return {residue_number: Cα coord} for the first model.
+def extract_ca_by_resid(
+    cif_path: Path, chain_id: str | None = None
+) -> tuple[dict[int, np.ndarray], str]:
+    """Return ``({auth_seq_id: Cα coord}, chain_id)`` from the mmCIF atom loop.
 
-    If chain_id is None, uses the first protein chain.
-    Heteroatoms and non-standard residues are skipped.
+    Reads ``_atom_site`` directly with ``MMCIF2Dict`` so it works on minimal
+    mmCIF files that lack columns the full ``MMCIFParser`` requires (e.g.
+    ESMFold2 output has no ``_atom_site.occupancy``). Only ATOM records are
+    considered; HETATM (waters, ligands, modified residues) are skipped. If
+    ``chain_id`` is None, the chain with the most Cα atoms is used.
     """
-    model = next(structure.get_models())
-    chains = list(model.get_chains())
-    if chain_id is not None:
-        chains = [c for c in chains if c.id == chain_id]
-    if not chains:
-        raise ValueError(f"No chains found (requested chain_id={chain_id})")
+    d = MMCIF2Dict(str(cif_path))
+    group = d["_atom_site.group_PDB"]
+    atom = d["_atom_site.label_atom_id"]
+    chain = d["_atom_site.auth_asym_id"]
+    seq = d["_atom_site.auth_seq_id"]
+    xs, ys, zs = (
+        d["_atom_site.Cartn_x"],
+        d["_atom_site.Cartn_y"],
+        d["_atom_site.Cartn_z"],
+    )
 
-    # Use first protein chain
-    for chain in chains:
-        residues = [r for r in chain if is_aa(r, standard=True) and "CA" in r]
-        if residues:
-            return {r.id[1]: r["CA"].get_coord() for r in residues}, chain.id
-    raise ValueError("No protein residues with Cα found")
+    ca_counts = Counter(
+        chain[i]
+        for i in range(len(atom))
+        if group[i] == "ATOM" and atom[i] == "CA"
+    )
+    if not ca_counts:
+        raise ValueError("No protein Cα atoms found")
+    target = chain_id if chain_id is not None else ca_counts.most_common(1)[0][0]
+
+    coords: dict[int, np.ndarray] = {}
+    for i in range(len(atom)):
+        if group[i] != "ATOM" or atom[i] != "CA" or chain[i] != target:
+            continue
+        try:
+            resid = int(seq[i])
+        except ValueError:
+            continue
+        if resid not in coords:  # first altloc wins
+            coords[resid] = np.array([float(xs[i]), float(ys[i]), float(zs[i])])
+    if not coords:
+        raise ValueError(f"No Cα atoms for chain {target!r}")
+    return coords, target
 
 
 def compute_rmsd(pred_cif: Path, ref_cif: Path) -> dict:
-    parser = MMCIFParser(QUIET=True)
-    pred = parser.get_structure("pred", str(pred_cif))
-    ref = parser.get_structure("ref", str(ref_cif))
+    pred_ca, pred_chain = extract_ca_by_resid(pred_cif)
+    ref_ca, ref_chain = extract_ca_by_resid(ref_cif)
 
-    pred_ca, pred_chain = extract_ca_by_resid(pred)
-    ref_ca, ref_chain = extract_ca_by_resid(ref)
-
-    # Match on residue numbers that appear in both
-    shared = sorted(set(pred_ca.keys()) & set(ref_ca.keys()))
+    # Match on residue numbers present in both structures.
+    shared = sorted(set(pred_ca) & set(ref_ca))
     if len(shared) < 20:
         raise ValueError(
             f"Too few shared residues ({len(shared)}). "
@@ -75,37 +93,24 @@ def compute_rmsd(pred_cif: Path, ref_cif: Path) -> dict:
             f"Ref residues: {min(ref_ca)}-{max(ref_ca)} (n={len(ref_ca)})."
         )
 
-    # Note on numbering: PDB experimental structures often start at the
-    # mature N-terminus (residue 1 = first resolved residue), while the
-    # Boltz prediction numbers from residue 1 = first aa of the input
-    # sequence. If there's a signal peptide in the input that's absent
-    # from the PDB, naive residue-number matching will misalign.
-    # For 6EQE: the PDB numbering starts at residue 33 of the full
-    # precursor (accommodating the signal peptide). If shared is small,
-    # we fall back to sequence-based alignment (future Step 2 work).
+    # Numbering note: experimental structures often start at the first resolved
+    # residue, while a prediction numbers from residue 1 of the input sequence.
+    # If the input carries a signal peptide / tag absent from the crystal,
+    # naive residue-number matching can misalign. We raise above when the
+    # overlap is small; sequence-based chain matching is future work.
 
-    # Build coordinate arrays in matched order
     pred_coords = np.array([pred_ca[r] for r in shared])
     ref_coords = np.array([ref_ca[r] for r in shared])
 
-    # Kabsch superposition via BioPython
-    # (Using Superimposer requires Atom objects; we use numpy directly.)
-    # Centroids
-    pc = pred_coords.mean(axis=0)
-    rc = ref_coords.mean(axis=0)
-    P = pred_coords - pc
-    R = ref_coords - rc
-    # SVD -> rotation
+    # Kabsch superposition (numpy directly).
+    P = pred_coords - pred_coords.mean(axis=0)
+    R = ref_coords - ref_coords.mean(axis=0)
     H = P.T @ R
     U, S, Vt = np.linalg.svd(H)
     d = np.sign(np.linalg.det(Vt.T @ U.T))
-    D = np.diag([1, 1, d])
-    rot = Vt.T @ D @ U.T
-    P_rot = P @ rot.T
-    diffs = P_rot - R
+    rot = Vt.T @ np.diag([1, 1, d]) @ U.T
+    diffs = (P @ rot.T) - R
     rmsd = float(np.sqrt((diffs ** 2).sum() / len(diffs)))
-
-    # Per-residue deviation after superposition
     per_res_dev = np.linalg.norm(diffs, axis=1)
 
     return {
@@ -136,18 +141,18 @@ def main():
 
     try:
         result = compute_rmsd(args.predicted, args.reference)
-    except ValueError as e:
+    except (ValueError, KeyError) as e:
         print(f"VALIDATION FAILED: {e}")
         print(
-            "\nIf the error is about too few shared residues, the most likely "
-            "cause is residue numbering mismatch (signal peptide in predicted "
-            "but not reference, or vice versa). Step 2 will add sequence-based "
-            "chain matching that's robust to numbering offsets."
+            "\nIf this is about too few shared residues, the likely cause is a "
+            "residue-numbering mismatch (a signal peptide or tag present in the "
+            "prediction but not the reference, or vice versa). Sequence-based "
+            "chain matching robust to numbering offsets is future work."
         )
         return 2
 
     print("=" * 60)
-    print("STEP 1 VALIDATION — Boltz-2 prediction vs. reference")
+    print("STRUCTURE VALIDATION — prediction vs. reference")
     print("=" * 60)
     for k, v in result.items():
         print(f"  {k:25s} {v}")
@@ -159,28 +164,23 @@ def main():
 
     print("\nInterpretation:")
     if rmsd < 2.0:
-        print(f"  ✓ RMSD {rmsd} Å is excellent for Boltz-2 single-sequence.")
-        print(f"    Prediction is structurally sound.")
+        print(f"  ✓ Cα RMSD {rmsd} Å is excellent — prediction is structurally sound.")
     elif rmsd < 2.5:
-        print(f"  ✓ RMSD {rmsd} Å is acceptable for Boltz-2 single-sequence.")
-        print(f"    PETase has close homologs in training data, so this is")
-        print(f"    a reasonable outcome. Step 1 passes.")
+        print(f"  ✓ Cα RMSD {rmsd} Å is acceptable.")
     elif rmsd < 4.0:
-        print(f"  ⚠ RMSD {rmsd} Å is marginal. Worth inspecting visually")
-        print(f"    before declaring Step 1 a pass. Possible issues:")
-        print(f"    - Flexible regions (loops, termini) driving the RMSD up")
-        print(f"    - Signal peptide residues disordered/unresolved")
+        print(f"  ⚠ Cα RMSD {rmsd} Å is marginal. Inspect before trusting:")
+        print(f"    - flexible regions (loops, termini) inflating the RMSD")
+        print(f"    - disordered / unresolved residues in the overlap")
     else:
-        print(f"  ✗ RMSD {rmsd} Å is concerning. Check:")
-        print(f"    - Did the prediction complete all recycling steps?")
-        print(f"    - Was the correct sequence submitted?")
-        print(f"    - Is the residue numbering mismatched (large shift)?")
+        print(f"  ✗ Cα RMSD {rmsd} Å is concerning. Check:")
+        print(f"    - did the prediction converge?")
+        print(f"    - was the correct sequence submitted?")
+        print(f"    - is the residue numbering mismatched (large shift)?")
 
     if shared < min(pred_res_count, ref_res_count) * 0.5:
         print(f"\n  Note: only {shared} residues overlap between prediction and")
-        print(f"  reference. This likely reflects signal peptide or terminal")
-        print(f"  residues absent from the crystal structure. The RMSD above")
-        print(f"  is computed on the {shared}-residue overlap region only.")
+        print(f"  reference — likely signal-peptide or terminal residues absent")
+        print(f"  from the crystal. RMSD is over the {shared}-residue overlap only.")
 
     return 0
 
