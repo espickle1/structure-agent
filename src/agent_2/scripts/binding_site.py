@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 try:
     from Bio.PDB import PDBParser, MMCIFParser, NeighborSearch, Selection
     from Bio.PDB.Polypeptide import is_aa
+    from cif_io import read_structure
 except ImportError:
     print("ERROR: BioPython is required.", file=sys.stderr)
     sys.exit(1)
@@ -84,11 +85,7 @@ def detect_format(filepath: Path) -> str:
 
 def load_structure(filepath: Path):
     fmt = detect_format(filepath)
-    if fmt == "mmcif":
-        parser = MMCIFParser(QUIET=True)
-    else:
-        parser = PDBParser(QUIET=True)
-    return parser.get_structure(filepath.stem, str(filepath))
+    return read_structure(filepath.stem, filepath, fmt)
 
 
 def find_ligands(model, excluded: set) -> list:

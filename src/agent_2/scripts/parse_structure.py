@@ -30,6 +30,7 @@ import numpy as np
 try:
     from Bio.PDB import PDBParser, MMCIFParser
     from Bio.PDB.Polypeptide import is_aa
+    from cif_io import read_structure
 except ImportError:
     print("ERROR: BioPython is required. Install with: pip install biopython", file=sys.stderr)
     sys.exit(1)
@@ -79,11 +80,7 @@ def detect_format(filepath: Path) -> str:
 def load_structure(filepath: Path):
     """Load structure with appropriate parser. Returns (structure, format_str)."""
     fmt = detect_format(filepath)
-    if fmt == "mmcif":
-        parser = MMCIFParser(QUIET=True)
-    else:
-        parser = PDBParser(QUIET=True)
-    structure = parser.get_structure(filepath.stem, str(filepath))
+    structure = read_structure(filepath.stem, filepath, fmt)
     return structure, fmt
 
 
