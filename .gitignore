@@ -221,3 +221,6 @@ __marimo__/
 # Reference structures / FASTAs fetched from RCSB (incl. the large *-sf.cif
 # structure-factor files). Re-download from files.rcsb.org as needed.
 src/agent_1/test_data/
+
+# macOS Finder metadata
+.DS_Store
