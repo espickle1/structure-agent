@@ -34,6 +34,7 @@ try:
     from Bio.PDB import MMCIFParser, PDBParser, DSSP, NeighborSearch
     from Bio.PDB.Polypeptide import is_aa
     from Bio.PDB.ResidueDepth import get_surface
+    from cif_io import read_structure
 except ImportError:
     print("ERROR: BioPython is required.", file=sys.stderr)
     sys.exit(1)
@@ -69,11 +70,7 @@ def detect_format(filepath: Path) -> str:
 
 def load_structure(filepath: Path):
     fmt = detect_format(filepath)
-    if fmt == "mmcif":
-        parser = MMCIFParser(QUIET=True)
-    else:
-        parser = PDBParser(QUIET=True)
-    return parser.get_structure(filepath.stem, str(filepath)), fmt
+    return read_structure(filepath.stem, filepath, fmt), fmt
 
 
 # =========================================================================
