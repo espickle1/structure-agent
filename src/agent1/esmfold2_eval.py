@@ -11,7 +11,7 @@ This is an EVALUATION script, not the production Agent 1. Its purpose is the
 core plddt 0.55). Adapted from the ESMFold2 Modal example
 (github.com/espickle1/esmc-esmfold2), trimmed to single-chain + FASTA input.
 
-Usage (from src/agent_1/):
+Usage (from src/agent1/):
 
     modal run esmfold2_eval.py \
         --fasta test_data/rcsb_pdb_6EQE.fasta \

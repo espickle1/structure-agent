@@ -34,9 +34,9 @@ JSONL sidecars thread through every stage as the pipeline's metadata bus.
 Heterogeneous FASTA → clean amino-acid FASTA. Type detects DNA / RNA / protein, enumerates ORFs, scores them with ESM-2 650M perplexity, applies a length and ambiguity quality gate, and emits a per-record provenance sidecar. Two Modal apps (CPU fast path, GPU slow path) chained by a local orchestrator.
 See [`src/agent_0/README.md`](src/agent_0/README.md).
 
-**Agent 1 — structure prediction** *(engine validated; integration pending).*
-ESMFold2-Fast on Modal (H100) — single-sequence, no MSA — purpose-built for novel, metagenomic, and low-homology targets. A standalone fold-from-FASTA proof is in place; on the 6EQE PETase benchmark it reaches **0.91 Å Cα RMSD from a bare sequence** (vs 7.85 Å for single-sequence Boltz-2). Batch fan-out, quality gating, the sidecar schema, and Agent 0/2 wiring are designed but not yet implemented. The earlier Boltz-2 Step-1 implementation remains in-tree pending a retire/fallback decision.
-See [`src/agent_1/esmfold2_eval.py`](src/agent_1/esmfold2_eval.py) (current engine) and [`src/agent_1/README_step1.md`](src/agent_1/README_step1.md) (prior Boltz-2 Step 1).
+**Agent 1 — structure prediction** *(engine validated; batch orchestrator built, live run pending).*
+ESMFold2-Fast on Modal — single-sequence, no MSA — purpose-built for novel, metagenomic, and low-homology targets. On the 6EQE PETase benchmark it reaches **0.91 Å Cα RMSD from a bare sequence** (vs 7.85 Å for single-sequence Boltz-2). A batch orchestrator consumes Agent 0's `cleaned.faa` + `sidecar.jsonl`, fans folds across a warm-model Modal app, and emits confidence-annotated `structures.jsonl` — every fold is kept and tagged with a pLDDT tier, never rejected on quality. A live batch run on Modal is the next checkpoint. The prior Boltz-2 Step 1 is kept as a documented fallback under `boltz_fallback/`.
+See [`src/agent1/`](src/agent1/) — orchestrator, fold app, and the ESMFold2 eval; Boltz fallback in [`src/agent1/boltz_fallback/`](src/agent1/boltz_fallback/).
 
 **Agent 2 — structural description** *(complete, v3).*
 Identity-agnostic, deterministic structural analysis. Parses PDB / mmCIF, computes SASA, secondary structure, fold class, shape metrics, ligand pockets and interactions, and multi-structure superposition / RMSD. Halts on predominantly disordered inputs. CPU-only Claude skill — no GPU, no biological identity inference.
@@ -73,8 +73,8 @@ structure-agent/
 ├── README.md                 # This file
 ├── data/                     # Local data dir (untracked)
 └── src/
-    ├── agent_0/              # Input preprocessing
-    ├── agent_1/              # Structure prediction (Step 1)
+    ├── agent0/               # Input preprocessing
+    ├── agent1/               # Structure prediction (ESMFold2-Fast)
     ├── agent_2/              # Structural description skill
     └── agent_3/              # Literature retrieval agent
 ```
@@ -86,7 +86,7 @@ Each agent ships its own README / SKILL / AGENT document with the operational de
 | Agent   | Status                  | Next milestone                                       |
 |---------|-------------------------|------------------------------------------------------|
 | Agent 0 | Complete                | Threshold calibration on real data                   |
-| Agent 1 | Engine validated (ESMFold2-Fast) | Integrate as Agent 1 — batch fan-out, quality gate, sidecar            |
+| Agent 1 | Engine validated; batch orchestrator built | Live batch run on Modal; confidence-tier calibration            |
 | Agent 2 | Complete (v3)           | Per-domain fold classification for oligomers         |
 | Agent 3 | v0                      | Structural-feature query construction; bioRxiv coverage |
 

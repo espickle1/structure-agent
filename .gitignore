@@ -224,5 +224,5 @@ CLAUDE.md
 .DS_Store
 
 # Agent 1 — local prediction outputs and reference data (downloadable / generated)
-src/agent_1/step1_results/
-src/agent_1/test_data/
+src/agent1/step1_results/
+src/agent1/test_data/
