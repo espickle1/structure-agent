@@ -46,6 +46,11 @@ except ImportError:
     print("ERROR: BioPython is required. pip install biopython", file=sys.stderr)
     sys.exit(1)
 
+try:  # tolerant mmCIF loader — works run as a script (scripts/ on path)…
+    from cif_io import read_structure
+except ImportError:  # …or imported as agent_2.scripts.render_views (Modal container)
+    from agent_2.scripts.cif_io import read_structure
+
 try:
     import molviewspec as mvs
 except ImportError:
@@ -78,8 +83,7 @@ def detect_format(filepath: Path) -> str:
 
 def load_structure(filepath: Path):
     fmt = detect_format(filepath)
-    parser = MMCIFParser(QUIET=True) if fmt == "mmcif" else PDBParser(QUIET=True)
-    return parser.get_structure(filepath.stem, str(filepath)), fmt
+    return read_structure(filepath.stem, filepath, fmt), fmt
 
 
 # =========================================================================
@@ -227,15 +231,20 @@ def run_mvs_render(scene_json: str, output_path: Path, size: tuple[int, int]):
 
     try:
         # Canonical mvs-render CLI: positional input output, --size WxH.
+        cmd = [
+            "mvs-render",
+            "-i", str(scene_path),
+            "-o", str(output_path),
+            "-s", f"{size[0]}x{size[1]}",
+        ]
+        # Headless WebGL (node `gl`) needs an X display on Linux servers; run it
+        # under a throwaway virtual framebuffer when xvfb-run is available.
+        if shutil.which("xvfb-run"):
+            cmd = ["xvfb-run", "-a"] + cmd
         result = subprocess.run(
-            [
-                "mvs-render",
-                str(scene_path),
-                str(output_path),
-                "--size", f"{size[0]}x{size[1]}",
-            ],
+            cmd,
             capture_output=True,
-            timeout=60,
+            timeout=120,
             check=False,
         )
         if result.returncode != 0:
@@ -246,7 +255,7 @@ def run_mvs_render(scene_json: str, output_path: Path, size: tuple[int, int]):
         if not output_path.exists() or output_path.stat().st_size == 0:
             raise RenderError("mvs-render produced no output")
     except subprocess.TimeoutExpired:
-        raise RenderError("mvs-render timed out after 60s")
+        raise RenderError("mvs-render timed out after 120s")
     finally:
         scene_path.unlink(missing_ok=True)
 
