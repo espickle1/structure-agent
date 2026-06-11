@@ -134,14 +134,15 @@ src/agent_2/
 │   ├── compare_structures.py         # Multi-structure superposition & RMSD
 │   ├── binding_site.py               # Ligand detection & pocket / interaction analysis
 │   ├── surface_analysis.py           # SASA, surface properties, shape, fold classification
-│   ├── render_views.py               # Mol* axis-aligned cartoon renders (3 views per structure)
+│   ├── render_views.py               # Mol* cartoon renders (Agent 2.1; blocked on #18)
+│   ├── render_trace.py               # Cα-trace figures (Agent 2.2; matplotlib, no GL — active renderer)
 │   └── assemble_report.py            # Deterministic markdown report (facts + figures + profile matrix)
 └── references/
     ├── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
     └── profiles/                     # Optional expected-parameter profiles (+ schema README)
 ```
 
-The four scripts are independent. They do not import each other and do not
+The scripts are independent. They do not import each other and do not
 share state. Each takes a structure file (and optional flags), emits files
 into `--output-dir`, and prints a human-readable summary to stdout.
 
@@ -284,6 +285,26 @@ Default coloring is pLDDT via the mmCIF `atom_site.B_iso_or_equiv` field
 **Fixed parameters:** 30° vertical FOV (15° half-angle) for camera distance,
 1024×1024 image size, 60 s mvs-render timeout per view, minimum 10 Cα atoms.
 
+### `render_trace.py`
+
+```bash
+python render_trace.py <structure_file> [--output-dir <dir>] \
+                       [--color {index,pLDDT}] [--size 1024x1024]
+```
+
+Agent 2.2 — the system-agnostic figure renderer and the active default while
+`render_views.py` (Agent 2.1, Mol\*) is blocked on #18. Reads Cα coordinates
+directly (tolerates minimal predicted mmCIFs — no occupancy needed), rotates
+into the inertia eigenbasis, and draws three principal-axis backbone traces
+with matplotlib's Agg backend. **Pure Python — no GL / Node / Mol\*** — so it
+runs locally on any machine and inside the Modal image unchanged. Self-contained:
+imports no other Agent 2 module. Same output contract as `render_views.py`, so
+the report (`views_section` in `assemble_report.py`) embeds whichever ran and
+captions it by the `renderer` field of the sidecar.
+
+**Outputs:** `<stem>_render_views.json` (with `renderer: "matplotlib-ca-trace"`)
++ `<stem>_axis1.png`, `<stem>_axis2.png`, `<stem>_axis3.png`.
+
 ### `surface_analysis.py`
 
 ```bash
@@ -343,9 +364,12 @@ dependencies on first use. For direct CLI use you install them yourself:
 - `biopython`, `numpy`, `scipy`, `pandas`, `matplotlib`, `seaborn`
 - `mkdssp` (DSSP binary) for secondary structure assignment
 - `molviewspec` (Python) and `mvs-render` (Mol* CLI, shipped with the
-  `molstar` npm package) for `render_views.py`. Headless GL libs
+  `molstar` npm package) for `render_views.py` (Agent 2.1). Headless GL libs
   (`libgl1`, `libglu1-mesa`, `libxi6`, `libxext6`) are required on Linux
   containers.
+- `render_trace.py` (Agent 2.2) needs **none** of the Mol\*/GL stack — only
+  `matplotlib` (listed above). It is the active renderer until Agent 2.1's
+  Mol\* path is unblocked, and runs anywhere (local or the Modal image).
 
 ```bash
 pip install biopython matplotlib numpy scipy pandas seaborn molviewspec

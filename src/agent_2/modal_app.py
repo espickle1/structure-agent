@@ -213,6 +213,65 @@ def surface_main(structure_path: str, output_dir: str = "/scratch/results"):
     return result
 
 
+@app.function(
+    image=image,
+    cpu=2,
+    memory=2048,
+    timeout=600,
+    volumes={"/scratch": SCRATCH_VOLUME},
+)
+def render_trace_remote(
+    structure_path: str, output_dir: str = "/scratch/results", color: str = "pLDDT"
+) -> dict:
+    """Run render_trace.py (Agent 2.2 Cα trace) on Modal, alongside the other
+    agent_2 scripts. Pure matplotlib (Agg) — no GL — so it shares this image
+    with surface_analysis; the system-agnostic stand-in for Agent 2.1 (#18)
+    cartoons. Returns the render_views.json sidecar.
+    """
+    import subprocess
+    import sys
+
+    import agent_2
+
+    SCRATCH_VOLUME.reload()
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    scripts_dir = Path(list(agent_2.__path__)[0]) / "scripts"
+
+    proc = subprocess.run(
+        [sys.executable, "render_trace.py", structure_path, "--output-dir", str(out), "--color", color],
+        cwd=str(scripts_dir),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"render_trace.py exited {proc.returncode}\nSTDERR:\n{proc.stderr}"
+        )
+
+    stem = Path(structure_path).stem
+    result = json.loads((out / f"{stem}_render_views.json").read_text())
+    SCRATCH_VOLUME.commit()
+    return result
+
+
+@app.local_entrypoint()
+def render_trace_main(
+    structure_path: str, output_dir: str = "/scratch/results", color: str = "pLDDT"
+):
+    """Smoke-test Agent 2.2 Cα-trace rendering on Modal:
+
+        modal run src/agent_2/modal_app.py::render_trace_main \\
+            --structure-path /scratch/<stem>.cif
+    """
+    print(f"[render_trace] {structure_path} → {output_dir} (color={color})")
+    result = render_trace_remote.remote(
+        structure_path=structure_path, output_dir=output_dir, color=color
+    )
+    print(json.dumps(result.get("views", result), indent=2))
+    return result
+
+
 @app.local_entrypoint()
 def main(
     structure_path: str,

@@ -232,24 +232,26 @@ anisotropic motion in a well-folded protein.
 
 For every structure that passes the disorder gate (predominantly disordered
 structures are skipped — rendering uniformly coiled chains is wasted work),
-run:
+run the Cα-trace renderer (Agent 2.2 — pure matplotlib, no GL, runs anywhere):
 
 ```
-python scripts/render_views.py <file> --output-dir results/
+python scripts/render_trace.py <file> --output-dir results/ --color pLDDT
 ```
 
-Produces three axis-aligned cartoon views (`axis1` long, `axis2` mid,
-`axis3` short) plus a `<stem>_render_views.json` sidecar with camera params.
-Default coloring is pLDDT (B-factor column).
+Produces three axis-aligned views (`axis1` long, `axis2` mid, `axis3` short)
+plus a `<stem>_render_views.json` sidecar with camera params. Coloring is
+pLDDT (B-factor column). This is a Cα worm trace, not a cartoon.
+
+`scripts/render_views.py` (Agent 2.1 — Mol\* `mvs-render` cartoons) is the
+higher-fidelity renderer with identical output filenames (a drop-in
+replacement), currently blocked on the molstar headless version pin (#18).
+Switch this step to it once that is resolved.
 
 **Renders are presentation-layer, not measurement.** Unlike Steps 2/4/5/6, a
-non-zero exit from `render_views.py` is **logged and skipped, not HALT-ed**.
-Per-view failures inside the script also log and continue (the script returns
-0 even if some views failed). The agent's contract (JSON/CSV) is unaffected.
-Possible failure causes: Phase 0 install failed, `mvs-render` missing,
-headless GL unavailable. If the script exits non-zero or all three views
-fail, note "Renders unavailable for `<stem>`" in the Step 9 report and
-proceed.
+non-zero exit from the renderer is **logged and skipped, not HALT-ed**. The
+agent's contract (JSON/CSV) is unaffected. If the renderer exits non-zero or
+no views are produced, note "Renders unavailable for `<stem>`" in the Step 9
+report and proceed.
 
 ### Step 5: Binding Site Analysis (If Ligands Present)
 
