@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>YP_010228713.1 — structural analysis</title><style>body{max-width:820px;margin:2rem auto;padding:0 1rem;color:#222;font-family:-apple-system,Segoe UI,Roboto,Helvetica,sans-serif;line-height:1.55}h2{border-bottom:1px solid #eee;padding-bottom:.2rem;margin-top:2rem}img{max-width:100%;height:auto;display:block;margin:1rem auto}table{border-collapse:collapse;margin:1rem 0}td,th{border:1px solid #ccc;padding:4px 10px}blockquote{color:#555;border-left:3px solid #ddd;margin:0 0 1rem;padding-left:1rem}code{background:#f4f4f4;padding:1px 4px;border-radius:3px}</style></head><body><h1>Structural analysis — <code>YP_010228713.1</code></h1>
+<blockquote>
+<p>Facts are emitted deterministically from the measurement scripts. Sections marked with a SYNTHESIS comment are authored by the Claude session (judgment, Zone 2), kept visibly separate from the measured facts.</p>
+</blockquote>
+<h2>Executive summary</h2>
+<p>A single-chain, 371-residue predicted model that is compact and sheet-dominated: real DSSP secondary structure is 36.4% sheet versus only 13.5% helix (50.1% coil), and the domain is tightly packed (Rg 19.7 Å, below the ~26.6 Å expected; asphericity 0.06, roughly spherical; 47.4% buried — the strongest core of the set). The sheet-over-helix content places it in the α+β class, and the classifier appropriately returns only a low-confidence generic α+β call rather than a named fold. Confidence is the lowest of the three (mean pLDDT 72.1, median 79.0, std 19.2, min 33.6), with uncertainty concentrated in a subset of regions. The solvent-exposed surface is slightly acidic (net −2 e; 10 positive vs 12 negative surface residues).</p>
+<h2>User-provided context</h2>
+<p>None provided. All observations below are derived from the structure alone.</p>
+<h2>Structure overview</h2>
+<ul>
+<li><strong>Source:</strong> predicted model — pLDDT in the B-factor column</li>
+<li><strong>Chains:</strong> 1 (single chain)</li>
+<li><strong>Residues / atoms:</strong> 371 / 2825</li>
+<li><strong>Missing residues:</strong> 0</li>
+<li><strong>Non-solvent ligands:</strong> none</li>
+<li>chain <strong>A</strong>: 371 res</li>
+</ul>
+<h2>Structural views</h2>
+<p><img alt="YP_010228713.1 — down long axis" src="YP_010228713.1_axis1.png" /></p>
+<p><img alt="YP_010228713.1 — down mid axis" src="YP_010228713.1_axis2.png" /></p>
+<p><img alt="YP_010228713.1 — down short axis" src="YP_010228713.1_axis3.png" /></p>
+<p><em>Cα backbone trace (Agent 2.2 matplotlib placeholder), down the long / mid / short principal axes; coloured by pLDDT. A worm trace, not a Mol* cartoon — true cartoons pending Agent 2.1 (#18).</em></p>
+<h2>Fold &amp; shape</h2>
+<ul>
+<li><strong>Shape:</strong> roughly globular (asphericity 0.06, Rg 19.71 Å)</li>
+<li><strong>Approx. dimensions:</strong> 57.3 × 52.5 × 41.3 Å</li>
+<li><strong>Secondary structure:</strong> helix 13.5%, sheet 36.4%, coil 50.1%</li>
+<li><strong>Fold class:</strong> alpha+beta</li>
+<li>generic alpha+beta fold (SCOP unclassified, CATH unclassified; confidence low)</li>
+</ul>
+<h2>Surface properties</h2>
+<ul>
+<li><strong>Exposure:</strong> buried 47.4%, partial 31.3%, exposed 21.3%</li>
+<li><strong>Total SASA:</strong> 15005.9 Å²</li>
+<li><strong>Surface hydrophobicity (KD):</strong> mean -1.38 ± 2.57</li>
+<li><strong>Surface charge (pH 7):</strong> net -2 e (10 +, 12 −)</li>
+<li><strong>Hydrophobic patches:</strong> 2:</li>
+<li>residues 70–72 (len 3, mean KD 3.27)</li>
+<li>residues 217–219 (len 3, mean KD 2.7)</li>
+</ul>
+<p><img alt="Per-residue SASA &amp; hydrophobicity" src="YP_010228713.1_surface_profile.png" /></p>
+<p><img alt="Exposure breakdown" src="YP_010228713.1_exposure_pie.png" /></p>
+<h2>Prediction quality / structural coherence</h2>
+<p>Confidence is <strong>reported, never gated</strong> — these signals are inputs for the synthesis below, not a pass/fail.</p>
+<ul>
+<li><strong>pLDDT (chain A):</strong> mean 72.11, median 78.99, range 33.56–96.37, std 19.17</li>
+<li><strong>Compactness:</strong> Rg 19.71 Å vs ~26.6 Å expected for 371 residues (2.5·N^0.4) — consistent</li>
+<li><strong>Core present:</strong> buried fraction 47.4%</li>
+<li><strong>Coil fraction:</strong> 50.1%</li>
+<li><strong>Top fold-candidate confidence:</strong> low</li>
+</ul>
+<h3>Coherence assessment</h3>
+<p>The coherence signals indicate a folded model despite the lowest confidence in the set. A packed core is present (47.4% buried — the highest of the three) and the structure is compact (Rg 19.7 Å, asphericity 0.06), with ~50% of residues in defined SS (predominantly sheet) — so the 50.1% coil reflects the loop/turn-rich character of a β-dominated fold, not disorder. The pLDDT is moderate and notably uneven (mean 72.1, range 33.6–96.4, std 19.2): a well-determined β core with several lower-confidence segments. The classifier's cautious generic-α+β (low) call is consistent with this evidence — sheet-rich content without a confidently identifiable named topology. This is the low-homology pattern where a coherent fold can sit alongside a lower mean confidence.</p>
+<h2>Expected-parameter comparison</h2>
+<p><em>No expected-parameter profile supplied — this is the default for novel / low-homology targets. See the independent observations below.</em></p>
+<h2>Independent observations</h2>
+<ul>
+<li><strong>Compact, sheet-dominant fold.</strong> 36.4% sheet vs 13.5% helix with a packed core (47.4% buried) and Rg 19.7 Å (below the ~26.6 Å expectation) — a tightly packed β-rich domain, the most compact of the three.</li>
+<li><strong>Loop-rich but not disordered.</strong> 50.1% coil is high, but the strong buried core and substantial sheet content distinguish this from a disordered chain — the coil is the turn/loop content typical of β-rich folds, not absence of structure.</li>
+<li><strong>Lowest and most variable confidence</strong> (pLDDT mean 72.1, std 19.2, min 33.6) — and appropriately the fold classifier withholds a named fold (generic α+β, low). The reliable statement is the α+β class and the sheet-rich character, not a specific topology.</li>
+<li><strong>Slightly acidic surface</strong> (net −2 e; 10 positive vs 12 negative), with two short hydrophobic patches (residues 70–72, 217–219).</li>
+</ul>
+<h2>What cannot be determined from structure alone</h2>
+<ul>
+<li><strong>Identity and function</strong> — not established; the analysis is identity-agnostic.</li>
+<li><strong>Specific fold / topology</strong> — only a generic α+β class is assigned (low confidence); identifying a β-rich fold needs structural comparison — Agent 3 (Foldseek).</li>
+<li><strong>Mechanism / binding</strong> — no ligands; nothing assessed.</li>
+<li><strong>Homology / relatives</strong> — Agent 3. <em>Seeds:</em> a compact, sheet-dominant (~36% sheet, 14% helix) ~371-residue α+β domain with a packed core and locally lower confidence (min pLDDT 33.6); the β-rich signature is the match target.</li>
+</ul>
+<h2>Methods</h2>
+<ul>
+<li><strong>Measurements (deterministic):</strong> <code>parse_structure.py</code> (metadata, confidence stats), <code>surface_analysis.py</code> (Shrake–Rupley SASA, Kyte–Doolittle hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics, SCOP/CATH fold class), <code>render_views.py</code> (Mol* cartoon renders).</li>
+<li><strong>Report facts</strong> below the synthesis sections are emitted verbatim from the above scripts' JSON by <code>assemble_report.py</code> — no transcription.</li>
+<li><strong>Synthesis</strong> sections (executive summary, independent observations, coherence assessment, cannot-determine) are authored by Claude per <code>SKILL.md</code> Step 9, each claim cited to a measurement.</li>
+</ul></body></html>
