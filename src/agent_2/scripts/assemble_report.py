@@ -340,7 +340,8 @@ def methods_section(profiles: list[dict]) -> str:
     lines.append("- **Measurements (deterministic):** `parse_structure.py` (metadata, "
                  "confidence stats), `surface_analysis.py` (Shrake–Rupley SASA, Kyte–Doolittle "
                  "hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics, "
-                 "SCOP/CATH fold class), `render_views.py` (Mol* cartoon renders).")
+                 "SCOP/CATH fold class), `render_trace.py` (Agent 2.2 Cα-trace figures; "
+                 "`render_views.py` Mol* cartoons when Agent 2.1 is available).")
     lines.append("- **Report facts** below the synthesis sections are emitted verbatim from the "
                  "above scripts' JSON by `assemble_report.py` — no transcription.")
     lines.append("- **Synthesis** sections (executive summary, independent observations, "
