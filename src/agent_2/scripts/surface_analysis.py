@@ -21,7 +21,11 @@ Exit codes:
 
 import argparse
 import json
+import os
+import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from collections import Counter
 
@@ -31,7 +35,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from Bio.PDB import MMCIFParser, PDBParser, DSSP, NeighborSearch
+    from Bio.PDB import MMCIFParser, PDBParser, NeighborSearch, PDBIO
+    from Bio.PDB.DSSP import make_dssp_dict
     from Bio.PDB.Polypeptide import is_aa
     from Bio.PDB.ResidueDepth import get_surface
     from cif_io import read_structure
@@ -212,12 +217,41 @@ def compute_secondary_structure(structure, filepath, fmt):
     ss_assignments = []
     dssp_success = False
 
-    # Try DSSP first
+    # Try DSSP first. Two wrinkles with DSSP 4.x (mkdssp, libcifpp-based):
+    #   1. It rebuilds its residue model from mmCIF polymer metadata that
+    #      ESMFold2/AlphaFold coordinate-only CIFs omit, yielding 0 residues. So
+    #      we hand it a PDB written from the already-loaded structure — ATOM
+    #      records are self-contained and need no polymer metadata.
+    #   2. It defaults to mmCIF output, which BioPython can't parse, so we force
+    #      the legacy fixed-width format and read it with make_dssp_dict.
+    # dssp_success is gated on ACTUAL assignments, never on a clean exit: a
+    # silent 0-residue result must not read as a real measurement.
     try:
-        dssp = DSSP(model, str(filepath), dssp="mkdssp")
-        for key in dssp.keys():
-            chain_id, res_id = key
-            ss = dssp[key][2]  # secondary structure code
+        mkdssp = shutil.which("mkdssp") or "mkdssp"
+        tmpdir = tempfile.mkdtemp()
+        pdb_in = os.path.join(tmpdir, "input.pdb")
+        dssp_out = os.path.join(tmpdir, "out.dssp")
+        try:
+            io = PDBIO()
+            io.set_structure(structure)
+            io.save(pdb_in)
+            # cifpp (DSSP 4.x) sniffs input by the first line: a HEADER record
+            # marks it PDB, else mmCIF is assumed and parsing fails. PDBIO omits
+            # HEADER, so prepend a minimal valid one.
+            with open(pdb_in) as fh:
+                body = fh.read()
+            header = "HEADER    " + "PREDICTED MODEL".ljust(40) + "01-JAN-00" + "   " + "XXXX"
+            with open(pdb_in, "w") as fh:
+                fh.write(header + "\n" + body)
+            subprocess.run(
+                [mkdssp, "--output-format", "dssp", pdb_in, dssp_out],
+                check=True, capture_output=True, text=True,
+            )
+            dssp_dict, _ = make_dssp_dict(dssp_out)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+        for (chain_id, res_id), val in dssp_dict.items():
+            ss = val[1]  # make_dssp_dict value layout: (aa, ss, acc, phi, psi, ...)
             rid = res_id[1]
             # Simplify DSSP codes: H,G,I -> H (helix), E,B -> E (sheet), rest -> C (coil)
             if ss in ("H", "G", "I"):
@@ -232,7 +266,7 @@ def compute_secondary_structure(structure, filepath, fmt):
                 "dssp_code": ss,
                 "ss_simple": ss_simple,
             })
-        dssp_success = True
+        dssp_success = len(ss_assignments) > 0
     except Exception as e:
         print(f"  DSSP failed ({e}), falling back to file-level annotation", file=sys.stderr)
 
