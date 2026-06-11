@@ -33,14 +33,18 @@ import modal
 # ---------------------------------------------------------------------------
 # Container image
 # ---------------------------------------------------------------------------
-# Node 20 + headless GL libs for mvs-render. molstar is the npm package that
-# ships the `mvs-render` CLI binary.
+# This image carries the WHOLE Agent 2 deterministic toolchain so every script
+# runs on one substrate (system-agnostic; no per-machine DSSP/GL installs):
+#   - mkdssp (apt `dssp`)             → surface_analysis secondary structure (#15)
+#   - Node 20 + headless GL + molstar → render_views mvs-render cartoons (#18)
+#   - biopython / numpy / matplotlib  → all measurement + plotting scripts
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .apt_install(
         "curl",
         "build-essential",
         "pkg-config",
+        "dssp",                  # mkdssp binary — surface_analysis SS via BioPython DSSP()
         "xvfb",                  # virtual framebuffer — node-gl needs an X display
         "libgl1",
         "libglu1-mesa",
@@ -69,6 +73,7 @@ image = (
         "molviewspec",
         "biopython",
         "numpy",
+        "matplotlib",            # surface / binding / compare plots
     )
     # Mount the agent_2 namespace package so we can import render_views.
     .add_local_python_source("agent_2")
@@ -138,6 +143,74 @@ def render_batch(items: list[dict]) -> list[dict]:
         render_structure_remote.map(paths, output_dirs, colors, sizes)
     )
     return results
+
+
+# ---------------------------------------------------------------------------
+# Deterministic measurement scripts run here too, so the entire Agent 2
+# toolchain shares ONE environment. Each script keeps its own function — they
+# are NOT chained server-side, which preserves Agent 2's module-independence
+# rule: the orchestrator (SKILL.md / Claude) sequences them and runs the
+# judgment steps (disorder gate, claim checks) in between.
+#
+# The scripts use sibling-relative imports (`from cif_io import ...`), so we run
+# the unchanged CLI with cwd = the scripts dir — exactly as SKILL.md invokes it
+# — then read the JSON sidecar back off the Volume. No edits to the scripts.
+# ---------------------------------------------------------------------------
+@app.function(
+    image=image,
+    cpu=2,
+    memory=2048,
+    timeout=600,
+    volumes={"/scratch": SCRATCH_VOLUME},
+)
+def surface_analysis_remote(structure_path: str, output_dir: str = "/scratch/results") -> dict:
+    """Run surface_analysis.py where mkdssp exists; return its JSON sidecar.
+
+    Closes #15: on the Mac, missing mkdssp makes SS read "unavailable"; here the
+    `dssp` apt package puts mkdssp on PATH, so secondary structure and the
+    SS-driven fold class are real measurements.
+    """
+    import subprocess
+    import sys
+
+    import agent_2  # mounted via add_local_python_source("agent_2")
+
+    SCRATCH_VOLUME.reload()
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    scripts_dir = Path(list(agent_2.__path__)[0]) / "scripts"
+
+    proc = subprocess.run(
+        [sys.executable, "surface_analysis.py", structure_path, "--output-dir", str(out)],
+        cwd=str(scripts_dir),
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"surface_analysis.py exited {proc.returncode}\nSTDERR:\n{proc.stderr}"
+        )
+
+    stem = Path(structure_path).stem
+    result = json.loads((out / f"{stem}_surface_analysis.json").read_text())
+    SCRATCH_VOLUME.commit()
+    return result
+
+
+@app.local_entrypoint()
+def surface_main(structure_path: str, output_dir: str = "/scratch/results"):
+    """Smoke-test #15 — real DSSP secondary structure on Modal:
+
+        modal run src/agent_2/modal_app.py::surface_main \\
+            --structure-path /scratch/<stem>.cif
+    """
+    print(f"[surface] {structure_path} → {output_dir}")
+    result = surface_analysis_remote.remote(
+        structure_path=structure_path, output_dir=output_dir
+    )
+    ssc = result.get("secondary_structure_content", result)
+    print(json.dumps(ssc, indent=2))
+    return result
 
 
 @app.local_entrypoint()
