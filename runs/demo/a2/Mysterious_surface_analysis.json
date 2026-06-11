@@ -1,0 +1,115 @@
+{
+  "file": "Mysterious.cif",
+  "shape": {
+    "radius_of_gyration": 24.23,
+    "asphericity": 0.1304,
+    "principal_eigenvalues": [
+      320.55,
+      190.52,
+      75.98
+    ],
+    "axis_ratios": {
+      "long_mid": 1.68,
+      "long_short": 4.22
+    },
+    "approximate_dimensions": {
+      "long_axis": 75.8,
+      "mid_axis": 60.4,
+      "short_axis": 46.8,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "roughly globular",
+    "num_ca_atoms": 381
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 170,
+      "fraction": 0.446
+    },
+    "sheet": {
+      "count": 87,
+      "fraction": 0.228
+    },
+    "coil": {
+      "count": 124,
+      "fraction": 0.325
+    },
+    "total_assigned": 381,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "fold_classification": {
+    "scop_class": "alpha/beta",
+    "fold_candidates": [
+      {
+        "fold": "alpha/beta hydrolase",
+        "scop_id": "c.69",
+        "cath_id": "3.40.50",
+        "confidence": "high",
+        "basis": "SS content consistent with canonical alpha/beta hydrolase fold (central beta-sheet flanked by alpha-helices)"
+      },
+      {
+        "fold": "TIM barrel (alpha/beta barrel)",
+        "scop_id": "c.1",
+        "cath_id": "3.20.20",
+        "confidence": "moderate",
+        "basis": "SS content and shape compatible with (beta/alpha)8 barrel topology"
+      },
+      {
+        "fold": "Rossmann fold",
+        "scop_id": "c.2",
+        "cath_id": "3.40.50",
+        "confidence": "low",
+        "basis": "SS ratios compatible; topology requires further verification"
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 381,
+    "exposed": {
+      "count": 137,
+      "fraction": 0.36
+    },
+    "partial": {
+      "count": 130,
+      "fraction": 0.341
+    },
+    "buried": {
+      "count": 114,
+      "fraction": 0.299
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.457,
+      "std": 2.872
+    },
+    "surface_net_charge": 3.1,
+    "surface_positive_residues": 29,
+    "surface_negative_residues": 25,
+    "total_sasa": 23018.8,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 29,
+        "end_resid": 31,
+        "length": 3,
+        "mean_hydrophobicity": 3.13
+      },
+      {
+        "start_resid": 47,
+        "end_resid": 50,
+        "length": 4,
+        "mean_hydrophobicity": 2.58
+      },
+      {
+        "start_resid": 125,
+        "end_resid": 127,
+        "length": 3,
+        "mean_hydrophobicity": 1.83
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "Mysterious_surface_profile.png",
+    "exposure_pie": "Mysterious_exposure_pie.png"
+  },
+  "surface_csv": "Mysterious_surface.csv"
+}

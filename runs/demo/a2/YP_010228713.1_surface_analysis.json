@@ -1,0 +1,95 @@
+{
+  "file": "YP_010228713.1.cif",
+  "shape": {
+    "radius_of_gyration": 19.71,
+    "asphericity": 0.0584,
+    "principal_eigenvalues": [
+      178.41,
+      138.96,
+      71.22
+    ],
+    "axis_ratios": {
+      "long_mid": 1.28,
+      "long_short": 2.51
+    },
+    "approximate_dimensions": {
+      "long_axis": 57.3,
+      "mid_axis": 52.5,
+      "short_axis": 41.3,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "roughly globular",
+    "num_ca_atoms": 371
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 50,
+      "fraction": 0.135
+    },
+    "sheet": {
+      "count": 135,
+      "fraction": 0.364
+    },
+    "coil": {
+      "count": 186,
+      "fraction": 0.501
+    },
+    "total_assigned": 371,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "fold_classification": {
+    "scop_class": "alpha+beta",
+    "fold_candidates": [
+      {
+        "fold": "generic alpha+beta fold",
+        "scop_id": "unclassified",
+        "cath_id": "unclassified",
+        "confidence": "low",
+        "basis": "SS content (14% helix, 36% sheet, 50% coil) does not strongly match a common fold archetype. Database lookup (SCOP/CATH/Dali) recommended for definitive classification."
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 371,
+    "exposed": {
+      "count": 79,
+      "fraction": 0.213
+    },
+    "partial": {
+      "count": 116,
+      "fraction": 0.313
+    },
+    "buried": {
+      "count": 176,
+      "fraction": 0.474
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.378,
+      "std": 2.574
+    },
+    "surface_net_charge": -2,
+    "surface_positive_residues": 10,
+    "surface_negative_residues": 12,
+    "total_sasa": 15005.9,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 70,
+        "end_resid": 72,
+        "length": 3,
+        "mean_hydrophobicity": 3.27
+      },
+      {
+        "start_resid": 217,
+        "end_resid": 219,
+        "length": 3,
+        "mean_hydrophobicity": 2.7
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "YP_010228713.1_surface_profile.png",
+    "exposure_pie": "YP_010228713.1_exposure_pie.png"
+  },
+  "surface_csv": "YP_010228713.1_surface.csv"
+}
