@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>a4 — structural analysis</title><style>body{max-width:820px;margin:2rem auto;padding:0 1rem;color:#222;font-family:-apple-system,Segoe UI,Roboto,Helvetica,sans-serif;line-height:1.55}h2{border-bottom:1px solid #eee;padding-bottom:.2rem;margin-top:2rem}img{max-width:100%;height:auto;display:block;margin:1rem auto}table{border-collapse:collapse;margin:1rem 0}td,th{border:1px solid #ccc;padding:4px 10px}blockquote{color:#555;border-left:3px solid #ddd;margin:0 0 1rem;padding-left:1rem}code{background:#f4f4f4;padding:1px 4px;border-radius:3px}</style></head><body><h1>Structural analysis — <code>a4</code></h1>
+<blockquote>
+<p>Facts are emitted deterministically from the measurement scripts. Sections marked with a SYNTHESIS comment are authored by the Claude session (judgment, Zone 2), kept visibly separate from the measured facts.</p>
+</blockquote>
+<h2>Executive summary</h2>
+<p>A 676-residue predicted model that is compact, near-spherical, and confidently folded. DSSP secondary structure is mixed α/β (38.8% helix, 23.8% sheet; 37.4% coil); the chain is essentially globular (asphericity 0.01, 75 × 72 × 57 Å) and well-packed (43.6% buried — a strong hydrophobic core, the most packed of these demos), with high confidence throughout (mean pLDDT 89.1, median 92.1, std 9.5) bar one localized low-confidence segment (min 35.3). The surface is <strong>strongly net-positive (+53 e; 69 positive vs 16 negative surface residues)</strong> — markedly basic. One caveat governs interpretation: at 676 residues this is far larger than a single α/β domain, so the whole-chain fold call (top candidate "α/β hydrolase", high) is a <strong>multi-domain average</strong>, not a single-domain assignment.</p>
+<h2>User-provided context</h2>
+<p>None provided. All observations below are derived from the structure alone.</p>
+<h2>Structure overview</h2>
+<ul>
+<li><strong>Source:</strong> predicted model — pLDDT in the B-factor column</li>
+<li><strong>Chains:</strong> 1 (single chain)</li>
+<li><strong>Residues / atoms:</strong> 676 / 5455</li>
+<li><strong>Missing residues:</strong> 0</li>
+<li><strong>Non-solvent ligands:</strong> none</li>
+<li>chain <strong>A</strong>: 676 res</li>
+</ul>
+<h2>Structural views</h2>
+<p><img alt="a4 — down long axis" src="a4_axis1.png" /></p>
+<p><img alt="a4 — down mid axis" src="a4_axis2.png" /></p>
+<p><img alt="a4 — down short axis" src="a4_axis3.png" /></p>
+<p><em>Cα backbone trace (Agent 2.2 matplotlib placeholder), down the long / mid / short principal axes; coloured by pLDDT.</em></p>
+<h2>Fold &amp; shape</h2>
+<ul>
+<li><strong>Shape:</strong> spherical/globular (asphericity 0.01, Rg 25.98 Å)</li>
+<li><strong>Approx. dimensions:</strong> 75.2 × 71.8 × 57.4 Å</li>
+<li><strong>Secondary structure:</strong> helix 38.8%, sheet 23.8%, coil 37.4%</li>
+<li><strong>Fold class:</strong> alpha/beta</li>
+<li>alpha/beta hydrolase (SCOP c.69, CATH 3.40.50; confidence high)</li>
+<li>TIM barrel (alpha/beta barrel) (SCOP c.1, CATH 3.20.20; confidence moderate)</li>
+<li>Rossmann fold (SCOP c.2, CATH 3.40.50; confidence low)</li>
+</ul>
+<h2>Surface properties</h2>
+<ul>
+<li><strong>Exposure:</strong> buried 43.6%, partial 33.3%, exposed 23.1%</li>
+<li><strong>Total SASA:</strong> 32506.2 Å²</li>
+<li><strong>Surface hydrophobicity (KD):</strong> mean -2.03 ± 2.9</li>
+<li><strong>Surface charge (pH 7):</strong> net 53 e (69 +, 16 −)</li>
+<li><strong>Hydrophobic patches:</strong> 2:</li>
+<li>residues 297–299 (len 3, mean KD 2.13)</li>
+<li>residues 591–594 (len 4, mean KD 4.25)</li>
+</ul>
+<p><img alt="Per-residue SASA &amp; hydrophobicity" src="a4_surface_profile.png" /></p>
+<p><img alt="Exposure breakdown" src="a4_exposure_pie.png" /></p>
+<h2>Prediction quality / structural coherence</h2>
+<p>Confidence is <strong>reported, never gated</strong> — these signals are inputs for the synthesis below, not a pass/fail.</p>
+<ul>
+<li><strong>pLDDT (chain A):</strong> mean 89.06, median 92.05, range 35.32–98.06, std 9.49</li>
+<li><strong>Compactness:</strong> Rg 25.98 Å vs ~33.9 Å expected for 676 residues (2.5·N^0.4) — consistent</li>
+<li><strong>Core present:</strong> buried fraction 43.6%</li>
+<li><strong>Coil fraction:</strong> 37.4%</li>
+<li><strong>Top fold-candidate confidence:</strong> high</li>
+</ul>
+<h3>Coherence assessment</h3>
+<p>The coherence signals and the confidence score agree on a <strong>genuinely well-folded model</strong>. Compactness is in the folded range (Rg 26.0 Å, below the ~33.9 Å expected for 676 residues), a strong hydrophobic core is present (43.6% buried — the highest of these targets), and pLDDT is high across the chain (median 92.1, std 9.5) with only a single localized low-confidence segment (min 35.3) — a confident fold with one flexible region, not a globally uncertain model. SS content (≈63% in defined H+E elements) matches the compact globular shape. The one thing the signals <strong>cannot</strong> underwrite is the specific fold <em>name</em>: the classifier averages SS over all 676 residues, so its single-domain candidate ("α/β hydrolase") conflates what is almost certainly a multi-domain architecture.</p>
+<h2>Expected-parameter comparison</h2>
+<p><em>No expected-parameter profile supplied — this is the default for novel / low-homology targets. See the independent observations below.</em></p>
+<h2>Independent observations</h2>
+<ul>
+<li><strong>Compact, well-packed globular model.</strong> Mixed α/β (38.8% helix, 23.8% sheet), near-perfectly spherical (asphericity 0.01, 75 × 72 × 57 Å), Rg 26.0 Å (below the ~33.9 Å expected for 676 residues), and 43.6% buried — a strong hydrophobic core, the most packed of these targets.</li>
+<li><strong>High confidence with one localized dip.</strong> pLDDT median 92.1 (range 35.3–98.1, std 9.5): a confident fold with a single low-confidence segment, not global uncertainty.</li>
+<li><strong>Multi-domain — the whole-chain fold class is an average.</strong> At 676 residues the chain is far larger than a single α/β domain (~250–300 aa), so the "α/β hydrolase (high)" top candidate is a whole-structure SS-ratio average across (apparently) multiple domains, not a single-domain assignment. The reliable level is the α/β SCOP <em>class</em>; per-domain segmentation would be needed to name the actual folds.</li>
+<li><strong>Strongly basic surface.</strong> Net +53 e at pH 7 (69 positive vs 16 negative surface residues) — a markedly positive surface; two short hydrophobic patches (residues 297–299, 591–594).</li>
+</ul>
+<h2>What cannot be determined from structure alone</h2>
+<ul>
+<li><strong>Identity and function</strong> — not established; the analysis is identity-agnostic.</li>
+<li><strong>Per-domain folds / domain boundaries</strong> — the whole-chain classifier averages over the (apparent) multiple domains and cannot resolve them; the "α/β hydrolase / TIM-barrel / Rossmann" candidates are not single-domain assignments for a 676-residue chain. Per-domain fold classification is Phase-2 / Agent-3 work.</li>
+<li><strong>Mechanism / what the basic surface engages</strong> — the strongly net-positive surface (+53 e) is a structural observation, not a functional claim; whether it reflects a charged-ligand or polyanion interaction is for Agent 3 (Foldseek + literature).</li>
+<li><strong>Homology / relatives</strong> — Agent 3. <em>Seeds:</em> a 676-residue, compact, confidently-folded multi-domain α/β protein with a strongly basic surface (+53 e); the leads are (a) segment into domains and classify each, and (b) the basic-surface / potential polyanion-binding hypothesis.</li>
+</ul>
+<h2>Methods</h2>
+<ul>
+<li><strong>Measurements (deterministic):</strong> <code>parse_structure.py</code> (metadata, confidence stats), <code>surface_analysis.py</code> (Shrake–Rupley SASA, Kyte–Doolittle hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics, SCOP/CATH fold class), <code>render_trace.py</code> (Agent 2.2 Cα-trace figures; <code>render_views.py</code> Mol* cartoons when Agent 2.1 is available).</li>
+<li><strong>Report facts</strong> below the synthesis sections are emitted verbatim from the above scripts' JSON by <code>assemble_report.py</code> — no transcription.</li>
+<li><strong>Synthesis</strong> sections (executive summary, independent observations, coherence assessment, cannot-determine) are authored by Claude per <code>SKILL.md</code> Step 9, each claim cited to a measurement.</li>
+</ul></body></html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>a3 — structural analysis</title><style>body{max-width:820px;margin:2rem auto;padding:0 1rem;color:#222;font-family:-apple-system,Segoe UI,Roboto,Helvetica,sans-serif;line-height:1.55}h2{border-bottom:1px solid #eee;padding-bottom:.2rem;margin-top:2rem}img{max-width:100%;height:auto;display:block;margin:1rem auto}table{border-collapse:collapse;margin:1rem 0}td,th{border:1px solid #ccc;padding:4px 10px}blockquote{color:#555;border-left:3px solid #ddd;margin:0 0 1rem;padding-left:1rem}code{background:#f4f4f4;padding:1px 4px;border-radius:3px}</style></head><body><h1>Structural analysis — <code>a3</code></h1>
+<blockquote>
+<p>Facts are emitted deterministically from the measurement scripts. Sections marked with a SYNTHESIS comment are authored by the Claude session (judgment, Zone 2), kept visibly separate from the measured facts.</p>
+</blockquote>
+<h2>Executive summary</h2>
+<p>A 124-residue predicted model that is <strong>all-α and strongly elongated, with little sign of a packed core.</strong> DSSP secondary structure is 50% helix / 0% sheet (50% coil); the chain is extended — asphericity 0.70, 90 Å long axis, Rg 29.7 Å versus the ~17.2 Å expected for 124 residues — with only 12.1% of residues buried and 65.3% solvent-exposed, i.e. essentially no hydrophobic core. Confidence is low across the whole chain (mean pLDDT 60.4, median 53.9, range 40.6–86.9), not a localized dip. The surface is strongly net-positive (+9.2 e; 17 positive vs 6 negative). The helical content is a real measurement, but this elongated, core-less, low-confidence model is <strong>not</strong> a confidently-packed globular fold — read the "all-alpha" fold call cautiously.</p>
+<h2>User-provided context</h2>
+<p>None provided. All observations below are derived from the structure alone.</p>
+<h2>Structure overview</h2>
+<ul>
+<li><strong>Source:</strong> predicted model — pLDDT in the B-factor column</li>
+<li><strong>Chains:</strong> 1 (single chain)</li>
+<li><strong>Residues / atoms:</strong> 124 / 966</li>
+<li><strong>Missing residues:</strong> 0</li>
+<li><strong>Non-solvent ligands:</strong> none</li>
+<li>chain <strong>A</strong>: 124 res</li>
+</ul>
+<h2>Structural views</h2>
+<p><img alt="a3 — down long axis" src="a3_axis1.png" /></p>
+<p><img alt="a3 — down mid axis" src="a3_axis2.png" /></p>
+<p><img alt="a3 — down short axis" src="a3_axis3.png" /></p>
+<p><em>Cα backbone trace (Agent 2.2 matplotlib placeholder), down the long / mid / short principal axes; coloured by pLDDT.</em></p>
+<h2>Fold &amp; shape</h2>
+<ul>
+<li><strong>Shape:</strong> prolate (elongated) (asphericity 0.7, Rg 29.72 Å)</li>
+<li><strong>Approx. dimensions:</strong> 90.2 × 37.7 × 26.6 Å</li>
+<li><strong>Secondary structure:</strong> helix 50.0%, sheet 0.0%, coil 50.0%</li>
+<li><strong>Fold class:</strong> all-alpha</li>
+<li>generic all-alpha fold (SCOP unclassified, CATH unclassified; confidence low)</li>
+</ul>
+<h2>Surface properties</h2>
+<ul>
+<li><strong>Exposure:</strong> buried 12.1%, partial 22.6%, exposed 65.3%</li>
+<li><strong>Total SASA:</strong> 10625.6 Å²</li>
+<li><strong>Surface hydrophobicity (KD):</strong> mean -0.91 ± 2.92</li>
+<li><strong>Surface charge (pH 7):</strong> net 9.2 e (17 +, 6 −)</li>
+<li><strong>Hydrophobic patches:</strong> 2:</li>
+<li>residues 38–40 (len 3, mean KD 1.8)</li>
+<li>residues 49–52 (len 4, mean KD 2.98)</li>
+</ul>
+<p><img alt="Per-residue SASA &amp; hydrophobicity" src="a3_surface_profile.png" /></p>
+<p><img alt="Exposure breakdown" src="a3_exposure_pie.png" /></p>
+<h2>Prediction quality / structural coherence</h2>
+<p>Confidence is <strong>reported, never gated</strong> — these signals are inputs for the synthesis below, not a pass/fail.</p>
+<ul>
+<li><strong>pLDDT (chain A):</strong> mean 60.36, median 53.94, range 40.63–86.91, std 15.02</li>
+<li><strong>Compactness:</strong> Rg 29.72 Å vs ~17.2 Å expected for 124 residues (2.5·N^0.4) — larger than expected</li>
+<li><strong>Core present:</strong> buried fraction 12.1%</li>
+<li><strong>Coil fraction:</strong> 50.0%</li>
+<li><strong>Top fold-candidate confidence:</strong> low</li>
+</ul>
+<h3>Coherence assessment</h3>
+<p>This is the case where the coherence signals and the confidence score <strong>agree that the model is uncertain</strong> — not a low pLDDT hiding a coherent fold, but low confidence alongside structural signs of an <em>unpacked</em> model. The buried fraction is only 12.1% and Rg is 73% above the folded-globular expectation (29.7 vs ~17.2 Å), so there is no compact hydrophobic core; pLDDT is low across the whole chain (median 53.9), not a localized terminus. The 50% helix is a real DSSP measurement, but those helices are not assembled into a confidently-packed tertiary structure here. Read this as an extended / under-determined helical model: the secondary-structure content is trustworthy, the overall fold is not. (Contrast the earlier targets, where a low minimum pLDDT was a localized floppy arm on an otherwise solid, compact fold.)</p>
+<h2>Expected-parameter comparison</h2>
+<p><em>No expected-parameter profile supplied — this is the default for novel / low-homology targets. See the independent observations below.</em></p>
+<h2>Independent observations</h2>
+<ul>
+<li><strong>All-α, no sheet.</strong> 50% helix, 0% sheet (DSSP) — purely helical secondary structure.</li>
+<li><strong>Elongated, with essentially no core.</strong> Asphericity 0.70, 90 × 38 × 27 Å, Rg 29.7 Å (73% above the ~17.2 Å expected for 124 residues); only 12.1% buried and 65.3% exposed — far from the ≥~30% buried core of a compact globular domain. Extended + core-less + all-helical converge toward an extended helical conformation rather than a packed fold.</li>
+<li><strong>Uniformly low confidence.</strong> pLDDT median 53.9 (range 40.6–86.9, std 15.0) — low across the chain, not one floppy segment; this <em>agrees with</em> the structural signs of an unpacked model rather than contradicting them.</li>
+<li><strong>Strongly net-positive surface.</strong> +9.2 e (17 positive vs 6 negative surface residues) — markedly basic; two short hydrophobic patches (residues 38–40, 49–52).</li>
+</ul>
+<h2>What cannot be determined from structure alone</h2>
+<ul>
+<li><strong>Identity and function</strong> — not established; the analysis is identity-agnostic.</li>
+<li><strong>Whether this is a genuine extended-helical fold or an under-determined prediction</strong> — low confidence throughout <em>plus</em> the absence of a core mean this single model can't distinguish a real elongated / coiled-coil-like helical structure from a sequence the predictor simply couldn't pack. Orthogonal evidence (an MSA-based predictor, experiment, or structural homology) is needed — Agent 3.</li>
+<li><strong>Fold / topology</strong> — only a generic "all-alpha" class at low confidence; no specific fold assignable.</li>
+<li><strong>Homology / relatives</strong> — Agent 3 (Foldseek + literature). <em>Seeds:</em> a 124-residue all-α, strongly elongated (90 Å, Rg 29.7), core-less, net-positive (+9.2 e), low-confidence model; check whether a homolog/MSA yields a confident compact fold, and whether the elongation reflects a coiled-coil or single-helix motif.</li>
+</ul>
+<h2>Methods</h2>
+<ul>
+<li><strong>Measurements (deterministic):</strong> <code>parse_structure.py</code> (metadata, confidence stats), <code>surface_analysis.py</code> (Shrake–Rupley SASA, Kyte–Doolittle hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics, SCOP/CATH fold class), <code>render_trace.py</code> (Agent 2.2 Cα-trace figures; <code>render_views.py</code> Mol* cartoons when Agent 2.1 is available).</li>
+<li><strong>Report facts</strong> below the synthesis sections are emitted verbatim from the above scripts' JSON by <code>assemble_report.py</code> — no transcription.</li>
+<li><strong>Synthesis</strong> sections (executive summary, independent observations, coherence assessment, cannot-determine) are authored by Claude per <code>SKILL.md</code> Step 9, each claim cited to a measurement.</li>
+</ul></body></html>

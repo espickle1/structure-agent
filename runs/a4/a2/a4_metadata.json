@@ -1,0 +1,45 @@
+{
+  "file": "a4.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 676,
+  "total_atoms": 5455,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 676,
+      "num_atoms": 5455,
+      "sequence": "MNDKDLEIEYLKKIDLFQRHNKHYYDKNKPIVSDQEFDLLKKDIIDLERKYKFLKSEYSPTKSIGFKPSKNFQKIKHKVPMLSLGNAFNEEDLKNFEKKIINFLSLKDVNTIEYSAEPKIDGISASLIYIDGKLTKGLSRGDGNEGEDITQNLKTIKDIPLEITKSNFPKEIDIRGEVFIENNDFKKIKDKFANPRNAASGSLRQKNSLITAKIPLKFIAYTYGYEKKMNIKNQTSFLENLKLWGFKTNPFNKKIIGVKNLMLNHKELEEKRKELAFDIDGIVYKVNDFDLQKRLGFAANAPRWAIAHKFSANSSISEIMNIEIQIGRTGALTPVAKIKPVNIGGVIVSNATLHNEDEIVRKDIRVGDTVTVERAGDVIPHVVSVDLKKRKQNSKKFIFPLKCPSCGSKTIKDYNETTKRQDAVRRCASEGFECEKIAIERIKHFVSKDAFNIDGFGKKIVENFWNLKLVRLPQDIFKLNYNKIEELEGWGKLSVANLRFSIEEKKNISLERFIYSLGIRHIGQENAKLIARHLKTASNFFRLSGEKNIESLSNIDGIGITQIQSIKKFFLNKTNLKVLSELEKNLLIKDVILINNNGLLKNKTFMLTGKLNGISRAEAKSLIEQNSGKIISNVNKKLDYLIAGDKPTLKKINTAKEWNIKIINQTEWLKMLNKSG",
+      "sequence_length": 676,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 89.06,
+        "median": 92.05,
+        "min": 35.32,
+        "max": 98.06,
+        "std": 9.49
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

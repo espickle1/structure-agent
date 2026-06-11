@@ -1,0 +1,95 @@
+{
+  "file": "a3.cif",
+  "shape": {
+    "radius_of_gyration": 29.72,
+    "asphericity": 0.6963,
+    "principal_eigenvalues": [
+      785.69,
+      62.62,
+      35.13
+    ],
+    "axis_ratios": {
+      "long_mid": 12.55,
+      "long_short": 22.37
+    },
+    "approximate_dimensions": {
+      "long_axis": 90.2,
+      "mid_axis": 37.7,
+      "short_axis": 26.6,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 124
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 62,
+      "fraction": 0.5
+    },
+    "sheet": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "coil": {
+      "count": 62,
+      "fraction": 0.5
+    },
+    "total_assigned": 124,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "fold_classification": {
+    "scop_class": "all-alpha",
+    "fold_candidates": [
+      {
+        "fold": "generic all-alpha fold",
+        "scop_id": "unclassified",
+        "cath_id": "unclassified",
+        "confidence": "low",
+        "basis": "SS content (50% helix, 0% sheet, 50% coil) does not strongly match a common fold archetype. Database lookup (SCOP/CATH/Dali) recommended for definitive classification."
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 124,
+    "exposed": {
+      "count": 81,
+      "fraction": 0.653
+    },
+    "partial": {
+      "count": 28,
+      "fraction": 0.226
+    },
+    "buried": {
+      "count": 15,
+      "fraction": 0.121
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.905,
+      "std": 2.917
+    },
+    "surface_net_charge": 9.2,
+    "surface_positive_residues": 17,
+    "surface_negative_residues": 6,
+    "total_sasa": 10625.6,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 38,
+        "end_resid": 40,
+        "length": 3,
+        "mean_hydrophobicity": 1.8
+      },
+      {
+        "start_resid": 49,
+        "end_resid": 52,
+        "length": 4,
+        "mean_hydrophobicity": 2.98
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "a3_surface_profile.png",
+    "exposure_pie": "a3_exposure_pie.png"
+  },
+  "surface_csv": "a3_surface.csv"
+}

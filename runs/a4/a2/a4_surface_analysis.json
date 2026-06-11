@@ -1,0 +1,109 @@
+{
+  "file": "a4.cif",
+  "shape": {
+    "radius_of_gyration": 25.98,
+    "asphericity": 0.0089,
+    "principal_eigenvalues": [
+      264.68,
+      218.43,
+      192.08
+    ],
+    "axis_ratios": {
+      "long_mid": 1.21,
+      "long_short": 1.38
+    },
+    "approximate_dimensions": {
+      "long_axis": 75.2,
+      "mid_axis": 71.8,
+      "short_axis": 57.4,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "spherical/globular",
+    "num_ca_atoms": 676
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 262,
+      "fraction": 0.388
+    },
+    "sheet": {
+      "count": 161,
+      "fraction": 0.238
+    },
+    "coil": {
+      "count": 253,
+      "fraction": 0.374
+    },
+    "total_assigned": 676,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "fold_classification": {
+    "scop_class": "alpha/beta",
+    "fold_candidates": [
+      {
+        "fold": "alpha/beta hydrolase",
+        "scop_id": "c.69",
+        "cath_id": "3.40.50",
+        "confidence": "high",
+        "basis": "SS content consistent with canonical alpha/beta hydrolase fold (central beta-sheet flanked by alpha-helices)"
+      },
+      {
+        "fold": "TIM barrel (alpha/beta barrel)",
+        "scop_id": "c.1",
+        "cath_id": "3.20.20",
+        "confidence": "moderate",
+        "basis": "SS content and shape compatible with (beta/alpha)8 barrel topology"
+      },
+      {
+        "fold": "Rossmann fold",
+        "scop_id": "c.2",
+        "cath_id": "3.40.50",
+        "confidence": "low",
+        "basis": "SS ratios compatible; topology requires further verification"
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 676,
+    "exposed": {
+      "count": 156,
+      "fraction": 0.231
+    },
+    "partial": {
+      "count": 225,
+      "fraction": 0.333
+    },
+    "buried": {
+      "count": 295,
+      "fraction": 0.436
+    },
+    "surface_hydrophobicity": {
+      "mean": -2.032,
+      "std": 2.9
+    },
+    "surface_net_charge": 53,
+    "surface_positive_residues": 69,
+    "surface_negative_residues": 16,
+    "total_sasa": 32506.2,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 297,
+        "end_resid": 299,
+        "length": 3,
+        "mean_hydrophobicity": 2.13
+      },
+      {
+        "start_resid": 591,
+        "end_resid": 594,
+        "length": 4,
+        "mean_hydrophobicity": 4.25
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "a4_surface_profile.png",
+    "exposure_pie": "a4_exposure_pie.png"
+  },
+  "surface_csv": "a4_surface.csv"
+}
