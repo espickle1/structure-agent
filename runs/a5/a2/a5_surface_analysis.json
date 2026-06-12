@@ -1,0 +1,102 @@
+{
+  "file": "a5.cif",
+  "shape": {
+    "radius_of_gyration": 30.62,
+    "asphericity": 0.0685,
+    "principal_eigenvalues": [
+      436.35,
+      343.26,
+      158.07
+    ],
+    "axis_ratios": {
+      "long_mid": 1.27,
+      "long_short": 2.76
+    },
+    "approximate_dimensions": {
+      "long_axis": 94.1,
+      "mid_axis": 92.6,
+      "short_axis": 71.5,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "roughly globular",
+    "num_ca_atoms": 854
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 292,
+      "fraction": 0.342
+    },
+    "sheet": {
+      "count": 215,
+      "fraction": 0.252
+    },
+    "coil": {
+      "count": 347,
+      "fraction": 0.406
+    },
+    "total_assigned": 854,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "fold_classification": {
+    "scop_class": "alpha/beta",
+    "fold_candidates": [
+      {
+        "fold": "alpha/beta hydrolase",
+        "scop_id": "c.69",
+        "cath_id": "3.40.50",
+        "confidence": "high",
+        "basis": "SS content consistent with canonical alpha/beta hydrolase fold (central beta-sheet flanked by alpha-helices)"
+      },
+      {
+        "fold": "TIM barrel (alpha/beta barrel)",
+        "scop_id": "c.1",
+        "cath_id": "3.20.20",
+        "confidence": "moderate",
+        "basis": "SS content and shape compatible with (beta/alpha)8 barrel topology"
+      }
+    ]
+  },
+  "surface_stats": {
+    "total_residues": 854,
+    "exposed": {
+      "count": 217,
+      "fraction": 0.254
+    },
+    "partial": {
+      "count": 327,
+      "fraction": 0.383
+    },
+    "buried": {
+      "count": 310,
+      "fraction": 0.363
+    },
+    "surface_hydrophobicity": {
+      "mean": -2.26,
+      "std": 2.191
+    },
+    "surface_net_charge": 37.2,
+    "surface_positive_residues": 75,
+    "surface_negative_residues": 36,
+    "total_sasa": 44723.0,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 420,
+        "end_resid": 422,
+        "length": 3,
+        "mean_hydrophobicity": 3.73
+      },
+      {
+        "start_resid": 543,
+        "end_resid": 545,
+        "length": 3,
+        "mean_hydrophobicity": 4.03
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "a5_surface_profile.png",
+    "exposure_pie": "a5_exposure_pie.png"
+  },
+  "surface_csv": "a5_surface.csv"
+}

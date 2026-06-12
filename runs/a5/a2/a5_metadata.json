@@ -1,0 +1,45 @@
+{
+  "file": "a5.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 854,
+  "total_atoms": 6828,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 854,
+      "num_atoms": 6828,
+      "sequence": "MSILILLESPGKISKISSILGKNYVVKASMGHFRDLDPKKMSIDFDNDFEPVYIVTKPDVVKNLKSAMKNIDLVYLAADEDREGEAIAQSLYDVLKPSNYKRLRFNAITKDAIMSAIKNAGDIDKNLVDAQKARRVLDRLFGYLISPILQRQIGGKLSAGRVQSVTVRIIIDKENEIKNFINKNADSSYFKVSGTFNGAKATLHESNDKKPFDLETAYKGKTAQIALINSENPNSKVVNFMKRCLKSQFFIHSVEDKMTTRSPAPPFTTSTLQQEANRKFGMSIDSTMKTAQKLYEGGYITYMRTDSVEISAEGHRDIKKIITDQYGADYYQKNLYKNKAANSQEAHEAIRPTHPELLTLEGEIEDAYQIKLYKLIWQRTIASQMKPAKIKVTIIQISISKYVEDKLNPFYYFQSQIETVVFPGFMKVYVESIDDPDTDNQITKNFTGKIPTVGSKVTMEEIIARQEYMRPPPRYSEASLVKKLEELGIGRPSTYVNTIKTIINREYVKITDVPGIKKDITIYSIKSENKKHIMEVYEDTDTILLGKENKKIVPTNLGITVNDFLMKYFPEFLDYKFTANMETDLDYVSTGTKNWVDIVQDFYDKLKPIVDELSKQKGLSQSSERLLGEDNDGNEITATKTKFGPVVRKKIGDKYVYAKIKDPLTLDTIKLSDAIKLLEYPKNLGQYKGFDVLLQKGDYGFYLSYNKENFSLGEIDDPEDINLDTAIKAIEAKKANNIAEFNLTENGKKIKAIVLNGKYGYYVQVTRNRIKKNYPIPKDLDPNNLTEQQILSIISVKKTYKKSAPKGGSKTIRKPSQTKYSQTKSTKSTKSTKSTNKKFVGKSAKKTTKKTTKK",
+      "sequence_length": 854,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 85.04,
+        "median": 90.05,
+        "min": 31.9,
+        "max": 98.01,
+        "std": 14.01
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

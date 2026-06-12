@@ -53,10 +53,11 @@ NUM_LOOPS = 3
 NUM_SAMPLING_STEPS = 50
 NUM_DIFFUSION_SAMPLES = 1
 SEED = 0
-# H100 was over-provisioned for a 0.2B model; L4 (24 GB) is the cost-efficient
-# default — ample headroom even for Agent 0's 2000-aa length ceiling. Bump to
-# A10G / A100 only if throughput testing on real batches argues for it.
-GPU = "L4"
+# ESMFold2 activations scale ~O(L^2), so GPU *memory* — not the 0.2B model —
+# sets the length ceiling. L4 (24 GB) OOMs around ~850 aa (676 fits, 854 fails),
+# well below Agent 0's 2000-aa gate, so it is a poor fit for the target range.
+# A100 (40 GB) gives real headroom; revisit cost/throughput tuning later.
+GPU = "A100"
 
 
 @app.cls(image=image, volumes={models_dir: volume}, gpu=GPU, timeout=20 * MINUTES)
