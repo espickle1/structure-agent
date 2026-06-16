@@ -6,12 +6,12 @@ Multi-agent pipeline for high-throughput protein structure prediction and analys
 
 - **Agent 0** (complete): heterogeneous nucleotide/protein FASTA → clean amino acid FASTA + provenance metadata. Stack: BioPython, orfipy, ESM-2 650M, Modal (CPU fast app + GPU slow app).
 - **Agent 1** (operational): structure prediction orchestrator. Folds single sequences with ESMFold2-Fast (no MSA) on Modal, annotates a mean-pLDDT confidence tier (never gates on quality), hands coordinates + metadata to Agent 2. Boltz-2 retained as a documented fallback for multimers (`src/agent_1/boltz_fallback/`).
-- **Agent 2** (complete, v4.0): deterministic structural description. Geometric measurements and spatial patterns only.
-- **Agent 3** (not started): interpretation layer.
+- **Agent 2** (complete): the final stage — measurement through interpretation. Deterministic scripts measure geometry, surface, secondary structure, shape, and renders (JSON/CSV/PNG); an interpretive SKILL (`src/agent_2/SKILL.md`) reads those outputs and writes the PDF report.
+- **Agent 3**: not a separate module. Interpretation was merged into Agent 2's SKILL — nothing to build here.
 
 ## Architectural rules — non-negotiable
 
-- **Zone discipline.** Zone 1 = direct geometric measurement. Zone 2 = spatial pattern description. Zone 3+ = interpretation. Agents 0–2 NEVER produce Zone 3 output. This boundary exists to prevent biologically plausible but incorrect outputs.
+- **Measured vs inferred.** The report separates what was directly measured from what is inferred, and states "insufficient structural evidence to assign function" when the structure doesn't support a call. Fold and function are inference — they belong in the report's prose, never as fields emitted by a measurement script. This boundary exists to prevent biologically plausible but incorrect outputs.
 - **Identity-agnostic in Phase 1.** Filenames are opaque labels. Never parse them for biological meaning.
 - **Module independence.** Modules within an agent must not depend on each other's outputs.
 - **Metadata passthrough.** Upstream metadata is forwarded unmodified; it never influences geometric measurements.
