@@ -27,7 +27,7 @@ written during iterative consultation with the user (Phase 2).
 - `scripts/parse_structure.py` — Structure parsing and metadata extraction.
 - `scripts/compare_structures.py` — Multi-structure superposition, RMSD, deviation profiles.
 - `scripts/binding_site.py` — Ligand detection, pocket analysis, interaction classification.
-- `scripts/surface_analysis.py` — SASA, surface properties, secondary structure, shape, fold classification.
+- `scripts/surface_analysis.py` — SASA, surface properties, secondary structure, shape, dimensions.
 - `references/interpretation_guide.md` — Passive reference for contextualizing results.
 
 **Error handling:** If any script exits non-zero, HALT the pipeline and present the error
@@ -43,14 +43,20 @@ Phase 1 describes structure. It never identifies a protein by name or function.
 
 - **Filenames are opaque labels.** They appear in metadata tables exactly as provided but
   are NEVER parsed for biological meaning. A file named `igaa_complex.cif` tells you
-  nothing about what the protein is. Do not search literature based on filenames.
-- **Fold classification reports structural categories** (SCOP class, CATH topology) and
-  structural descriptions. It does not speculate about which specific protein the structure
-  "is" or what function it performs.
+  nothing about what the protein is. Do not infer biology from filenames.
+- **Measurements report structural categories** (shape, secondary-structure content,
+  surface character). They do not speculate about which specific protein the structure
+  "is" or what function it performs. Fold-level character may appear in the synthesis
+  prose as explicit inference derived from the SS/shape numbers — never as a field
+  emitted by a measurement script.
 - **The agent does not guess protein identity.** If the user does not provide identity
   information, the analysis proceeds purely from structural observations. The honest
   default is: "I can describe what the structure shows; I cannot tell you what protein
   this is without additional information."
+- **"Insufficient structural evidence to assign function" is a valid, expected
+  conclusion — not a failure.** When the structure does not support a specific fold or
+  functional call, say so plainly. The one thing this analysis must never ship is a
+  confidently-wrong fold-or-function claim.
 
 This principle applies throughout Phase 1 and during synthesis. Phase 2 may involve
 identity-informed analysis if the user provides that context.
@@ -111,7 +117,7 @@ Count structure files. This determines the workflow branch.
 After detecting inputs, ask:
 
 > "Anything you know about this structure — organism, function, what you're looking for —
-> will help me search better literature and interpret the results. Whatever you have is
+> will help me interpret the results. Whatever you have is
 > useful; if you have nothing, I'll work from the structure alone."
 
 **Accept free-text context.** There is no fixed schema. The user may provide anything
@@ -129,14 +135,14 @@ from nothing to extensive annotation. Examples of what users might provide:
 - Classify each claim as **checkable** (can be validated against Phase 1 output) or
   **contextual** (steers interpretation but cannot be confirmed from structure alone).
 - Checkable claims will be cross-validated after Phase 1 scripts run (see Step 7b).
-- Contextual claims feed synthesis weighting (Step 9); literature grounding is Agent 3's job.
+- Contextual claims feed synthesis weighting (Step 9).
 
 **If the user provides nothing:** Proceed with identity-agnostic analysis. Note in the
 report: "No prior biological context provided; all findings derived from structural observation."
 
 **Context can arrive at any point in the session.** If the user provides new context
-during Phase 2, re-evaluate current synthesis against the new information and adjust
-literature searches accordingly. Phase 1 results do not change — interpretation does.
+during Phase 2, re-evaluate current synthesis against the new information.
+Phase 1 results do not change — interpretation does.
 
 ### Step 2: Run parse_structure.py on Every Structure
 
@@ -161,7 +167,7 @@ then Step 5 (binding site).
 **Multiple structures** → Go to Step 4, then Step 4b, then Step 6 (comparative analysis),
 then Step 5.
 
-### Step 4: Surface & Fold Analysis (Every Structure)
+### Step 4: Surface Analysis (Every Structure)
 
 Run for every structure file:
 
@@ -170,9 +176,8 @@ python scripts/surface_analysis.py <file> --output-dir results/
 ```
 
 This produces: per-residue SASA and exposure classification, surface hydrophobicity
-and charge maps, secondary structure assignments (via DSSP), overall shape metrics
-(radius of gyration, asphericity, principal dimensions), and fold classification
-(SCOP class + closest common fold match from SCOP/CATH signatures).
+and charge maps, secondary structure assignments (via DSSP), and overall shape metrics
+(radius of gyration, asphericity, principal dimensions).
 
 If the script exits non-zero: **HALT. Present the error to the user.**
 
@@ -206,7 +211,7 @@ dimensions consistent with chain length. Proceed normally.
 **Mixed disorder:** Some regions appear folded (SS elements, buried residues) while others
 are extensively coiled and exposed. Proceed with analysis, but:
 - Segment reporting: "Residues X–Y are well-structured; residues Z–W appear disordered."
-- Note that whole-chain metrics (overall fold classification, average shape) are unreliable
+- Note that whole-chain metrics (overall shape, average dimensions) are unreliable
   when a large disordered region skews them.
 - Offer Phase 2 domain-specific analysis of the structured portion.
 
@@ -215,7 +220,7 @@ structure — overwhelmingly coil, uniformly high SASA, extended dimensions, ext
 missing residues. **Stop structural analysis and tell the user directly:**
 
 > "This structure does not contain stable tertiary structure — [describe the converging
-> evidence]. Fold classification, surface analysis, and binding site detection are not
+> evidence]. Surface analysis, shape metrics, and binding site detection are not
 > meaningful for intrinsically disordered proteins. If you're interested in
 > disorder-specific properties (charge distribution along the sequence, low-complexity
 > regions, short linear motifs), I can investigate those as targeted follow-ups."
@@ -327,7 +332,7 @@ silently accept the user's claim over structural evidence.
 > below the detection threshold, or that the expected count needs revisiting."
 
 **Contextual claims** (organism, function, pathway) cannot be directly checked. Carry
-them as stated priors for literature search and synthesis.
+them as stated priors for synthesis.
 
 ### Step 8: Read Interpretation Guide
 
@@ -342,14 +347,6 @@ Read `references/interpretation_guide.md`. Use it to:
 
 Do NOT parrot the guide. Synthesize findings into a coherent narrative that a structural
 biologist would find useful.
-
-### Step 8b: (literature context → Agent 3 / Stage 2)
-
-Agent 2 does **no web/literature search**. Identity-, homolog-, and
-literature-grounded interpretation is Zone 3 and belongs to Agent 3 (Foldseek +
-PubMed). Hand off the structural observations — and any expected-parameter
-consistency hypotheses from Step 9 — as seeds for Agent 3; do not search the web
-here.
 
 ### Step 9: Assemble the Markdown Report
 
@@ -379,15 +376,16 @@ you author from the measured facts plus the interpretation guide (Step 8):
 - **Independent observations** — what is notable or unexpected from the
   measurements + generic physical baselines **alone**; do **not** consult the
   expected-parameter profiles here (that keeps it an independent lens). Flag
-  internal inconsistencies (e.g. fold class vs SS content). Anchor every
+  internal inconsistencies (e.g. shape vs SS content). Anchor every
   "unexpected" to the baseline you compared against.
 - **Coherence assessment** — state whether the structural-coherence signals
-  (compactness, core, coil, fold confidence) agree with the confidence score, or
+  (compactness, core, coil) agree with the confidence score, or
   whether a low pLDDT sits alongside a coherent fold (common for low-homology
   targets). pLDDT is reported context, **never** a gate.
-- **What cannot be determined** — identity, function, mechanism, homology. These
-  are Agent 3's job; list them as the explicit handoff.
-- **Stay in Zone 1–2:** describe and compare. "Consistent with profile X" —
+- **What cannot be determined** — identity, function, mechanism, homology. State
+  these plainly as the limits of structural analysis; "insufficient structural
+  evidence to assign function" is a valid, expected conclusion, not a failure.
+- **Stay descriptive:** describe and compare. "Consistent with profile X" —
   never "is an X." Leave the deterministic facts the assembler wrote intact; only
   fill the placeholders.
 
@@ -418,7 +416,7 @@ that arise from the Phase 1 results. Examples of Phase 2 work:
 - Mapping user-provided conservation data onto the structure
 - Generating additional plots or visualizations
 - Re-running binding site analysis with a different cutoff
-- Per-domain fold classification for multi-chain complexes
+- Per-domain structural characterization for multi-chain complexes
 - Interface analysis at subunit boundaries
 
 Phase 2 code is disposable — it is not added to the standardized pipeline.
@@ -428,8 +426,7 @@ Phase 2 code is disposable — it is not added to the standardized pipeline.
 1. Cross-checks checkable claims against existing Phase 1 data (Step 7b logic).
 2. Flags any discrepancies.
 3. Re-evaluates synthesis in light of the new context.
-4. Adjusts literature search queries going forward.
-5. Does NOT re-run Phase 1 scripts — the data hasn't changed, only the interpretation.
+4. Does NOT re-run Phase 1 scripts — the data hasn't changed, only the interpretation.
 
 ---
 
@@ -437,8 +434,9 @@ Phase 2 code is disposable — it is not added to the standardized pipeline.
 
 When synthesizing results, weight findings in this order:
 
-1. **Fold, shape & surface** — Overall architecture, fold classification, surface character.
-   This frames everything else. State it first, even if the protein is a generic globular enzyme.
+1. **Fold, shape & surface** — Overall architecture, shape, secondary-structure content,
+   surface character. This frames everything else. State it first, even if the protein is a
+   generic globular enzyme.
 2. **Comparative / multi-structure analysis** — Conformational changes, RMSD patterns,
    convergent deviations across structures.
 3. **Binding sites & ligand interactions** — Pocket architecture, key interactions,
@@ -484,8 +482,8 @@ This is the minimal case:
 
 ### Structural Discrepancies
 
-If Phase 1 results contain internally inconsistent or unexpected signals — e.g., fold
-classifier returns low confidence, shape metrics don't match SS content, cofactor
-coordination doesn't match any known motif — note the discrepancy in the report without
+If Phase 1 results contain internally inconsistent or unexpected signals — e.g., shape
+metrics don't match SS content, cofactor coordination doesn't match any known motif —
+note the discrepancy in the report without
 attempting to explain it away. The agent says what it sees, including when what it sees
 is confusing. The user may have context that resolves the discrepancy.

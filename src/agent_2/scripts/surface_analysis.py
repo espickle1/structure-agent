@@ -439,145 +439,6 @@ def compute_shape_metrics(structure):
 
 
 # =========================================================================
-# Fold classification
-# =========================================================================
-def classify_fold(ss_content, shape_metrics):
-    """
-    Classify fold using SS content ratios + shape.
-    Reports SCOP class and best-match common fold.
-    """
-    # Fold class is driven entirely by SS content; if SS is unreliable (e.g. DSSP
-    # missing on an mmCIF → all-coil), do not emit a misleading classification.
-    if not ss_content.get("reliable", True):
-        return {
-            "scop_class": "undetermined (secondary structure unavailable)",
-            "fold_candidates": [],
-            "note": "DSSP unavailable; SS could not be assigned, so fold class is "
-                    "not determined. Install DSSP (mkdssp) for classification.",
-        }
-
-    h_frac = ss_content["helix"]["fraction"]
-    e_frac = ss_content["sheet"]["fraction"]
-    c_frac = ss_content["coil"]["fraction"]
-    total = ss_content["total_assigned"]
-
-    # SCOP class assignment
-    if h_frac > 0.40 and e_frac < 0.10:
-        scop_class = "all-alpha"
-    elif e_frac > 0.30 and h_frac < 0.10:
-        scop_class = "all-beta"
-    elif h_frac > 0.15 and e_frac > 0.15:
-        # Distinguish alpha/beta (mixed sheets) from alpha+beta (segregated)
-        scop_class = "alpha/beta"
-    elif h_frac > 0.05 and e_frac > 0.05:
-        scop_class = "alpha+beta"
-    else:
-        scop_class = "irregular/coil-dominated"
-
-    # Common fold matching by feature signatures
-    fold_candidates = []
-
-    # Alpha/beta hydrolase: ~30% helix, ~20% sheet, globular
-    if 0.15 <= h_frac <= 0.50 and 0.15 <= e_frac <= 0.35 and scop_class in ("alpha/beta",):
-        fold_candidates.append({
-            "fold": "alpha/beta hydrolase",
-            "scop_id": "c.69",
-            "cath_id": "3.40.50",
-            "confidence": "high" if 0.20 <= h_frac <= 0.45 and 0.18 <= e_frac <= 0.30 else "moderate",
-            "basis": "SS content consistent with canonical alpha/beta hydrolase fold "
-                     "(central beta-sheet flanked by alpha-helices)"
-            })
-
-    # TIM barrel: ~40% helix, ~25% sheet, globular, ~barrel shape
-    if 0.30 <= h_frac <= 0.50 and 0.18 <= e_frac <= 0.30 and scop_class == "alpha/beta":
-        fold_candidates.append({
-            "fold": "TIM barrel (alpha/beta barrel)",
-            "scop_id": "c.1",
-            "cath_id": "3.20.20",
-            "confidence": "moderate",
-            "basis": "SS content and shape compatible with (beta/alpha)8 barrel topology"
-            })
-
-    # Immunoglobulin-like: high beta, low helix
-    if e_frac > 0.35 and h_frac < 0.10:
-        fold_candidates.append({
-            "fold": "immunoglobulin-like beta-sandwich",
-            "scop_id": "b.1",
-            "cath_id": "2.60.40",
-            "confidence": "moderate",
-            "basis": "High beta-sheet content with minimal helix, consistent with beta-sandwich"
-            })
-
-    # Rossmann fold: alpha/beta with specific ratios
-    if 0.30 <= h_frac <= 0.50 and 0.15 <= e_frac <= 0.25 and scop_class == "alpha/beta":
-        fold_candidates.append({
-            "fold": "Rossmann fold",
-            "scop_id": "c.2",
-            "cath_id": "3.40.50",
-            "confidence": "low",
-            "basis": "SS ratios compatible; topology requires further verification"
-            })
-
-    # Four-helix bundle
-    if h_frac > 0.60 and total < 200:
-        fold_candidates.append({
-            "fold": "four-helix bundle",
-            "scop_id": "a.24",
-            "cath_id": "1.20.120",
-            "confidence": "moderate" if total < 120 else "low",
-            "basis": "High helical content in small protein"
-            })
-
-    # Beta-propeller
-    if e_frac > 0.40 and h_frac < 0.10 and total > 200:
-        fold_candidates.append({
-            "fold": "beta-propeller",
-            "scop_id": "b.66",
-            "cath_id": "2.130.10",
-            "confidence": "moderate",
-            "basis": "High beta content in larger protein"
-            })
-
-    # Coiled-coil
-    if h_frac > 0.70 and shape_metrics.get("asphericity", 0) > 0.15:
-        fold_candidates.append({
-            "fold": "coiled-coil / elongated helical",
-            "scop_id": "a.35",
-            "cath_id": "1.20.5",
-            "confidence": "moderate",
-            "basis": "High helical content with elongated shape"
-            })
-
-    # Globin fold
-    if 0.55 <= h_frac <= 0.80 and e_frac < 0.05 and total < 200:
-        fold_candidates.append({
-            "fold": "globin fold",
-            "scop_id": "a.1",
-            "cath_id": "1.10.490",
-            "confidence": "moderate",
-            "basis": "High helical content, small protein, minimal sheet — classic globin signature"
-            })
-
-    # If nothing matched specifically
-    if not fold_candidates:
-        fold_candidates.append({
-            "fold": f"generic {scop_class} fold",
-            "scop_id": "unclassified",
-            "cath_id": "unclassified",
-            "confidence": "low",
-            "basis": f"SS content ({h_frac:.0%} helix, {e_frac:.0%} sheet, {c_frac:.0%} coil) "
-                     "does not strongly match a common fold archetype. "
-                     "Database lookup (SCOP/CATH/Dali) recommended for definitive classification.",
-        })
-
-    return {
-        "scop_class": scop_class,
-        "fold_candidates": sorted(fold_candidates,
-                                   key=lambda x: {"high": 0, "moderate": 1, "low": 2}[x["confidence"]]),
-    }
-
-
-# =========================================================================
 # Plots
 # =========================================================================
 def plot_surface_profile(sasa_data, ss_assignments, output_dir, stem):
@@ -659,7 +520,7 @@ def plot_exposure_pie(stats, output_dir, stem):
 # =========================================================================
 # Printing
 # =========================================================================
-def print_summary(shape, ss_content, fold, surface_stats):
+def print_summary(shape, ss_content, surface_stats):
     """Print human-readable summary."""
     print("\n--- Overall Shape ---")
     print(f"  Classification: {shape['shape_classification']}")
@@ -672,13 +533,6 @@ def print_summary(shape, ss_content, fold, surface_stats):
     print(f"  Helix: {ss_content['helix']['count']} residues ({ss_content['helix']['fraction']:.0%})")
     print(f"  Sheet: {ss_content['sheet']['count']} residues ({ss_content['sheet']['fraction']:.0%})")
     print(f"  Coil:  {ss_content['coil']['count']} residues ({ss_content['coil']['fraction']:.0%})")
-
-    print(f"\n--- Fold Classification ---")
-    print(f"  SCOP class: {fold['scop_class']}")
-    for fc in fold["fold_candidates"]:
-        print(f"  Candidate: {fc['fold']} (SCOP {fc['scop_id']}, CATH {fc['cath_id']}) "
-              f"— confidence: {fc['confidence']}")
-        print(f"    {fc['basis']}")
 
     print(f"\n--- Surface Properties ---")
     print(f"  Total SASA: {surface_stats['total_sasa']} Å²")
@@ -739,18 +593,15 @@ def main():
     structure3, _ = load_structure(filepath)
     shape = compute_shape_metrics(structure3)
 
-    # 5. Fold classification
-    fold = classify_fold(ss_content, shape)
-
     # Print summary
-    print_summary(shape, ss_content, fold, surface_stats)
+    print_summary(shape, ss_content, surface_stats)
 
-    # 6. Plots
+    # 5. Plots
     print("\nGenerating plots...")
     profile_plot = plot_surface_profile(sasa_data, ss_assignments, output_dir, stem)
     exposure_plot = plot_exposure_pie(surface_stats, output_dir, stem)
 
-    # 7. Write outputs
+    # 6. Write outputs
     # Per-residue CSV
     csv_path = output_dir / f"{stem}_surface.csv"
     with open(csv_path, "w") as f:
@@ -767,7 +618,6 @@ def main():
         "file": filepath.name,
         "shape": shape,
         "secondary_structure_content": ss_content,
-        "fold_classification": fold,
         "surface_stats": surface_stats,
         "plots": {"surface_profile": profile_plot, "exposure_pie": exposure_plot},
         "surface_csv": csv_path.name,
