@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-surface_analysis.py — Phase 1 standardized surface and fold analysis.
+surface_analysis.py — Phase 1 standardized surface, secondary-structure, and shape analysis.
 
 Computes:
   1. Per-residue SASA (solvent accessible surface area)
@@ -8,8 +8,7 @@ Computes:
   3. Surface charge distribution
   4. Secondary structure content and per-residue assignment
   5. Overall shape metrics (Rg, asphericity, principal axes)
-  6. Fold classification (SCOP class + common fold matching)
-  7. Surface topology — exposed clefts and protrusions
+  6. Surface topology — exposed clefts and protrusions
 
 Usage:
     python surface_analysis.py <structure_file> [--output-dir <dir>]
@@ -209,8 +208,8 @@ def compute_secondary_structure(structure, filepath, fmt):
     DSSP is the only path that yields trustworthy SS here. The mmCIF fallback in
     `extract_ss_from_file` does NOT parse SS records, so a DSSP failure on an
     mmCIF (e.g. an ESMFold2 / AlphaFold prediction) yields all-coil — which is
-    not a measurement. Downstream (fold classification, disorder gate) must not
-    trust SS when `reliable` is False.
+    not a measurement. Downstream consumers (fold-class interpretation, disorder
+    gate) must not trust SS when `reliable` is False.
     """
     model = list(structure.get_models())[0]
 
@@ -289,7 +288,7 @@ def compute_secondary_structure(structure, filepath, fmt):
         print(
             "  WARNING: secondary structure UNAVAILABLE (DSSP missing and no SS "
             "records parsed). All residues default to coil — this is NOT a real "
-            "measurement. Fold classification and the disorder gate are UNRELIABLE "
+            "measurement. Fold-class interpretation and the disorder gate are UNRELIABLE "
             "for this structure; install DSSP (mkdssp) for valid SS.",
             file=sys.stderr,
         )
@@ -554,7 +553,7 @@ def print_summary(shape, ss_content, surface_stats):
 # Main
 # =========================================================================
 def main():
-    parser = argparse.ArgumentParser(description="Surface and fold analysis.")
+    parser = argparse.ArgumentParser(description="Surface, secondary-structure, and shape analysis.")
     parser.add_argument("structure_file", type=Path, help="PDB or mmCIF file")
     parser.add_argument("--output-dir", type=Path, default=None)
     args = parser.parse_args()
