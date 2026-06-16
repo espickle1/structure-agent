@@ -337,7 +337,8 @@ them as stated priors for synthesis.
 ### Step 8: Read Interpretation Guide
 
 Read `references/interpretation_guide.md`. Use it to:
-- Describe the overall fold, shape, and surface character of the protein
+- Describe the overall fold, shape, and surface character of the protein (state the
+  coarse structural class per **Fold-class framing** in Step 9b)
 - Contextualize RMSD values (what do the numbers mean?)
 - Classify high-deviation regions (loops, hinges, functional rearrangements)
 - Interpret surface properties (hydrophobic patches, charge distribution, exposure)
@@ -388,6 +389,51 @@ you author from the measured facts plus the interpretation guide (Step 8):
 - **Stay descriptive:** describe and compare. "Consistent with profile X" —
   never "is an X." Leave the deterministic facts the assembler wrote intact; only
   fill the placeholders.
+
+#### Fold-class framing (the coarse class, as inference)
+
+State the overall structural class first (Analysis Priority 1), in prose, as inference
+from the measured SS content, per-residue SS, and shape — never as a measured field.
+The ceiling is the four coarse classes (all-α, all-β, α/β, α+β), plus — only when the
+structure clearly shows it — a layer flavor (e.g. "3-layer α/β/α"). Never name a specific
+fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
+
+1. **Validity gate.** If DSSP did not run (`dssp_success` false, or the all-coil-fallback
+   warning is present in the SS output), there is no SS measurement: state "secondary
+   structure unavailable for this model; no fold class can be assigned" and stop here.
+   Do not read the 0%/0%/all-coil fallback as a genuinely all-coil protein.
+2. **Class from SS presence/absence** (`secondary_structure_content` fractions). Treat
+   helix or sheet below **~5% of assigned residues** as not a defining component — a
+   provisional, arbitrary starting cutoff, not calibrated; revise it when a real
+   borderline case appears:
+   - sheet absent, helix present → **all-α**
+   - helix absent, sheet present → **all-β**
+   - both present → **α/β or α+β** (step 3 decides)
+   - both absent (mostly coil) → no class; describe as low-SS and stop.
+3. **α/β vs α+β from per-residue *ordering*** (`ss_assignments`, in sequence order):
+   - strands and helices interleave along the chain (…E-H-E-H…) → lean **α/β**
+   - strands cluster in one region, helices in another → lean **α+β**
+   - ambiguous → report "mixed α/β character" and say the parallel-vs-antiparallel
+     distinction needs topology this pipeline does not compute. Do not force the call.
+4. **Shape consistency — a flag only** (`shape.asphericity`, axis ratios). Output exactly
+   one of: "shape is consistent with the class," or "shape disagrees with the class
+   (elongated; asphericity = X)." Do **not** name what an elongated/odd shape might be —
+   no examples, no fold guesses. A non-specialist reads an example as a conclusion.
+5. **Multi-domain guard.** For large chains (~>400 residues, or multi-lobed in the
+   renders), state the class is a whole-chain average across probable domains, not a
+   single-domain assignment, and omit the layer flavor.
+6. **Render as labeled inference.** Give the class, the measured fractions it rests on, a
+   confidence (below), and the ceiling: "a structural class inferred from SS content and
+   shape, not a fold identification; database verification (SCOP/CATH/Foldseek) would be
+   needed to name a specific fold."
+
+Confidence:
+- **High** — real DSSP; one type cleanly absent or both clearly present (≥~10%); ordering
+  unambiguous; shape consistent.
+- **Moderate** — a fraction sits near the ~5% floor, or the α/β-vs-α+β ordering is
+  ambiguous: state the class, hedge the sub-call.
+- **Low / withhold** — DSSP failed (→ step 1), `total_assigned` tiny, or multi-domain:
+  name the broad character (α-rich / β-rich / mixed) and decline to go further.
 
 The report is the deliverable bundle's human-readable centerpiece, alongside the
 machine-readable JSON/CSV and the figure PNGs from Step 7.
