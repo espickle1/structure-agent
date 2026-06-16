@@ -220,11 +220,10 @@ def views_section(stem: str, results_dir: Path, img_prefix: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def fold_shape_section(surf: dict) -> str:
+def shape_ss_section(surf: dict) -> str:
     sh = surf.get("shape", {})
     ss = surf.get("secondary_structure_content", {})
-    fold = surf.get("fold_classification", {})
-    lines = ["## Fold & shape", ""]
+    lines = ["## Shape & secondary structure", ""]
     lines.append(f"- **Shape:** {sh.get('shape_classification', '—')} "
                  f"(asphericity {fmt(sh.get('asphericity'))}, "
                  f"Rg {fmt(sh.get('radius_of_gyration'))} Å)")
@@ -239,12 +238,8 @@ def fold_shape_section(surf: dict) -> str:
     if ss.get("reliable") is False:
         lines.append("- **⚠ Secondary structure unavailable** "
                      f"(source: {ss.get('source', '?')}) — the SS fractions above are "
-                     "not a real measurement (DSSP missing); fold class and any "
-                     "disorder assessment are unreliable until DSSP is installed.")
-    lines.append(f"- **Fold class:** {fold.get('scop_class', '—')}")
-    for c in (fold.get("fold_candidates") or [])[:3]:
-        lines.append(f"  - {c.get('fold')} (SCOP {c.get('scop_id')}, CATH {c.get('cath_id')}; "
-                     f"confidence {c.get('confidence')})")
+                     "not a real measurement (DSSP missing); any disorder assessment "
+                     "is unreliable until DSSP is installed.")
     return "\n".join(lines) + "\n"
 
 
@@ -303,14 +298,11 @@ def quality_section(meta: dict, surf: dict) -> str:
                      f"{int(n)} residues (2.5·N^0.4){flag}")
     lines.append(f"- **Core present:** buried fraction {fmt_pct(_dig(surf, 'surface_stats', 'buried', 'fraction'))}")
     lines.append(f"- **Coil fraction:** {fmt_pct(_dig(surf, 'secondary_structure_content', 'coil', 'fraction'))}")
-    fc = (surf.get("fold_classification", {}).get("fold_candidates") or [])
-    if fc:
-        lines.append(f"- **Top fold-candidate confidence:** {fc[0].get('confidence')}")
     lines.append("")
     lines.append("### Coherence assessment")
     lines.append("")
-    lines.append(synth("Do the structural-coherence signals (compactness, core, coil, "
-                       "fold confidence) agree with the confidence score, or does a low "
+    lines.append(synth("Do the structural-coherence signals (compactness, core, coil) "
+                       "agree with the confidence score, or does a low "
                        f"{metric} sit alongside a coherent fold (common for low-homology "
                        "targets)? State which, citing the signals above."))
     return "\n".join(lines) + "\n"
@@ -367,7 +359,7 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
               "verbatim and clearly separated from observations; else \"None provided.\"") + "\n",
         overview_section(meta),
         views_section(stem, results_dir, img_prefix),
-        fold_shape_section(surf),
+        shape_ss_section(surf),
         surface_section(surf, img_prefix),
         quality_section(meta, surf),
         profiles_section(profiles, meta, surf),
