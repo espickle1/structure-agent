@@ -26,7 +26,11 @@ Per the project's architectural rules:
   and mechanism are inference. They appear only in the report's prose, derived
   from and cited to the measurements — never as a field a measurement script
   emits. When the structure does not support a call, "insufficient structural
-  evidence to assign function" is a valid, expected conclusion.
+  evidence to assign function" is a valid, expected conclusion. The coarse structural
+  class (all-α / all-β / α/β / α+β) is the ceiling for fold reporting — named in prose
+  from SS content and shape, never a specific fold, a SCOP/CATH identifier, or a field
+  a script emits. (An elongated shape is reported as a characteristic, not as an
+  inconsistency with the class.)
 
 Identity-agnostic: filenames are opaque labels, never parsed for biological
 meaning.
@@ -49,8 +53,8 @@ The intended workflow:
    > "Analyse the structures in `./src/agent_1/step1_results/`."
    > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
 
-3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs
-   the four scripts on each structure, and presents the assembled result.
+3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs the
+   measurement scripts on each structure, and presents the assembled result.
 
 The skill currently lives inside the codebase at `src/agent_2/SKILL.md`,
 not at a Claude-Code-auto-discovery path. Until that changes, the skill
@@ -187,9 +191,11 @@ not consumed by Agent 2 scripts.
   + `<ref>_vs_<query>_chain<X>_deviation.png` + `<ref>_vs_<query>_chain<X>_bfactor.png`
   — superposition stats, per-residue deviations, B-factor / pLDDT
   comparison (only if multiple structures are provided).
-- `<stem>_render_views.json` + `<stem>_axis{1,2,3}.png` — three axis-aligned
-  cartoon views (down long / mid / short principal axis) and a sidecar with
-  camera parameters and color mode. Soft-fails: a missing render is logged
+- `<stem>_render_views.json` + `<stem>_axis{1,2,3}.png` — three axis-aligned views
+  (down long / mid / short principal axis) with a sidecar of camera parameters and
+  color mode. The active renderer is `render_trace.py` (Agent 2.2, matplotlib Cα
+  trace); `render_views.py` (Agent 2.1, Mol\* cartoons) is the drop-in
+  higher-fidelity replacement, blocked on #18. Soft-fails: a missing render is logged
   to `render_failures/<stem>/<view>.{mvsj,error}` and the pipeline continues.
 
 - `<stem>_analysis.md` — the markdown analysis report. `scripts/assemble_report.py`
@@ -396,11 +402,15 @@ CPU only — no GPU required for any Agent 2 script.
    when signal peptides, expression tags, or unresolved termini cause
    length mismatch between otherwise-identical chains. Pairwise sequence
    alignment fallback should be added in `compare_structures.py:match_chains`.
-3. **Whole-structure SS averaging.** `surface_analysis.py` averages
-   secondary-structure content over the full structure (or full multi-chain
-   complex), which is misleading for multi-domain or oligomeric inputs. The
-   synthesis should segment by chain or domain rather than reading the
-   whole-chain fractions as one number.
+3. **Whole-structure SS averaging — partly mitigated in synthesis.**
+   `surface_analysis.py` still averages secondary-structure content over the full
+   structure (by design: scripts measure, the synthesis interprets). The SKILL's
+   fold-class framing now guards this — for chains over ~400 residues (or visibly
+   multi-lobed) it states the coarse class is a whole-chain average and defers
+   per-domain detail rather than reading the fractions as a single-domain truth. The
+   guard's size threshold is blunt, though: a smaller multi-domain chain (e.g. a
+   ~216-aa two-domain protein) slips under it. Per-chain / per-domain segmentation in
+   the script remains the fuller fix.
 4. **Skill not at an auto-discovery path.** `SKILL.md` is at
    `src/agent_2/SKILL.md`, not `.claude/skills/protein-analysis/`. Until
    symlinked or installed, Claude Code does not auto-trigger the skill on

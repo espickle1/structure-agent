@@ -49,13 +49,15 @@ repo.
 ## Stack
 
 Python · BioPython · orfipy · ESM-2 650M · ESMFold2-Fast · Boltz-2 ·
-Modal (CPU + GPU apps) · DSSP · Mol*. Outputs: PDB / mmCIF, JSON sidecars,
-CSV, PNG, markdown report.
+Modal (CPU + A100 GPU) · DSSP · matplotlib (Cα-trace) / Mol\*. Outputs:
+PDB / mmCIF, JSON sidecars, CSV, PNG, markdown report.
 
 ## Pointers
 
 - Per-agent setup and invocation: [src/agent_0/README.md](src/agent_0/README.md),
   [src/agent_1/README.md](src/agent_1/README.md),
   [src/agent_2/README.md](src/agent_2/README.md).
+- Worked examples / end-to-end validation: [runs/stress_test/](runs/stress_test/) —
+  eight sequences folded and analysed Agent 1 → Agent 2, with five full Agent 2 reports.
 - Architectural rules and working style: [CLAUDE.md](CLAUDE.md).
 - License: Apache 2.0 — see [LICENSE](LICENSE).
