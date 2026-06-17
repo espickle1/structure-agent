@@ -12,8 +12,6 @@ package-mounting dependency). The orchestrator-side knobs live in config.py.
 Deploy:  modal deploy src/agent_1/fold_app/modal_app.py
 """
 
-from pathlib import Path
-
 import modal
 
 MINUTES = 60  # seconds
@@ -42,9 +40,11 @@ with image.imports():
     from transformers.models.esmfold2.modeling_esmfold2 import ESMFold2Model
 
 # Weights cached on a Volume (shared with the eval script); HF cache points at it.
+# Container path is a POSIX string literal, NOT pathlib.Path — Path is OS-dependent,
+# so on a Windows host it would render "\models" and corrupt the image build.
 volume = modal.Volume.from_name("esmfold2-models", create_if_missing=True)
-models_dir = Path("/models")
-image = image.env({"HF_HOME": str(models_dir), "HF_XET_HIGH_PERFORMANCE": "1"})
+models_dir = "/models"
+image = image.env({"HF_HOME": models_dir, "HF_XET_HIGH_PERFORMANCE": "1"})
 
 # ESMFold2-Fast: 0.2B, single-sequence, no MSA. Fold params + GPU are tunable.
 ESMFOLD2_REPO = "biohub/ESMFold2-Fast"

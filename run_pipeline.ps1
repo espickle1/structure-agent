@@ -28,6 +28,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Force UTF-8 mode so the Modal client's progress glyphs (✓, emoji) and the
+# Agent 2 scripts' Unicode output don't crash under the Windows cp1252 console.
+$env:PYTHONUTF8 = "1"
+
 $repoRoot  = $PSScriptRoot
 $srcDir    = Join-Path $repoRoot "src"
 $scriptsDir = Join-Path $srcDir "agent_2\scripts"
