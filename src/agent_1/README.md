@@ -83,14 +83,21 @@ separate validation exercise.
 
 ## Known gaps / TODOs
 
-1. **Live batch run on Modal not yet executed.** The orchestrator's local logic
-   (FASTA + sidecar parsing, passthrough, annotation, output writing) is verified;
-   the `.map()` fan-out over the deployed app still needs a real run.
-2. **GPU set to L4, not throughput-tuned.** `fold_app/modal_app.py` uses L4
-   (24 GB) — ample for a 0.2B model and far cheaper than H100. Revisit
-   (A10G / A100) only if real-batch throughput testing argues for it.
-3. **Confidence tiers are placeholders.** Calibrate `PLDDT_HIGH` / `PLDDT_MEDIUM`
-   on real structures.
-4. **Model revision unpinned.** Pin `ESMFOLD2_REVISION` before production.
-5. **Deferred** (not implemented): retry logic, LLM-driven intake, the Agent 2
-   volume handoff, and multimer support.
+1. **Live batch runs executed.** The `.map()` fan-out over the deployed app has now
+   been run end-to-end — two batches totalling 8 sequences (216–886 aa), 0 fold
+   failures — feeding Agent 2. Larger-scale throughput characterization is still open.
+2. **GPU is A100, not yet throughput-tuned.** `fold_app/modal_app.py` uses A100
+   (40 GB). L4 (24 GB) OOM'd on larger sequences; A100 has folded up to 886 aa with
+   headroom. Cost/throughput tuning (a smaller GPU for short batches, request
+   batching) is still open.
+3. **Confidence tiers still placeholders — but data now exists.** `PLDDT_HIGH` = 0.90
+   looks too strict: across the recent real folds, compact well-formed models scored
+   ~0.74–0.88 mean pLDDT and all landed in the *medium* tier, none *high*. Recalibrate
+   `PLDDT_HIGH` / `PLDDT_MEDIUM` (`shared/config.py`) downward against a labelled set.
+4. **Model revision unpinned.** Pin `ESMFOLD2_REVISION` before production
+   (`structures.jsonl` currently records `model_revision: null`).
+5. **Deferred** (not automated in code): retry logic, LLM-driven intake, multimer
+   support, and an automated Agent 2 handoff — the A1→A2 bridge was driven manually
+   in validation (`modal volume put` of the CIFs onto the shared `/scratch` volume,
+   then Agent 2's `surface_analysis_remote`), proving the path but not yet wired into
+   the orchestrator.
