@@ -376,9 +376,10 @@ you author from the measured facts plus the interpretation guide (Step 8):
 - **Executive summary** — 3–5 sentences, the most notable structural observations.
 - **Independent observations** — what is notable or unexpected from the
   measurements + generic physical baselines **alone**; do **not** consult the
-  expected-parameter profiles here (that keeps it an independent lens). Flag
-  internal inconsistencies (e.g. shape vs SS content). Anchor every
-  "unexpected" to the baseline you compared against.
+  expected-parameter profiles here (that keeps it an independent lens). Flag genuine
+  internal inconsistencies — measurements that directly contradict one another — but an
+  elongated shape is **not** one: it never contradicts the fold class (see Fold-class
+  framing, step 4). Anchor every "unexpected" to the baseline you compared against.
 - **Coherence assessment** — state whether the structural-coherence signals
   (compactness, core, coil) agree with the confidence score, or
   whether a low pLDDT sits alongside a coherent fold (common for low-homology
@@ -398,10 +399,14 @@ The ceiling is the four coarse classes (all-α, all-β, α/β, α+β), plus — 
 structure clearly shows it — a layer flavor (e.g. "3-layer α/β/α"). Never name a specific
 fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
 
-1. **Validity gate.** If DSSP did not run (`dssp_success` false, or the all-coil-fallback
-   warning is present in the SS output), there is no SS measurement: state "secondary
-   structure unavailable for this model; no fold class can be assigned" and stop here.
-   Do not read the 0%/0%/all-coil fallback as a genuinely all-coil protein.
+1. **Validity gate.** Trust the reliability flag only when it agrees with the data. If
+   DSSP did not run (`dssp_success`/`reliable` false, or the all-coil-fallback warning is
+   present), there is no SS measurement: state "secondary structure unavailable for this
+   model; no fold class can be assigned" and stop here. If the flag is **absent** (older
+   or variant output), infer it from the fractions — helix + sheet ≈ 0 (all-coil) ⇒
+   unavailable, stop; substantial helix/sheet ⇒ treat as reliable and continue. Do not
+   read the 0%/0%/all-coil fallback as a genuinely all-coil protein, and do not withhold a
+   class from real SS just because the flag is missing.
 2. **Class from SS presence/absence** (`secondary_structure_content` fractions). Treat
    helix or sheet below **~5% of assigned residues** as not a defining component — a
    provisional, arbitrary starting cutoff, not calibrated; revise it when a real
@@ -415,13 +420,20 @@ fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
    - strands cluster in one region, helices in another → lean **α+β**
    - ambiguous → report "mixed α/β character" and say the parallel-vs-antiparallel
      distinction needs topology this pipeline does not compute. Do not force the call.
-4. **Shape consistency — a flag only** (`shape.asphericity`, axis ratios). Output exactly
-   one of: "shape is consistent with the class," or "shape disagrees with the class
-   (elongated; asphericity = X)." Do **not** name what an elongated/odd shape might be —
-   no examples, no fold guesses. A non-specialist reads an example as a conclusion.
+4. **Shape — a descriptive note, not a consistency check** (`shape.asphericity`, axis
+   ratios, Rg vs the ~2.5·N^0.4 globular expectation). Report whether the structure is
+   globular or **elongated/fibrous**. Elongation is an unusual-but-legitimate characteristic
+   worth highlighting (most single domains are globular; fibrous, filament-forming, and
+   multidomain-string architectures are not) — but it is **not** an inconsistency and never
+   contradicts the fold class. Elongated proteins occur in every class, so do **not** frame
+   elongation as "disagreeing" with the class, do **not** call it an internal inconsistency,
+   and do **not** let it lower the fold-class confidence. Report the shape plainly; name no
+   fold from it.
 5. **Multi-domain guard.** For large chains (~>400 residues, or multi-lobed in the
    renders), state the class is a whole-chain average across probable domains, not a
-   single-domain assignment, and omit the layer flavor.
+   single-domain assignment; omit the layer flavor, **and collapse the step-3 α/β-vs-α+β
+   call to "mixed; per-domain segmentation needed"** — across multiple domains the
+   per-residue ordering is a whole-chain average that cannot separate the two.
 6. **Render as labeled inference.** Give the class, the measured fractions it rests on, a
    confidence (below), and the ceiling: "a structural class inferred from SS content and
    shape, not a fold identification; database verification (SCOP/CATH/Foldseek) would be
@@ -429,7 +441,8 @@ fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
 
 Confidence:
 - **High** — real DSSP; one type cleanly absent or both clearly present (≥~10%); ordering
-  unambiguous; shape consistent.
+  unambiguous. (Shape does not bear on the class — see step 4 — so it neither raises nor
+  lowers this.)
 - **Moderate** — a fraction sits near the ~5% floor, or the α/β-vs-α+β ordering is
   ambiguous: state the class, hedge the sub-call.
 - **Low / withhold** — DSSP failed (→ step 1), `total_assigned` tiny, or multi-domain:
@@ -528,8 +541,9 @@ This is the minimal case:
 
 ### Structural Discrepancies
 
-If Phase 1 results contain internally inconsistent or unexpected signals — e.g., shape
-metrics don't match SS content, cofactor coordination doesn't match any known motif —
+If Phase 1 results contain internally inconsistent or unexpected signals — e.g., cofactor
+coordination that doesn't match any known motif, or measurements that directly contradict
+one another (an elongated shape is **not** such a case — see Fold-class framing, step 4) —
 note the discrepancy in the report without
 attempting to explain it away. The agent says what it sees, including when what it sees
 is confusing. The user may have context that resolves the discrepancy.
