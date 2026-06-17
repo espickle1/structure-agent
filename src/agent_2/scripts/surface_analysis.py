@@ -215,6 +215,7 @@ def compute_secondary_structure(structure, filepath, fmt):
 
     ss_assignments = []
     dssp_success = False
+    pydssp_success = False
 
     # Try DSSP first. Two wrinkles with DSSP 4.x (mkdssp, libcifpp-based):
     #   1. It rebuilds its residue model from mmCIF polymer metadata that
@@ -267,10 +268,52 @@ def compute_secondary_structure(structure, filepath, fmt):
             })
         dssp_success = len(ss_assignments) > 0
     except Exception as e:
-        print(f"  DSSP failed ({e}), falling back to file-level annotation", file=sys.stderr)
+        print(f"  DSSP failed ({e}), trying pydssp", file=sys.stderr)
 
-    # Fallback: extract from file records if DSSP fails
+    # pydssp fallback — pure-Python DSSP, no binary required; reliable for predicted structures
     if not dssp_success:
+        try:
+            import pydssp
+            backbone_rows, residue_keys = [], []
+            for chain in model:
+                for residue in chain:
+                    if not is_aa(residue):
+                        continue
+                    try:
+                        backbone_rows.append([
+                            residue["N"].coord,
+                            residue["CA"].coord,
+                            residue["C"].coord,
+                            residue["O"].coord,
+                        ])
+                        residue_keys.append((chain.id, residue.get_id()[1]))
+                    except KeyError:
+                        continue
+            if backbone_rows:
+                raw = pydssp.assign(np.array(backbone_rows, dtype=np.float32))
+                _int_map = {0: "C", 1: "H", 2: "E"}
+                for (chain_id, resid), code in zip(residue_keys, raw):
+                    if isinstance(code, (int, np.integer)):
+                        ss_simple = _int_map.get(int(code), "C")
+                        dssp_code = ss_simple
+                    else:
+                        code_str = str(code).upper()
+                        ss_simple = "H" if code_str in ("H", "G", "I") else "E" if code_str in ("E", "B") else "C"
+                        dssp_code = code_str if code_str in ("H", "G", "I", "E", "B") else "C"
+                    ss_assignments.append({
+                        "chain_id": chain_id, "resid": resid,
+                        "dssp_code": dssp_code, "ss_simple": ss_simple,
+                    })
+                pydssp_success = len(ss_assignments) > 0
+                if pydssp_success:
+                    print("  pydssp fallback succeeded", file=sys.stderr)
+        except ImportError:
+            pass
+        except Exception as e:
+            print(f"  pydssp failed ({e}), trying file-level annotation", file=sys.stderr)
+
+    # File-records fallback — last resort; unreliable for mmCIF/predicted structures
+    if not dssp_success and not pydssp_success:
         ss_assignments = extract_ss_from_file(filepath, fmt, model)
 
     # Reliability. DSSP is trustworthy. The PDB-record fallback is trustworthy
@@ -279,6 +322,8 @@ def compute_secondary_structure(structure, filepath, fmt):
     found_ss = any(s["ss_simple"] in ("H", "E") for s in ss_assignments)
     if dssp_success:
         ss_source, reliable = "DSSP", True
+    elif pydssp_success:
+        ss_source, reliable = "pydssp", True
     elif found_ss:
         ss_source, reliable = "file_records", True
     else:
@@ -286,10 +331,10 @@ def compute_secondary_structure(structure, filepath, fmt):
 
     if not reliable:
         print(
-            "  WARNING: secondary structure UNAVAILABLE (DSSP missing and no SS "
-            "records parsed). All residues default to coil — this is NOT a real "
-            "measurement. Fold-class interpretation and the disorder gate are UNRELIABLE "
-            "for this structure; install DSSP (mkdssp) for valid SS.",
+            "  WARNING: secondary structure UNAVAILABLE (mkdssp not found, pydssp not "
+            "installed, and no SS records in file). All residues default to coil — this "
+            "is NOT a real measurement. Fold-class interpretation and the disorder gate "
+            "are UNRELIABLE for this structure; pip install pydssp or install mkdssp.",
             file=sys.stderr,
         )
 
