@@ -8,7 +8,7 @@ figures are embedded by relative path. The interpretive sections (executive
 summary, independent observations, the prediction-quality divergence call, and
 "what cannot be determined") are emitted as clearly-marked SYNTHESIS
 placeholders for the Claude session to fill per ``SKILL.md`` Step 9, so the seam
-between measurement (Zone 1/2) and judgment stays visible in the file.
+between measurement and judgment stays visible in the file.
 
 Pure standard library. CPU only.
 
@@ -220,11 +220,10 @@ def views_section(stem: str, results_dir: Path, img_prefix: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def fold_shape_section(surf: dict) -> str:
+def shape_ss_section(surf: dict) -> str:
     sh = surf.get("shape", {})
     ss = surf.get("secondary_structure_content", {})
-    fold = surf.get("fold_classification", {})
-    lines = ["## Fold & shape", ""]
+    lines = ["## Shape & secondary structure", ""]
     lines.append(f"- **Shape:** {sh.get('shape_classification', '—')} "
                  f"(asphericity {fmt(sh.get('asphericity'))}, "
                  f"Rg {fmt(sh.get('radius_of_gyration'))} Å)")
@@ -239,12 +238,8 @@ def fold_shape_section(surf: dict) -> str:
     if ss.get("reliable") is False:
         lines.append("- **⚠ Secondary structure unavailable** "
                      f"(source: {ss.get('source', '?')}) — the SS fractions above are "
-                     "not a real measurement (DSSP missing); fold class and any "
-                     "disorder assessment are unreliable until DSSP is installed.")
-    lines.append(f"- **Fold class:** {fold.get('scop_class', '—')}")
-    for c in (fold.get("fold_candidates") or [])[:3]:
-        lines.append(f"  - {c.get('fold')} (SCOP {c.get('scop_id')}, CATH {c.get('cath_id')}; "
-                     f"confidence {c.get('confidence')})")
+                     "not a real measurement (DSSP missing); any disorder assessment "
+                     "is unreliable until DSSP is installed.")
     return "\n".join(lines) + "\n"
 
 
@@ -303,14 +298,11 @@ def quality_section(meta: dict, surf: dict) -> str:
                      f"{int(n)} residues (2.5·N^0.4){flag}")
     lines.append(f"- **Core present:** buried fraction {fmt_pct(_dig(surf, 'surface_stats', 'buried', 'fraction'))}")
     lines.append(f"- **Coil fraction:** {fmt_pct(_dig(surf, 'secondary_structure_content', 'coil', 'fraction'))}")
-    fc = (surf.get("fold_classification", {}).get("fold_candidates") or [])
-    if fc:
-        lines.append(f"- **Top fold-candidate confidence:** {fc[0].get('confidence')}")
     lines.append("")
     lines.append("### Coherence assessment")
     lines.append("")
-    lines.append(synth("Do the structural-coherence signals (compactness, core, coil, "
-                       "fold confidence) agree with the confidence score, or does a low "
+    lines.append(synth("Do the structural-coherence signals (compactness, core, coil) "
+                       "agree with the confidence score, or does a low "
                        f"{metric} sit alongside a coherent fold (common for low-homology "
                        "targets)? State which, citing the signals above."))
     return "\n".join(lines) + "\n"
@@ -339,8 +331,8 @@ def methods_section(profiles: list[dict]) -> str:
     lines = ["## Methods", ""]
     lines.append("- **Measurements (deterministic):** `parse_structure.py` (metadata, "
                  "confidence stats), `surface_analysis.py` (Shrake–Rupley SASA, Kyte–Doolittle "
-                 "hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics, "
-                 "SCOP/CATH fold class), `render_trace.py` (Agent 2.2 Cα-trace figures; "
+                 "hydrophobicity, charge at pH 7, DSSP secondary structure, shape metrics), "
+                 "`render_trace.py` (Agent 2.2 Cα-trace figures; "
                  "`render_views.py` Mol* cartoons when Agent 2.1 is available).")
     lines.append("- **Report facts** below the synthesis sections are emitted verbatim from the "
                  "above scripts' JSON by `assemble_report.py` — no transcription.")
@@ -359,7 +351,7 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
         f"# Structural analysis — `{stem}`\n",
         "> Facts are emitted deterministically from the measurement scripts. "
         "Sections marked with a SYNTHESIS comment are authored by the Claude session "
-        "(judgment, Zone 2), kept visibly separate from the measured facts.\n",
+        "(judgment), kept visibly separate from the measured facts.\n",
         "## Executive summary\n",
         synth("3–5 sentences: the most notable structural observations.") + "\n",
         "## User-provided context\n",
@@ -367,7 +359,7 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
               "verbatim and clearly separated from observations; else \"None provided.\"") + "\n",
         overview_section(meta),
         views_section(stem, results_dir, img_prefix),
-        fold_shape_section(surf),
+        shape_ss_section(surf),
         surface_section(surf, img_prefix),
         quality_section(meta, surf),
         profiles_section(profiles, meta, surf),
@@ -377,8 +369,9 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
               "Flag internal inconsistencies. Anchor 'unexpected' to a stated baseline.") + "\n",
         "## What cannot be determined from structure alone\n",
         synth("Enumerate what this structural analysis cannot establish — identity, "
-              "function, mechanism, homology. These are Agent 3's job; hand off the "
-              "structural-consistency hypotheses as Foldseek/literature seeds.") + "\n",
+              "function, mechanism, homology. State these as the limits of structural "
+              "analysis; database verification (Foldseek/CATH) would be needed to go "
+              "further.") + "\n",
         methods_section(profiles),
     ]
     return "\n".join(parts)

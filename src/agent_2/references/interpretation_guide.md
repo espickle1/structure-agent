@@ -13,14 +13,13 @@ This document does NOT orchestrate analysis. It is a lookup resource.
 2. [Disorder Assessment](#disorder-assessment)
 3. [Fold, Shape & Overall Architecture](#fold-shape--overall-architecture)
 4. [Surface Properties](#surface-properties)
-5. [Structural Context Search](#structural-context-search)
-6. [Comparative Analysis](#comparative-analysis)
-7. [Binding Sites & Ligand Interactions](#binding-sites--ligand-interactions)
-8. [Structure Quality & Validation](#structure-quality--validation)
-9. [Sequence-Structure Mapping](#sequence-structure-mapping)
-10. [AlphaFold-Specific Interpretation](#alphafold-specific-interpretation)
-11. [Red Flags — Conditions Requiring User Attention](#red-flags)
-12. [How Phylogeny and Function Change Interpretation](#phylogeny-and-function-context)
+5. [Comparative Analysis](#comparative-analysis)
+6. [Binding Sites & Ligand Interactions](#binding-sites--ligand-interactions)
+7. [Structure Quality & Validation](#structure-quality--validation)
+8. [Sequence-Structure Mapping](#sequence-structure-mapping)
+9. [AlphaFold-Specific Interpretation](#alphafold-specific-interpretation)
+10. [Red Flags — Conditions Requiring User Attention](#red-flags)
+11. [How Phylogeny and Function Change Interpretation](#phylogeny-and-function-context)
 
 ---
 
@@ -33,25 +32,23 @@ This document does NOT orchestrate analysis. It is a lookup resource.
 1. **Filenames are opaque.** Never parse them for biological meaning. A file named
    `igaa_complex.cif` could contain any protein. Treat filenames as arbitrary labels.
 
-2. **Fold classification is structural, not functional.** Report the SCOP class, CATH
-   topology, and structural description. Do not say "this is protein X" — say "this fold
-   is characteristic of the alpha/beta hydrolase superfamily."
+2. **Fold classification is structural, not functional — and stays coarse.** Report the
+   coarse structural class (all-α, all-β, α/β, α+β) as inference from SS content and shape.
+   Do not name a specific fold or superfamily, and do not emit SCOP fold / CATH identifiers.
+   Do not say "this is protein X" or "this is an alpha/beta hydrolase" — say "the SS content
+   and topology indicate an α/β class."
 
-3. **Literature search targets observations, not names.** When searching for context,
-   query structural features: fold class, cofactor coordination geometry, domain
-   architecture, unusual structural elements. Never query a guessed protein name.
-
-4. **Multiple-hypothesis framing.** When structural evidence points toward a functional
+3. **Multiple-hypothesis framing.** When structural evidence points toward a functional
    family, present it as inference from structure: "The domain architecture (PAS + HPt
    with Mg²⁺-coordinated histidine) is characteristic of bacterial two-component
    signaling systems." Do not collapse to a single identification.
 
-5. **User-provided identity is validated, not assumed.** If the user names a protein,
+4. **User-provided identity is validated, not assumed.** If the user names a protein,
    cross-check against structural observations (chain count, SS content, fold class,
    chain length, cofactors). Flag discrepancies. Do not silently accept an identity
    claim that contradicts the structural evidence.
 
-6. **When the structure is confusing, say so.** If fold classification returns low
+5. **When the structure is confusing, say so.** If fold classification returns low
    confidence, metrics seem inconsistent, or signals don't converge — report the
    confusion honestly. The user may have context that resolves it. Do not fabricate
    a plausible-sounding explanation.
@@ -104,65 +101,27 @@ metric:
 enzyme, state that explicitly. The reader needs a mental model of the protein before
 interpreting any detailed findings.
 
-### SCOP Class
+### Structural Class (SCOP top level)
 
-The four main structural classes based on secondary structure content:
+The four coarse structural classes, by secondary-structure content. **This is the ceiling
+for fold reporting — assign the class, not a specific fold.** The decision procedure (the
+validity gate, the presence/absence cutoff, α/β-vs-α+β from per-residue ordering, the shape
+flag, the multi-domain guard, and confidence) lives in `SKILL.md` under **Fold-class
+framing**; this table is the reference it points to.
 
-| SCOP Class | Typical SS Content | Examples |
-|---|---|---|
-| All-alpha | >40% helix, <10% sheet | Globins, cytochrome c, four-helix bundles |
-| All-beta | >30% sheet, <10% helix | Immunoglobulin domains, beta-propellers, beta-barrels |
-| Alpha/beta | >15% each, mixed topology | TIM barrels, Rossmann folds, alpha/beta hydrolases |
-| Alpha+beta | >5% each, segregated | Ferredoxins, ubiquitin-like, thioredoxin |
+| Class | Secondary-structure signature |
+|---|---|
+| All-α | Helix present, sheet effectively absent |
+| All-β | Sheet present, helix effectively absent |
+| α/β | Both present, **interleaved** along the chain (…β-α-β…); sheet typically parallel |
+| α+β | Both present, **segregated** into separate α and β regions; sheet typically antiparallel |
 
-### Common Fold Signatures
-
-When reporting fold classification, always include:
-- The SCOP class and closest fold match
-- SCOP and CATH identifiers when available
-- The confidence level (high/moderate/low) and what it's based on
-- Whether database verification (SCOP/CATH/Dali/ECOD) would be needed for definitive assignment
-
-Key fold archetypes to recognize:
-
-- **Alpha/beta hydrolase** (SCOP c.69, CATH 3.40.50): Central beta-sheet of 5–8 strands
-  flanked by alpha-helices. Contains the catalytic triad. 20–30% helix, 18–28% sheet.
-  Globular. Includes lipases, esterases, PETases.
-- **TIM barrel** (SCOP c.1, CATH 3.20.20): (β/α)₈ barrel, ~40% helix, ~25% sheet.
-  Active site at the C-terminal end of the barrel. Roughly spherical.
-- **Rossmann fold** (SCOP c.2, CATH 3.40.50): βαβαβ motif, nucleotide binding.
-  ~35% helix, ~20% sheet.
-- **Beta-sandwich** (various): Two beta-sheets packed face-to-face. High beta content (>35%).
-  Immunoglobulin-like, fibronectin, jelly-roll topologies.
-- **Beta-propeller** (SCOP b.66): Repeated 4-stranded beta-sheet blades arranged radially.
-  >40% sheet, typically >200 residues.
-
-### Fold Category Reference
-
-When describing a protein's fold, report the structural category and its defining features.
-Do NOT name specific proteins as comparisons — this can bias interpretation. Describe the
-fold topology and let the user draw their own conclusions about functional implications.
-
-| Fold | SCOP | CATH | Topology | Typical SS | Size Range | Functional Context |
-|---|---|---|---|---|---|---|
-| Alpha/beta hydrolase | c.69 | 3.40.50 | Central parallel β-sheet (5–8 strands) flanked by α-helices; catalytic triad (Ser-His-Asp/Glu) at strand C-termini | 20–30% H, 18–28% E | 150–550 res | Hydrolases, esterases, lipases, peptidases, dehalogenases |
-| TIM barrel | c.1 | 3.20.20 | (β/α)₈ closed barrel; 8 parallel β-strands forming inner barrel, 8 α-helices on exterior; active site at C-terminal barrel end | 30–45% H, 20–30% E | 200–500 res | Isomerases, aldolases, synthases, oxidoreductases — the most functionally diverse fold |
-| Rossmann fold | c.2 | 3.40.50 | βαβαβ repeating motif; parallel β-sheet (typically 6 strands) sandwiched between α-helices; nucleotide-binding pocket at sheet-helix junction | 30–45% H, 15–25% E | 150–500 res | NAD(P)+/FAD-dependent oxidoreductases, transferases, nucleotide-binding enzymes |
-| Beta-sandwich (Ig-like) | b.1 | 2.60.40 | Two antiparallel β-sheets packed face-to-face; Greek key or jelly-roll connectivity | <10% H, >35% E | 50–250 res | Recognition domains, structural scaffolds, adhesion, carbohydrate binding |
-| Beta-propeller | b.66 | 2.130.10 | Radially arranged β-sheet blades (4–8 blades, each 4 strands); central channel or binding surface | <10% H, >40% E | 200–650 res | Protein-protein interaction, signal transduction, hydrolysis |
-| Four-helix bundle | a.24 | 1.20.120 | Four antiparallel α-helices packed in a bundle; hydrophobic core between helices | >60% H, <5% E | 60–180 res | Electron transport, metal binding, cytokine signaling |
-| Globin fold | a.1 | 1.10.490 | 6–8 α-helices in a characteristic 3-over-3 sandwich; hydrophobic pocket for heme or similar cofactor | 55–80% H, <5% E | 100–200 res | Gas transport, storage, sensing, enzymatic oxidation |
-| Coiled-coil | a.35 | 1.20.5 | Two or more α-helices wound around each other with heptad repeat (abcdefg); elongated shape | >70% H, minimal E | Variable | Structural scaffolds, molecular motors, transcription factors, membrane fusion |
-| Thioredoxin fold | c.47 | 3.40.30 | Central β-sheet (4–5 strands, mixed parallel/antiparallel) flanked by α-helices; CxxC active-site motif | 20–35% H, 15–25% E | 80–130 res | Redox regulation, disulfide exchange, glutathione metabolism |
-
-When Claude identifies a fold, it should:
-1. State the fold name and SCOP/CATH identifiers
-2. Describe the topology in structural terms (e.g., "central 8-stranded parallel beta-sheet
-   with flanking helices" rather than "same fold as protein X")
-3. Note the functional context of the fold class without implying the analyzed protein
-   shares any specific function
-4. If multiple candidates match, report all with confidence levels and explain what
-   distinguishes them (topology verification, strand count, etc.)
+Do not descend below the class level: no named folds (TIM barrel, Rossmann, α/β hydrolase,
+Ig-like β-sandwich, β-propeller, …) and no SCOP fold/superfamily or CATH identifiers (c.69,
+3.40.50, …). The four top-level classes are the ceiling. Naming a specific fold from SS
+content alone reads as an identification to a non-specialist and is not supported by the
+measurements — a specific fold name requires database verification (SCOP/CATH/Foldseek/Dali),
+which is downstream of this analysis.
 
 ### Shape Metrics
 
@@ -229,46 +188,6 @@ Significant deviation from these ranges is noteworthy:
 - Very high buried fraction (>60%) suggests a tightly packed core
 - Very low buried fraction (<30%) may indicate a disordered or extended conformation
   (see Disorder Assessment section)
-
----
-
-## Structural Context Search
-
-### Purpose
-
-Literature search contextualizes structural observations. It is NOT used to identify
-proteins. Queries are constructed from observed structural features, never from
-filenames or guessed names.
-
-### Query Construction Priority
-
-1. **Fold class + functional landscape:** "alpha/beta hydrolase fold catalytic mechanism"
-2. **Cofactor coordination geometry:** "histidine-coordinated magnesium phosphotransfer"
-3. **Unusual structural elements:** "proline kink transmembrane helix function"
-4. **Domain architecture combinations:** "PAS domain coupled histidine kinase phosphorelay"
-5. **User-provided context as modifier:** Append organism/pathway terms to the above
-
-### Framing Results
-
-Always frame literature findings as structural analogy, not identification:
-
-**Correct:** "The domain architecture (multi-pass TM + large periplasmic domain coupled
-to a PAS-HPt module with Mg²⁺-coordinated histidine) is characteristic of bacterial
-two-component signaling systems."
-
-**Incorrect:** "This protein is a two-component signaling receptor."
-
-**Correct:** "This fold (c.69, alpha/beta hydrolase) is associated with hydrolytic
-enzymes that cleave ester bonds, including lipases, esterases, and PET-degrading enzymes."
-
-**Incorrect:** "This is a PETase."
-
-### Convergence
-
-When multiple independent structural signals point to the same functional family
-(e.g., fold class AND cofactor coordination AND domain architecture), note the convergence
-explicitly. Convergent evidence is stronger than any single signal, but it is still
-structural inference, not identification.
 
 ---
 
