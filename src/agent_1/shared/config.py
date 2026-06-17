@@ -14,8 +14,8 @@ FOLD_CLASS_NAME = "ESMFold2Inference"
 # Per design decision: Agent 1 emits every fold and annotates a mean-pLDDT tier
 # in the sidecar so Agent 2/3 can decide. These bands are TUNABLE — calibrate on
 # a batch of real structures before relying on them.
-PLDDT_HIGH = 0.90      # >= HIGH
-PLDDT_MEDIUM = 0.70    # >= MEDIUM; below this = LOW
+PLDDT_HIGH = 0.70      # >= HIGH
+PLDDT_MEDIUM = 0.50    # >= MEDIUM; below this = LOW
 
 # ----- Output layout ----------------------------------------------------------
 OUTPUT_STRUCTURES_NAME = "structures.jsonl"   # one StructureRecord per fold

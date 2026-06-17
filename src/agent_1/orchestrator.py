@@ -108,14 +108,16 @@ def main() -> int:
 
             cif_rel = f"{config.OUTPUT_CIF_SUBDIR}/{rid}.cif"
             (args.output_dir / cif_rel).write_text(result["cif"])
+            plddt_mean = result["plddt_mean"]
+            plddt_norm = plddt_mean / 100.0 if plddt_mean > 1.0 else plddt_mean
             tier = classify_confidence(
-                result["plddt_mean"], config.PLDDT_HIGH, config.PLDDT_MEDIUM
+                plddt_norm, config.PLDDT_HIGH, config.PLDDT_MEDIUM
             )
             rec = StructureRecord(
                 record_id=rid,
                 parent_id=pid,
                 cif_path=cif_rel,
-                plddt_mean=round(result["plddt_mean"], 4),
+                plddt_mean=round(plddt_norm, 4),
                 ptm=round(result["ptm"], 4),
                 iptm=round(result["iptm"], 4),
                 confidence_tier=tier,
@@ -127,7 +129,7 @@ def main() -> int:
             )
             sf.write(json.dumps(rec.to_sidecar_dict()) + "\n")
             n_ok += 1
-            print(f"[agent1] {rid}: pLDDT {result['plddt_mean']:.3f} ({tier.value})")
+            print(f"[agent1] {rid}: pLDDT {plddt_norm:.3f} ({tier.value})")
 
     print(f"[agent1] done: {n_ok} folded, {n_fail} failed → {args.output_dir}")
     return 0
