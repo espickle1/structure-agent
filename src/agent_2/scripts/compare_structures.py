@@ -439,8 +439,8 @@ def print_comparison_summary(results: list[dict]):
                 print(f"  Query chain {m['query_chain_id']} ({m['query_length']} res) — "
                       f"ABSENT in reference")
             else:
-                print(f"  Ref chain {m['ref_chain_id']} ({m['ref_length']} res) ↔ "
-                      f"Query chain {m['query_chain_id']} ({m['query_length']} res) — "
+                print(f"  Ref chain {m['ref_chain_id']} ({m['ref_length']} res) <-> "
+                      f"Query chain {m['query_chain_id']} ({m['query_length']} res) - "
                       f"identity={m['sequence_identity']:.1%}")
 
         for sup in comp["superpositions"]:
