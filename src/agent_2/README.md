@@ -1,34 +1,38 @@
-# Agent 2 — Deterministic structural description
+# Agent 2 — Measurement through interpretation
 
-Geometric measurement and spatial-pattern description of predicted protein
-structures. Consumes Agent 1 output (PDB / mmCIF + sidecar metadata) and
-emits structured JSON / CSV / PNG for Agent 3 interpretation.
+The final stage of the pipeline. Consumes Agent 1 output (PDB / mmCIF +
+sidecar metadata), takes deterministic geometric and surface measurements,
+and writes an interpretive report from them.
 
-Operates strictly in measurement / description mode — no biological
-interpretation of what structures mean.
+Two layers with a hard boundary between them: the **scripts** measure and
+describe only — no biological interpretation of what structures mean — while
+the **`SKILL.md` synthesis** interprets the measurements into prose. Fold and
+function are inference; they appear only in that prose, never as fields a
+script emits.
 
 The user-facing entry point is **Claude itself** (Claude Code in this repo,
 or claude.ai with the skill installed). Claude reads `SKILL.md`, runs the
 scripts in the right order, and assembles the result. Direct script
 invocation exists as a debug / fallback path; it is not the primary surface.
 
-## Scope (Zone discipline)
+## Scope
 
 Per the project's architectural rules:
 
-- **Zone 1** — direct geometric measurement. Distances, angles, RMSD,
-  SASA, radius of gyration, asphericity, residue contacts.
-- **Zone 2** — spatial pattern description. Secondary-structure content,
-  shape classification, fold-class assignment by SS/shape signature,
-  pocket composition, interaction-type counts.
-- **Zone 3** — interpretation. Function inference, identity assignment,
-  mechanistic reasoning. **Forbidden in Agent 2.** Lives in Agent 3.
+- **Scripts measure and describe.** Distances, angles, RMSD, SASA, radius of
+  gyration, asphericity, residue contacts; and one step up — secondary-structure
+  content, shape classification, pocket composition, interaction-type counts.
+- **The SKILL synthesis interprets.** Fold-level character, function, identity,
+  and mechanism are inference. They appear only in the report's prose, derived
+  from and cited to the measurements — never as a field a measurement script
+  emits. When the structure does not support a call, "insufficient structural
+  evidence to assign function" is a valid, expected conclusion.
 
-Identity-agnostic: filenames are opaque labels. Fold classification reports
-structural categories, never specific protein names.
+Identity-agnostic: filenames are opaque labels, never parsed for biological
+meaning.
 
-Metadata passthrough: any sidecar metadata from Agent 1 is forwarded to
-Agent 3 unmodified. It never influences geometric measurements.
+Metadata passthrough: any sidecar metadata from Agent 1 is forwarded
+unmodified. It never influences geometric measurements.
 
 Errors are logged, not escalated. No human-in-the-loop.
 
@@ -96,7 +100,7 @@ python src/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./
 Same `SKILL.md`, same scripts, different runtime. Deltas worth remembering
 before picking a path:
 
-1. **Pipeline framing is real only in Claude Code.** Agent 0 → 1 → 2 → 3
+1. **Pipeline framing is real only in Claude Code.** Agent 0 → 1 → 2
    chains via filesystem. claude.ai has no shared state across agents and
    treats Agent 2 as a standalone analyser.
 2. **Report rendering is identical in both.** Step 9 emits a self-contained
@@ -133,12 +137,12 @@ src/agent_2/
 │   ├── parse_structure.py            # Structure parsing & metadata extraction
 │   ├── compare_structures.py         # Multi-structure superposition & RMSD
 │   ├── binding_site.py               # Ligand detection & pocket / interaction analysis
-│   ├── surface_analysis.py           # SASA, surface properties, shape, fold classification
+│   ├── surface_analysis.py           # SASA, surface properties, secondary structure, shape
 │   ├── render_views.py               # Mol* cartoon renders (Agent 2.1; blocked on #18)
 │   ├── render_trace.py               # Cα-trace figures (Agent 2.2; matplotlib, no GL — active renderer)
 │   └── assemble_report.py            # Deterministic markdown report (facts + figures + profile matrix)
 └── references/
-    ├── interpretation_guide.md       # Passive reference for downstream (Agent 3) use
+    ├── interpretation_guide.md       # Passive reference for the SKILL synthesis
     └── profiles/                     # Optional expected-parameter profiles (+ schema README)
 ```
 
@@ -151,9 +155,8 @@ diverge from this README — README documents the agent's contract and how
 to invoke it; SKILL.md documents how a Claude session orchestrates the
 internals.
 
-`references/interpretation_guide.md` is a passive document for Agent 3 (or
-a Claude session running the skill) to consult during synthesis. Agent 2's
-scripts never read it.
+`references/interpretation_guide.md` is a passive document the Claude session
+running the skill consults during synthesis. Agent 2's scripts never read it.
 
 ## Inputs and outputs
 
@@ -176,7 +179,7 @@ not consumed by Agent 2 scripts.
   metals, AlphaFold detection, resolution, B-factor / pLDDT stats.
 - `<stem>_surface_analysis.json` + `<stem>_surface.csv` +
   `<stem>_surface_profile.png` + `<stem>_exposure_pie.png` — SASA,
-  hydrophobicity, charge, secondary structure, shape metrics, fold class.
+  hydrophobicity, charge, secondary structure, shape metrics.
 - `<stem>_binding_sites.json` + per-ligand `<stem>_<lig>_<chain><resid>_pocket.csv`
   + `<stem>_<lig>_<chain><resid>_summary.png` — pocket composition and
   interaction classification (only if non-solvent ligands are present).
@@ -314,9 +317,8 @@ python surface_analysis.py <structure_file> [--output-dir <dir>]
 Per-residue SASA (Shrake–Rupley) and exposure classification, surface
 hydrophobicity (Kyte–Doolittle), charge distribution at pH 7, hydrophobic
 patch detection, secondary structure (DSSP via `mkdssp`, with PDB-record
-fallback), shape metrics (radius of gyration, asphericity, principal-axis
-ratios), and fold classification (SCOP class + canonical-fold matching with
-SCOP / CATH IDs).
+fallback), and shape metrics (radius of gyration, asphericity, principal-axis
+ratios).
 
 **Outputs:** `<stem>_surface_analysis.json`, `<stem>_surface.csv`,
 `<stem>_surface_profile.png`, `<stem>_exposure_pie.png`.
@@ -394,10 +396,11 @@ CPU only — no GPU required for any Agent 2 script.
    when signal peptides, expression tags, or unresolved termini cause
    length mismatch between otherwise-identical chains. Pairwise sequence
    alignment fallback should be added in `compare_structures.py:match_chains`.
-3. **Per-domain fold classification.** `surface_analysis.py` averages SS
-   content over the full structure (or full multi-chain complex), which is
-   misleading for multi-domain or oligomeric inputs. Per-chain or
-   per-domain classification needed.
+3. **Whole-structure SS averaging.** `surface_analysis.py` averages
+   secondary-structure content over the full structure (or full multi-chain
+   complex), which is misleading for multi-domain or oligomeric inputs. The
+   synthesis should segment by chain or domain rather than reading the
+   whole-chain fractions as one number.
 4. **Skill not at an auto-discovery path.** `SKILL.md` is at
    `src/agent_2/SKILL.md`, not `.claude/skills/protein-analysis/`. Until
    symlinked or installed, Claude Code does not auto-trigger the skill on

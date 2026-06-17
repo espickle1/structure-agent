@@ -1,0 +1,89 @@
+{
+  "file": "t2.cif",
+  "shape": {
+    "radius_of_gyration": 26.46,
+    "asphericity": 0.0478,
+    "principal_eigenvalues": [
+      327.72,
+      219.43,
+      152.75
+    ],
+    "axis_ratios": {
+      "long_mid": 1.49,
+      "long_short": 2.15
+    },
+    "approximate_dimensions": {
+      "long_axis": 79.8,
+      "mid_axis": 65.3,
+      "short_axis": 60.3,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "spherical/globular",
+    "num_ca_atoms": 886
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 43,
+      "fraction": 0.049
+    },
+    "sheet": {
+      "count": 407,
+      "fraction": 0.459
+    },
+    "coil": {
+      "count": 436,
+      "fraction": 0.492
+    },
+    "total_assigned": 886,
+    "source": "DSSP",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 886,
+    "exposed": {
+      "count": 162,
+      "fraction": 0.183
+    },
+    "partial": {
+      "count": 249,
+      "fraction": 0.281
+    },
+    "buried": {
+      "count": 475,
+      "fraction": 0.536
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.458,
+      "std": 2.608
+    },
+    "surface_net_charge": -1.9,
+    "surface_positive_residues": 13,
+    "surface_negative_residues": 14,
+    "total_sasa": 31876.7,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 15,
+        "end_resid": 18,
+        "length": 4,
+        "mean_hydrophobicity": 2.47
+      },
+      {
+        "start_resid": 32,
+        "end_resid": 34,
+        "length": 3,
+        "mean_hydrophobicity": 3.5
+      },
+      {
+        "start_resid": 459,
+        "end_resid": 462,
+        "length": 4,
+        "mean_hydrophobicity": 2.3
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "t2_surface_profile.png",
+    "exposure_pie": "t2_exposure_pie.png"
+  },
+  "surface_csv": "t2_surface.csv"
+}
