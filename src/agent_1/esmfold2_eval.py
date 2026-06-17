@@ -56,10 +56,10 @@ with esmfold2_image.imports():
 # Weight cache on a Modal Volume; point the HF cache at it.
 # ---------------------------------------------------------------------------
 esmfold2_volume = modal.Volume.from_name("esmfold2-models", create_if_missing=True)
-models_dir = Path("/models")
+models_dir = "/models"  # POSIX string, not Path — Path renders "\models" on a Windows host
 esmfold2_image = esmfold2_image.env(
     {
-        "HF_HOME": str(models_dir),
+        "HF_HOME": models_dir,
         "HF_XET_HIGH_PERFORMANCE": "1",  # speed up downloads
     }
 )
