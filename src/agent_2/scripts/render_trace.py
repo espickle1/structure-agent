@@ -173,7 +173,7 @@ def main():
         sys.exit(1)
     out_dir = args.output_dir or args.structure_file.parent
     res = render_structure(args.structure_file, out_dir, args.color, args.size)
-    print(f"[render_trace] {res['n_ca']} Cα → {len(res['views'])} views in {out_dir}")
+    print(f"[render_trace] {res['n_ca']} CA atoms -> {len(res['views'])} views in {out_dir}")
     for name, png in res["views"].items():
         print(f"  {name}: {png}")
 

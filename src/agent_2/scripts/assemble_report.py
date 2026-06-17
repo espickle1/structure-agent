@@ -108,7 +108,7 @@ def parse_profile(path: Path) -> dict:
     Recognised table columns (header row, case-insensitive): parameter | min |
     max | unit | note. Empty min/max means unbounded on that side.
     """
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     name = path.stem
     m = re.search(r"^#\s+(.+)$", text, re.M)
     if m:
@@ -203,7 +203,7 @@ def views_section(stem: str, results_dir: Path, img_prefix: str) -> str:
     meta = {}
     if rv.exists():
         try:
-            meta = json.loads(rv.read_text())
+            meta = json.loads(rv.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             meta = {}
     cams = meta.get("cameras", {})
@@ -392,8 +392,8 @@ def main() -> int:
     for p in (meta_path, surf_path):
         if not p.exists():
             ap.error(f"required input not found: {p}")
-    meta = json.loads(meta_path.read_text())
-    surf = json.loads(surf_path.read_text())
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    surf = json.loads(surf_path.read_text(encoding="utf-8"))
     profiles = [parse_profile(p) for p in args.profile]
 
     out_path: Path = args.output or (rd / f"{args.stem}_analysis.md")
@@ -402,7 +402,7 @@ def main() -> int:
     img_prefix = "" if img_prefix == "." else img_prefix.rstrip("/") + "/"
 
     report = build_report(args.stem, meta, surf, profiles, rd, img_prefix)
-    out_path.write_text(report)
+    out_path.write_text(report, encoding="utf-8")
     n_synth = report.count("<!-- SYNTHESIS")
     print(f"[assemble_report] wrote {out_path} "
           f"({len(profiles)} profile(s), {n_synth} synthesis section(s) to fill)")
