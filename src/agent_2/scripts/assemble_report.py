@@ -8,7 +8,7 @@ figures are embedded by relative path. The interpretive sections (executive
 summary, independent observations, the prediction-quality divergence call, and
 "what cannot be determined") are emitted as clearly-marked SYNTHESIS
 placeholders for the Claude session to fill per ``SKILL.md`` Step 9, so the seam
-between measurement (Zone 1/2) and judgment stays visible in the file.
+between measurement and judgment stays visible in the file.
 
 Pure standard library. CPU only.
 
@@ -351,7 +351,7 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
         f"# Structural analysis — `{stem}`\n",
         "> Facts are emitted deterministically from the measurement scripts. "
         "Sections marked with a SYNTHESIS comment are authored by the Claude session "
-        "(judgment, Zone 2), kept visibly separate from the measured facts.\n",
+        "(judgment), kept visibly separate from the measured facts.\n",
         "## Executive summary\n",
         synth("3–5 sentences: the most notable structural observations.") + "\n",
         "## User-provided context\n",
@@ -369,8 +369,9 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
               "Flag internal inconsistencies. Anchor 'unexpected' to a stated baseline.") + "\n",
         "## What cannot be determined from structure alone\n",
         synth("Enumerate what this structural analysis cannot establish — identity, "
-              "function, mechanism, homology. These are Agent 3's job; hand off the "
-              "structural-consistency hypotheses as Foldseek/literature seeds.") + "\n",
+              "function, mechanism, homology. State these as the limits of structural "
+              "analysis; database verification (Foldseek/CATH) would be needed to go "
+              "further.") + "\n",
         methods_section(profiles),
     ]
     return "\n".join(parts)
