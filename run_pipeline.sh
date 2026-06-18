@@ -5,6 +5,17 @@
 # BYO structure:  ./run_pipeline.sh --input structure.cif  --output-dir results/ --prompt prompts/report.md
 #
 # BYO mode is auto-detected from .cif / .pdb / .mmcif extension, or forced with --byo.
+#
+# Synthesis runs non-interactively by default (`claude -p --permission-mode
+# acceptEdits` — no prompts; for most users, CI, and batch). Pass --interactive to
+# drive it as a supervised `claude` session instead (handy during development).
+# The synthesis model is pinned with --model (default claude-opus-4-8[1m]) and the
+# non-interactive agent loop is bounded with --max-turns (default 50) for
+# reproducible, self-terminating batch runs.
+# The `claude` CLI must be installed and authenticated; the script preflights this
+# before any work runs, so a missing CLI fails fast (not after the Modal folds).
+# Run this from a plain shell, NOT from inside an interactive Claude Code session
+# (that would nest a second `claude` process).
 
 set -euo pipefail
 
@@ -21,6 +32,9 @@ PROMPT_FILE=""
 PROFILE_FLAGS=""
 CLIENT_METADATA=""
 BYO=false
+INTERACTIVE=false
+MODEL="claude-opus-4-8[1m]"
+MAX_TURNS=50
 
 usage() {
     cat <<EOF
@@ -34,6 +48,10 @@ Usage: $(basename "$0") --input <file> --prompt <markdown>
   --profile      Expected-parameter profile for Agent 2 (repeatable)
   --metadata     Client metadata JSON for Agent 0 (optional)
   --byo          Skip Agents 0/1; treat --input as a structure file directly
+  --interactive  Drive synthesis as a supervised interactive claude session
+                 (default: non-interactive claude -p, no prompts)
+  --model        Synthesis model id (default: claude-opus-4-8[1m])
+  --max-turns    Cap on the non-interactive synthesis agent loop (default: 50)
 EOF
     exit 1
 }
@@ -45,8 +63,11 @@ while [[ $# -gt 0 ]]; do
         --prompt)     PROMPT_FILE="$(realpath "$2")"; shift 2 ;;
         --profile)    PROFILE_FLAGS="$PROFILE_FLAGS --profile $(realpath "$2")"; shift 2 ;;
         --metadata)   CLIENT_METADATA="$(realpath "$2")"; shift 2 ;;
-        --byo)        BYO=true; shift ;;
-        -h|--help)    usage ;;
+        --byo)         BYO=true; shift ;;
+        --interactive) INTERACTIVE=true; shift ;;
+        --model)       MODEL="$2"; shift 2 ;;
+        --max-turns)   MAX_TURNS="$2"; shift 2 ;;
+        -h|--help)     usage ;;
         *)            echo "Unknown argument: $1"; usage ;;
     esac
 done
@@ -55,6 +76,10 @@ done
 [[ -z "$OUTPUT_DIR" ]] && OUTPUT_DIR="${REPO_ROOT}/results/run_$(date +%Y%m%d_%H%M%S)"
 [[ ! -f "$INPUT"       ]] && { echo "ERROR: input file not found: $INPUT";       exit 1; }
 [[ ! -f "$PROMPT_FILE" ]] && { echo "ERROR: prompt file not found: $PROMPT_FILE"; exit 1; }
+
+# Preflight the synthesis CLI now — it is the last step, but the Modal folds before it
+# are slow and metered, so fail fast if `claude` is missing rather than after all that.
+command -v claude >/dev/null 2>&1 || { echo "ERROR: 'claude' CLI not found on PATH. Install and authenticate it (it runs the synthesis step)." >&2; exit 1; }
 
 # Auto-detect BYO from extension
 EXT="${INPUT##*.}"
@@ -181,7 +206,11 @@ fi
 # Step 9b: Claude synthesis — fill SYNTHESIS placeholders
 # --------------------------------------------------------------------------- #
 echo ""
-echo "[Synthesis] Invoking Claude..."
+if $INTERACTIVE; then
+    echo "[Synthesis] Invoking Claude (interactive session)..."
+else
+    echo "[Synthesis] Invoking Claude (non-interactive)..."
+fi
 
 PROVENANCE_NOTE="$(if $BYO; then
     echo 'BYO: structure was not predicted by Agents 0/1. Do not reason about pLDDT or prediction confidence.'
@@ -198,7 +227,15 @@ Context for this run:
 - Provenance: $PROVENANCE_NOTE
 - Structures analyzed: $(IFS=', '; echo "${STRUCTURES[*]}")"
 
-claude "$TASK"
+if $INTERACTIVE; then
+    claude --model "$MODEL" "$TASK"
+else
+    if ! claude -p --permission-mode acceptEdits --add-dir "$OUTPUT_DIR" \
+            --model "$MODEL" --max-turns "$MAX_TURNS" "$TASK"; then
+        echo "ERROR: [Synthesis] claude exited non-zero — the report skeleton was written but SYNTHESIS placeholders may be unfilled. Inspect $OUTPUT_DIR/agent_2." >&2
+        exit 1
+    fi
+fi
 
 # --------------------------------------------------------------------------- #
 echo ""

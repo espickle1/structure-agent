@@ -1,34 +1,53 @@
-# run_pipeline.ps1 — structure-agent pipeline coordinator (PowerShell)
+# run_pipeline.ps1 - structure-agent pipeline coordinator (PowerShell)
 #
 # Full pipeline:  .\run_pipeline.ps1 -Input sequences.fasta -Prompt prompts\report.md
 # BYO structure:  .\run_pipeline.ps1 -Input structure.cif   -Prompt prompts\report.md
 #
 # BYO mode is auto-detected from .cif / .pdb / .mmcif extension, or forced with -Byo.
 #
+# Synthesis runs non-interactively by default (`claude -p --permission-mode
+# acceptEdits` - no prompts; for most users, CI, and batch). Pass -Interactive to
+# drive it as a supervised `claude` session instead (handy during development).
+# The synthesis model is pinned with -Model (default claude-opus-4-8[1m]) and the
+# non-interactive agent loop is bounded with -MaxTurns (default 50) for reproducible,
+# self-terminating batch runs. `claude` is preflighted before any work runs, so a
+# missing CLI fails fast rather than after the (slow, metered) Modal folds.
+# Run from a plain PowerShell prompt, NOT from inside an interactive Claude Code
+# session (avoids nesting a second `claude` process).
+#
 # Prerequisites (one-time):
 #   pip install modal biopython numpy scipy pandas matplotlib seaborn gemmi
 #   modal token set --token-id <id> --token-secret <secret>
 #   modal deploy src/agent_1/fold_app/modal_app.py
+#   the `claude` CLI installed and authenticated (used for the synthesis step)
 
 param(
     [Parameter(Mandatory = $true)]
-    [string]$Input,
+    [Alias('Input')]
+    [string]$InputPath,
 
     [string]$OutputDir = "",
 
     [Parameter(Mandatory = $true)]
     [string]$Prompt,
 
-    [string[]]$Profile = @(),
+    [Alias('Profile')]
+    [string[]]$ProfilePath = @(),
 
     [string]$Metadata = "",
 
-    [switch]$Byo
+    [switch]$Byo,
+
+    [switch]$Interactive,
+
+    [string]$Model = "claude-opus-4-8[1m]",
+
+    [int]$MaxTurns = 50
 )
 
 $ErrorActionPreference = "Stop"
 
-# Force UTF-8 mode so the Modal client's progress glyphs (✓, emoji) and the
+# Force UTF-8 mode so the Modal client's progress glyphs (checkmark, emoji) and the
 # Agent 2 scripts' Unicode output don't crash under the Windows cp1252 console.
 $env:PYTHONUTF8 = "1"
 
@@ -39,11 +58,18 @@ $scriptsDir = Join-Path $srcDir "agent_2\scripts"
 # --------------------------------------------------------------------------- #
 # Resolve and validate inputs
 # --------------------------------------------------------------------------- #
-if (-not [System.IO.Path]::IsPathRooted($Input))  { $Input  = (Resolve-Path $Input).Path }
+if (-not [System.IO.Path]::IsPathRooted($InputPath))  { $InputPath  = (Resolve-Path $InputPath).Path }
 if (-not [System.IO.Path]::IsPathRooted($Prompt)) { $Prompt = (Resolve-Path $Prompt).Path }
 
-if (-not (Test-Path $Input))  { Write-Error "Input file not found: $Input";  exit 1 }
+if (-not (Test-Path $InputPath))  { Write-Error "Input file not found: $InputPath";  exit 1 }
 if (-not (Test-Path $Prompt)) { Write-Error "Prompt file not found: $Prompt"; exit 1 }
+
+# Preflight the synthesis CLI now. It is the last step, but the Modal folds before it
+# are slow and metered - fail fast if `claude` is missing rather than after all that.
+if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+    Write-Error "claude CLI not found on PATH. Install and authenticate it (it runs the synthesis step)."
+    exit 1
+}
 
 # Default output directory
 if ([string]::IsNullOrEmpty($OutputDir)) {
@@ -56,13 +82,13 @@ if (-not [System.IO.Path]::IsPathRooted($OutputDir)) {
 
 # Resolve profile paths before changing directory
 $profileArgs = @()
-foreach ($p in $Profile) {
+foreach ($p in $ProfilePath) {
     $rp = if ([System.IO.Path]::IsPathRooted($p)) { $p } else { (Resolve-Path $p).Path }
     $profileArgs += "--profile", $rp
 }
 
 # Auto-detect BYO from extension
-$ext = [System.IO.Path]::GetExtension($Input).ToLower().TrimStart('.')
+$ext = [System.IO.Path]::GetExtension($InputPath).ToLower().TrimStart('.')
 if ($ext -in @('cif', 'pdb', 'mmcif')) { $Byo = $true }
 
 # --------------------------------------------------------------------------- #
@@ -75,20 +101,20 @@ New-Item -ItemType Directory -Force -Path "$OutputDir\agent_2"           | Out-N
 $modeLabel = if ($Byo) { "BYO structure (Agents 0/1 skipped)" } else { "full pipeline" }
 Write-Host "=========================================="
 Write-Host " structure-agent pipeline"
-Write-Host " Input:   $Input"
+Write-Host " Input:   $InputPath"
 Write-Host " Output:  $OutputDir"
 Write-Host " Mode:    $modeLabel"
 Write-Host " Prompt:  $Prompt"
 Write-Host "=========================================="
 
 # --------------------------------------------------------------------------- #
-# Agent 0 — sequence preprocessing
+# Agent 0 - sequence preprocessing
 # --------------------------------------------------------------------------- #
 if (-not $Byo) {
     Write-Host ""
     Write-Host "[Agent 0] Preprocessing sequences..."
 
-    $a0Args = @("--input", $Input, "--output-dir", "$OutputDir\agent_0")
+    $a0Args = @("--input", $InputPath, "--output-dir", "$OutputDir\agent_0")
     if ($Metadata) { $a0Args += "--client-metadata", $Metadata }
 
     Push-Location $srcDir
@@ -99,7 +125,7 @@ if (-not $Byo) {
 }
 
 # --------------------------------------------------------------------------- #
-# Agent 1 — structure prediction (Modal)
+# Agent 1 - structure prediction (Modal)
 # --------------------------------------------------------------------------- #
 if (-not $Byo) {
     Write-Host ""
@@ -119,7 +145,7 @@ if (-not $Byo) {
 # Collect structure files
 # --------------------------------------------------------------------------- #
 if ($Byo) {
-    $structures = @($Input)
+    $structures = @($InputPath)
 } else {
     $structures = @(
         Get-ChildItem -Path "$OutputDir\agent_1\structures" -Recurse |
@@ -138,7 +164,7 @@ Write-Host ""
 Write-Host "[Agent 2] Analyzing $($structures.Count) structure(s)..."
 
 # --------------------------------------------------------------------------- #
-# Agent 2 — per-structure deterministic analysis
+# Agent 2 - per-structure deterministic analysis
 # --------------------------------------------------------------------------- #
 foreach ($struct in $structures) {
     $stem = [System.IO.Path]::GetFileNameWithoutExtension($struct)
@@ -157,7 +183,7 @@ foreach ($struct in $structures) {
         if ($LASTEXITCODE -ne 0) { throw "render_trace failed for $stem" }
     } finally { Pop-Location }
 
-    # Binding site — only if ligands present
+    # Binding site - only if ligands present
     $metaPath = "$OutputDir\agent_2\${stem}_metadata.json"
     $hasLigands = python -c "
 import json, sys
@@ -168,7 +194,7 @@ except:
     print('false')
 " 2>$null
     if ($hasLigands -eq 'true') {
-        Write-Host "  Ligands present — running binding site analysis..."
+        Write-Host "  Ligands present - running binding site analysis..."
         Push-Location $scriptsDir
         try {
             python binding_site.py $struct --output-dir "$OutputDir\agent_2"
@@ -185,7 +211,7 @@ except:
 }
 
 # --------------------------------------------------------------------------- #
-# Comparative analysis — multiple structures only
+# Comparative analysis - multiple structures only
 # --------------------------------------------------------------------------- #
 if ($structures.Count -gt 1) {
     Write-Host ""
@@ -201,10 +227,14 @@ if ($structures.Count -gt 1) {
 }
 
 # --------------------------------------------------------------------------- #
-# Synthesis — Claude fills SYNTHESIS placeholders
+# Synthesis - Claude fills SYNTHESIS placeholders
 # --------------------------------------------------------------------------- #
 Write-Host ""
-Write-Host "[Synthesis] Invoking Claude..."
+if ($Interactive) {
+    Write-Host "[Synthesis] Invoking Claude (interactive session)..."
+} else {
+    Write-Host "[Synthesis] Invoking Claude (non-interactive)..."
+}
 
 $provenanceNote = if ($Byo) {
     "BYO: structure was not predicted by Agents 0/1. Do not reason about pLDDT or prediction confidence."
@@ -226,7 +256,15 @@ Context for this run:
 - Structures analyzed: $structuresList
 "@
 
-& claude $task
+if ($Interactive) {
+    & claude --model $Model $task
+} else {
+    & claude -p --permission-mode acceptEdits --add-dir $OutputDir --model $Model --max-turns $MaxTurns $task
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "[Synthesis] claude exited with code $LASTEXITCODE - the report skeleton was written but SYNTHESIS placeholders may be unfilled. Re-run synthesis or inspect $OutputDir\agent_2."
+        exit 1
+    }
+}
 
 # --------------------------------------------------------------------------- #
 Write-Host ""

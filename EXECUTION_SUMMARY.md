@@ -52,10 +52,23 @@ Two halves with different compute requirements:
 
 ## Two input modes
 
-**Full pipeline** — input is a FASTA file (nucleotide or protein):
+**Full pipeline** — input is a **single FASTA file** (`--input`) that may hold
+**many records**:
 ```
 FASTA → Agent 0 → cleaned.faa → Agent 1 → *.cif → Agent 2 → report
 ```
+
+That one file can **mix DNA, RNA, and protein** records — Agent 0 detects each
+record's type independently, passes protein records through, and translates
+nucleotide records (genetic code 11 default, with a fallback cascade). Notes:
+
+- **One file, not a directory.** The coordinator reads a single `--input`;
+  there is no directory scan or globbing. Concatenate multiple single-sequence
+  files into one multi-record FASTA first if needed.
+- **Unique headers.** Each record's FASTA header becomes its `record_id` /
+  `parent_id` — keep them distinct so outputs don't collide.
+- **Length gate.** Records outside 50–2000 aa (after translation) are logged to
+  `rejections.jsonl` and skipped, not folded.
 
 **BYO structure** — input is an already-predicted or experimentally solved structure:
 ```
@@ -75,7 +88,11 @@ note to Claude automatically.
 
 ## The coordinator script
 
-`run_pipeline.sh` at repo root sequences all steps:
+`run_pipeline.sh` (bash) and `run_pipeline.ps1` (PowerShell) at repo root
+sequence all steps. Windows users invoke the `.ps1` with PascalCase flags
+(`-Input`, `-Prompt`, `-OutputDir`, `-Profile`, `-Metadata`, `-Byo`,
+`-Interactive`); pass multiple profiles comma-separated (`-Profile a.md,b.md`),
+not as a repeated flag. The examples below use the bash form.
 
 ```bash
 # Full pipeline
@@ -99,13 +116,17 @@ Arguments:
 | `--input` | yes | FASTA (full pipeline) or CIF/PDB (BYO) |
 | `--output-dir` | no | Defaults to `results/run_YYYYMMDD_HHMMSS/` |
 | `--prompt` | yes | Markdown synthesis prompt (edit before running) |
-| `--profile` | no | Expected-parameter profile; repeatable |
+| `--profile` | no | Expected-parameter profile. Bash: repeat the flag (`--profile a --profile b`). PowerShell: comma-separate (`-Profile a,b`) |
 | `--metadata` | no | Client metadata JSON for Agent 0 |
 | `--byo` | no | Force BYO mode even for non-CIF/PDB extensions |
+| `--interactive` | no | Drive synthesis as a supervised interactive `claude` session (default: non-interactive) |
 
-The final step invokes `claude "$TASK"` where `$TASK` is the prompt file
-content plus a context block (output directory, repo root, provenance note)
-appended by the script.
+By default the final step runs `claude -p --permission-mode acceptEdits
+--add-dir <output-dir> "$TASK"` — a non-interactive synthesis with no permission
+prompts, suited to most users, CI, and batch. `$TASK` is the prompt file content
+plus a context block (output directory, repo root, provenance note) appended by
+the script. With `--interactive` / `-Interactive` it instead opens a supervised
+`claude "$TASK"` session (useful during development).
 
 ---
 
@@ -187,6 +208,9 @@ modal token set --token-id <id> --token-secret <secret>
 # Deploy Modal apps (one-time, or after image changes)
 modal deploy src/agent_1/fold_app/modal_app.py
 python -m modal deploy -m agent_0.modal_app   # run from src/
+
+# The `claude` CLI must be installed and authenticated — the synthesis step
+# shells out to it (`claude -p` by default, or `claude` interactive with --interactive).
 ```
 
 **Run from repo root:**

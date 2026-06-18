@@ -52,6 +52,86 @@ Python · BioPython · orfipy · ESM-2 650M · ESMFold2-Fast · Boltz-2 ·
 Modal (CPU + A100 GPU) · DSSP · matplotlib (Cα-trace) / Mol\*. Outputs:
 PDB / mmCIF, JSON sidecars, CSV, PNG, markdown report.
 
+## Running from a shell
+
+Drive the pipeline from your own terminal with the coordinator script —
+`run_pipeline.ps1` (PowerShell) or `run_pipeline.sh` (bash). Run it from a
+plain shell, **not** from inside an interactive Claude Code session: the
+synthesis step launches its own `claude` process, and running the script
+inside Claude Code would nest a second one.
+
+```powershell
+# Windows (PowerShell)
+.\run_pipeline.ps1 -Input data\demo\rbp.fasta -Prompt prompts\report.md
+```
+
+```bash
+# macOS / Linux
+./run_pipeline.sh --input data/demo/rbp.fasta --prompt prompts/report.md
+```
+
+`--input` takes a FASTA (full pipeline) or a `.cif` / `.pdb` (BYO — Agents 0/1
+are skipped, auto-detected from the extension). Results land in
+`results/run_YYYYMMDD_HHMMSS/` unless an output directory is given
+(`--output-dir` / `-OutputDir`).
+
+**Input format (full pipeline).** `--input` is a **single FASTA file that may
+contain many records** — not a directory of one-sequence files. The coordinator
+reads exactly one file, so concatenate first if you have several
+(`Get-Content *.fasta | Set-Content combined.fasta`, or `cat *.fasta >
+combined.fasta`). You can **mix DNA, RNA, and protein records** in that one
+file: Agent 0 classifies each record independently, passes protein through, and
+translates nucleotide records (genetic code 11 by default, with a fallback
+cascade). Give every record a unique FASTA header — it becomes the record ID.
+Records outside 50–2000 aa (after translation) are logged to `rejections.jsonl`
+and skipped, not folded. BYO mode is a single `.cif` / `.pdb` and skips Agent 0
+entirely.
+
+**Prerequisites:** Python deps (`biopython numpy scipy pandas matplotlib
+seaborn gemmi`), `mkdssp` for reference-grade secondary structure (optional — a
+`pydssp` fallback runs if it's absent, but is less accurate on predicted
+backbones), Modal auth + deployed apps (prediction half only — Agents 0/1), and
+the **`claude` CLI installed and authenticated** (the synthesis step shells out
+to it).
+
+**Synthesis runs two ways.** By default the report-writing step runs
+**non-interactively** (`claude -p --permission-mode acceptEdits`) — no permission
+prompts, suited to most users, CI, and batch. Pass `--interactive`
+(`-Interactive` on PowerShell) to drive it as a supervised `claude` session
+instead (useful during development):
+
+```bash
+./run_pipeline.sh --input structure.cif --prompt prompts/report.md --interactive
+```
+
+Full setup, the complete argument table, and the cloud (`claude.ai/code`) path
+are in [EXECUTION_SUMMARY.md](EXECUTION_SUMMARY.md).
+
+## Scope & limitations
+
+These reports describe **structure**, not biology. By design, a report describes
+the geometry, surface, secondary-structure content, and coarse structural class
+of a model — and explicitly states "insufficient structural evidence to assign
+function" when the structure does not support a call. What a report **cannot**
+establish, and never claims to:
+
+- **Identity** — what protein this is. Filenames are opaque labels, never read
+  for biological meaning.
+- **A specific fold or superfamily.** The coarse structural class (all-α, all-β,
+  α/β, α+β) is the ceiling; naming a named fold or a SCOP / CATH / Pfam family
+  would require a database search (e.g. Foldseek), which this pipeline does not run.
+- **Biological function or mechanism.** Surface charge, pockets, and shape are
+  reported as structural observations — never read as a functional assignment.
+- **Homology / evolutionary relationships** — out of reach without a
+  sequence/structure search.
+- **Oligomeric state, biological assembly, or ligand/cofactor binding** beyond
+  what is explicitly modeled in the input. A single-chain predicted model says
+  nothing about its assembly.
+
+These limits are generic, so they live here rather than being restated in every
+report; each report keeps only a one-line scope statement. A report is structural
+evidence to reason *from*, not an identification.
+
 ## Pointers
 
 - Per-agent setup and invocation: [src/agent_0/README.md](src/agent_0/README.md),

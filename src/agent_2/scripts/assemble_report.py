@@ -5,8 +5,8 @@ Reads a structure's measurement bundle (the JSON/CSV/PNG written by the other
 Agent 2 scripts) and emits a single markdown report. Every FACT is pulled
 straight from the script JSON — no LLM, no transcription, no network — and the
 figures are embedded by relative path. The interpretive sections (executive
-summary, independent observations, the prediction-quality divergence call, and
-"what cannot be determined") are emitted as clearly-marked SYNTHESIS
+summary, independent observations — which close with a one-line scope statement —
+and the prediction-quality divergence call) are emitted as clearly-marked SYNTHESIS
 placeholders for the Claude session to fill per ``SKILL.md`` Step 9, so the seam
 between measurement and judgment stays visible in the file.
 
@@ -232,14 +232,23 @@ def shape_ss_section(surf: dict) -> str:
         lines.append(f"- **Approx. dimensions:** {fmt(dims.get('long_axis'))} × "
                      f"{fmt(dims.get('mid_axis'))} × {fmt(dims.get('short_axis'))} "
                      f"{dims.get('unit', 'Å')}")
+    ss_src = ss.get("source") or "unknown"
     lines.append(f"- **Secondary structure:** helix {fmt_pct(_dig(ss, 'helix', 'fraction'))}, "
                  f"sheet {fmt_pct(_dig(ss, 'sheet', 'fraction'))}, "
-                 f"coil {fmt_pct(_dig(ss, 'coil', 'fraction'))}")
+                 f"coil {fmt_pct(_dig(ss, 'coil', 'fraction'))} "
+                 f"_(method: {ss_src})_")
     if ss.get("reliable") is False:
         lines.append("- **⚠ Secondary structure unavailable** "
-                     f"(source: {ss.get('source', '?')}) — the SS fractions above are "
+                     f"(source: {ss_src}) — the SS fractions above are "
                      "not a real measurement (DSSP missing); any disorder assessment "
                      "is unreliable until DSSP is installed.")
+    elif ss_src == "pydssp":
+        lines.append("- **⚠ SS assigned by pydssp (fallback), not mkdssp** — pydssp is a "
+                     "simplified DSSP reimplementation and can over- or under-call short "
+                     "helix/sheet segments on imperfect (e.g. predicted) backbones. Treat "
+                     "fractions near the ~5% floor, the helix/sheet split, and any "
+                     "coil-vs-disorder reasoning as provisional; install mkdssp for "
+                     "reference-grade assignment.")
     return "\n".join(lines) + "\n"
 
 
@@ -336,9 +345,9 @@ def methods_section(profiles: list[dict]) -> str:
                  "`render_views.py` Mol* cartoons when Agent 2.1 is available).")
     lines.append("- **Report facts** below the synthesis sections are emitted verbatim from the "
                  "above scripts' JSON by `assemble_report.py` — no transcription.")
-    lines.append("- **Synthesis** sections (executive summary, independent observations, "
-                 "coherence assessment, cannot-determine) are authored by Claude per `SKILL.md` "
-                 "Step 9, each claim cited to a measurement.")
+    lines.append("- **Synthesis** sections (executive summary, independent observations "
+                 "incl. the one-line scope statement, coherence assessment) are authored by "
+                 "Claude per `SKILL.md` Step 9, each claim cited to a measurement.")
     if profiles:
         lines.append("- **Expected-parameter profiles:** "
                      + ", ".join(f"`{p['name']}`" for p in profiles) + ".")
@@ -366,12 +375,13 @@ def build_report(stem: str, meta: dict, surf: dict, profiles: list[dict],
         "## Independent observations\n",
         synth("What is notable or unexpected from the measurements + generic physical "
               "baselines ALONE (do NOT consult the expected-parameter profiles here). "
-              "Flag internal inconsistencies. Anchor 'unexpected' to a stated baseline.") + "\n",
-        "## What cannot be determined from structure alone\n",
-        synth("Enumerate what this structural analysis cannot establish — identity, "
-              "function, mechanism, homology. State these as the limits of structural "
-              "analysis; database verification (Foldseek/CATH) would be needed to go "
-              "further.") + "\n",
+              "Flag internal inconsistencies. Anchor 'unexpected' to a stated baseline. "
+              "Close with ONE sentence stating the scope limit: this is structural "
+              "description, not an identity / fold-name / function call — say "
+              "'insufficient structural evidence to assign function' when the structure "
+              "does not support one. Keep it to one line; the generic limits of structural "
+              "analysis live in the README, so do not re-enumerate identity / homology / "
+              "mechanism here.") + "\n",
         methods_section(profiles),
     ]
     return "\n".join(parts)
