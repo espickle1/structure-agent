@@ -35,6 +35,12 @@ input.fasta ─┐
     rejections.jsonl
 ```
 
+> **⚠ Slow path not yet implemented.** The `slow_app` (GPU) branch shown above —
+> ESM-2 perplexity ORF resolution — is not deployed. Records tagged
+> `SLOW_PATH_NEEDED` are currently rejected with `SLOW_PATH_UNAVAILABLE` (see
+> Known gaps §1 below). Protein passthrough and clean-CDS fast-path translation
+> are fully operational.
+
 ## Pipeline stages
 
 | Stage         | Module                          | Output                       |

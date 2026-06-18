@@ -6,7 +6,7 @@ Multi-agent pipeline for high-throughput protein structure prediction and analys
 
 - **Agent 0** (complete): heterogeneous nucleotide/protein FASTA → clean amino acid FASTA + provenance metadata. Stack: BioPython, orfipy, ESM-2 650M, Modal (CPU fast app + GPU slow app).
 - **Agent 1** (operational): structure prediction orchestrator. Folds single sequences with ESMFold2-Fast (no MSA) on Modal, annotates a mean-pLDDT confidence tier (never gates on quality), hands coordinates + metadata to Agent 2. Boltz-2 retained as a documented fallback for multimers (`src/agent_1/boltz_fallback/`).
-- **Agent 2** (complete): the final stage — measurement through interpretation. Deterministic scripts measure geometry, surface, secondary structure, shape, and renders (JSON/CSV/PNG); an interpretive SKILL (`src/agent_2/SKILL.md`) reads those outputs and writes the PDF report.
+- **Agent 2** (complete): the final stage — measurement through interpretation. Deterministic scripts measure geometry, surface, secondary structure, shape, and renders (JSON/CSV/PNG); an interpretive SKILL (`src/agent_2/SKILL.md`) reads those outputs and writes the markdown report.
 - **Agent 3**: not a separate module. Interpretation was merged into Agent 2's SKILL — nothing to build here.
 
 ## Architectural rules — non-negotiable
@@ -28,4 +28,4 @@ Multi-agent pipeline for high-throughput protein structure prediction and analys
 - Python; BioPython, orfipy, ESM-2 650M
 - ESMFold2-Fast (production structure prediction; single-sequence, no MSA); Boltz-2 (documented fallback for multimers)
 - Modal (serverless GPU/CPU; CPU fast + GPU slow apps chained by orchestrator)
-- Outputs: PDB/mmCIF, JSON sidecars, PDF reports
+- Outputs: PDB/mmCIF, JSON sidecars, CSV, PNG, markdown reports

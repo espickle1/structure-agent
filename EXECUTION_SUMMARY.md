@@ -149,9 +149,11 @@ The prompt instructs Claude to:
 1. Read `src/agent_2/references/interpretation_guide.md`
 2. Assess disorder from outputs before writing
 3. Fill each `<!-- SYNTHESIS -->` section: executive summary, user context,
-   coherence assessment, independent observations, what cannot be determined
+   coherence assessment, and independent observations (closing with a one-line
+   scope statement)
 4. Cite every claim to a specific measurement
-5. Stay in Zone 1–2 (describe/compare; no identity or function claims)
+5. Stay descriptive — describe and compare; no identity, fold-name, or function
+   claims (the measured-vs-inferred boundary)
 
 ---
 
@@ -238,15 +240,18 @@ not cloud sessions.
 
 ---
 
-## Pending before first run
+## Open follow-ups
 
-1. **`data/demo/rbp.fasta`** — canonical homotrimeric RBP sequence to commit.
-   Current unblock.
-2. **ESMFold2 pLDDT scale** — confirm 0–1 or 0–100. Affects Agent 1
-   `classify_confidence` tiers and report's predicted-ness detection.
-3. **Provenance boolean** — plumb into sidecar (orchestrator sets on
-   pipeline-predicted path; absent on BYO). Switch `detect_alphafold`
-   heuristic in report to use flag instead of B-factor sniffing.
-4. **`surface_analysis.py` `classify_fold`** — remove per HANDOFF Task A.
-5. **`README.md`** — update to reflect merged architecture, retired
-   Stage/Zone vocabulary, `run_pipeline.sh` as entry point.
+The pipeline is operational and has been run end-to-end; the items that once
+blocked the first run — demo sequence committed, `classify_fold` removed,
+README / vocabulary refresh, pLDDT scale confirmed — have all landed. One
+refinement remains from that list:
+
+1. **Provenance boolean.** Plumb a pipeline-predicted flag into the Agent 0/1
+   sidecar (set on the predicted path, absent on BYO) and switch the report's
+   predicted-ness detection (`parse_structure.py`) to read that flag instead of
+   sniffing the B-factor distribution.
+
+Broader open work (fold-class floor calibration, the multidomain guard, Agent 1
+confidence-tier recalibration, Mol\* renders, the Agent 0 slow path) is tracked
+in [HANDOFF.md](HANDOFF.md).

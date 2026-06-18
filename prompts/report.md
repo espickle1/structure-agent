@@ -68,11 +68,11 @@ expected-parameter profiles here; that section is already filled by the
 assembler script and this is a separate, profile-blind lens. Anchor every
 "unexpected" claim to the baseline you compared against. Flag any internal
 inconsistencies (e.g. fold class disagreeing with SS content fractions).
-
-**What cannot be determined** — enumerate what this structural analysis cannot
-establish: identity, function, mechanism, homology. List the structural
-observations that would seed a Foldseek or literature search downstream.
-These are not failures; they are the explicit handoff to the next stage.
+Close with a **one-line scope statement**: this is structural description, not
+an identity / fold-name / function call — say "insufficient structural evidence
+to assign function" when the structure does not support one. One line only; the
+generic limits of structural analysis live in the README, so do not re-enumerate
+identity / homology / mechanism here.
 
 ---
 
@@ -86,8 +86,10 @@ These are not failures; they are the explicit handoff to the next stage.
   table is already in the report; your independent section is blind to it.
 - **Do not invent facts.** If a measurement is marked unavailable (DSSP
   missing, renders failed, SS unreliable), report that honestly.
-- **Zone 1–2 only.** Describe and compare. Identity, function, mechanism,
-  and homology belong in "what cannot be determined."
+- **Descriptive only.** Describe and compare; never assign identity, a named
+  fold, function, mechanism, or homology. The coarse structural class (all-α /
+  all-β / α/β / α+β) is the ceiling, named in prose as inference — never a
+  specific fold or a SCOP / CATH identifier.
 - **Never say "this is protein X."** The pipeline is identity-agnostic.
   If the user named the protein in the context block, cross-check the claim
   against structural evidence; note agreement or discrepancy.

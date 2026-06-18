@@ -50,7 +50,7 @@ The intended workflow:
 2. Ask Claude to analyse a directory of structures, e.g.:
 
    > "Run Agent 2 on `./data/`."
-   > "Analyse the structures in `./src/agent_1/step1_results/`."
+   > "Analyse the `.cif` files in `./runs/stress_test/a1/structures/`."
    > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
 
 3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs the
@@ -167,8 +167,9 @@ running the skill consults during synthesis. Agent 2's scripts never read it.
 **Inputs** (typical paths):
 
 - `./data/` — ad-hoc structure files you drop in for analysis.
-- `./src/agent_1/step1_results/` — predicted structures from Agent 1
-  (ESMFold2-Fast; one CIF per folded record).
+- `results/run_*/agent_1/structures/` — predicted structures from a pipeline run
+  (Agent 1, ESMFold2-Fast; one CIF per folded record). `runs/stress_test/a1/structures/`
+  holds a tracked set you can point at directly.
 - Anywhere else — point Claude at any directory containing PDB or mmCIF.
 - *(optional)* expected-parameter profiles from `references/profiles/` — pass
   one or more to flag deviations against an explicit baseline (see that dir's
@@ -202,8 +203,8 @@ not consumed by Agent 2 scripts.
   fills it with deterministic facts, embedded figures, the prediction-quality /
   coherence signals, and an expected-parameter comparison matrix; the Claude
   session then fills the marked synthesis sections (executive summary,
-  independent observations, coherence assessment, "what cannot be determined"),
-  each claim cited to a measurement.
+  independent observations — closing with a one-line scope statement — and
+  coherence assessment), each claim cited to a measurement.
 
 All plots are 300 DPI PNG. All JSON is indented for diff-friendliness.
 
