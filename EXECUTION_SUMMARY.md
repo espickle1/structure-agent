@@ -253,5 +253,4 @@ refinement remains from that list:
    sniffing the B-factor distribution.
 
 Broader open work (fold-class floor calibration, the multidomain guard, Agent 1
-confidence-tier recalibration, Mol\* renders, the Agent 0 slow path) is tracked
-in [HANDOFF.md](HANDOFF.md).
+confidence-tier recalibration, Mol\* renders, the Agent 0 slow path) is noted across the per-agent READMEs and `SKILL.md`.
