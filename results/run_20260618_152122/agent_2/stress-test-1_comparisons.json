@@ -1,0 +1,272 @@
+[
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-10.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 204,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-11.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 301,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-12.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 908,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-2.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 150,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-3.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 326,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-4.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 640,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-5.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": "A",
+        "sequence_identity": 0.0651,
+        "ref_length": 711,
+        "query_length": 707
+      }
+    ],
+    "superpositions": [
+      {
+        "num_paired_residues": 707,
+        "global_rmsd": 585.9475,
+        "core_rmsd": null,
+        "core_fraction": null,
+        "deviation_threshold": 2.0,
+        "high_deviation_regions": [
+          {
+            "start_resid": 1,
+            "end_resid": 707,
+            "length": 707,
+            "max_deviation": 655.2954
+          }
+        ],
+        "deviation_stats": {
+          "mean": 585.4813,
+          "median": 584.2564,
+          "max": 655.2954,
+          "std": 23.3707
+        },
+        "chain_id": "A",
+        "deviation_csv": "stress-test-1_vs_stress-test-5_chainA_deviations.csv",
+        "deviation_plot": "stress-test-1_vs_stress-test-5_chainA_deviation.png",
+        "bfactor_plot": "stress-test-1_vs_stress-test-5_chainA_bfactor.png"
+      }
+    ]
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-6.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 165,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-7.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 169,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-8.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 282,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-1.cif",
+    "query": "stress-test-9.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 711,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 292,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  }
+]

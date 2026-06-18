@@ -1,0 +1,134 @@
+[
+  {
+    "reference": "windows-CLI-1.cif",
+    "query": "windows-CLI-2.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 194,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 123,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "windows-CLI-1.cif",
+    "query": "windows-CLI-3.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": "A",
+        "sequence_identity": 0.0619,
+        "ref_length": 194,
+        "query_length": 201
+      }
+    ],
+    "superpositions": [
+      {
+        "num_paired_residues": 194,
+        "global_rmsd": 69.1437,
+        "core_rmsd": null,
+        "core_fraction": null,
+        "deviation_threshold": 2.0,
+        "high_deviation_regions": [
+          {
+            "start_resid": 1,
+            "end_resid": 194,
+            "length": 194,
+            "max_deviation": 97.2594
+          }
+        ],
+        "deviation_stats": {
+          "mean": 68.2064,
+          "median": 67.035,
+          "max": 97.2594,
+          "std": 11.346
+        },
+        "chain_id": "A",
+        "deviation_csv": "windows-CLI-1_vs_windows-CLI-3_chainA_deviations.csv",
+        "deviation_plot": "windows-CLI-1_vs_windows-CLI-3_chainA_deviation.png",
+        "bfactor_plot": "windows-CLI-1_vs_windows-CLI-3_chainA_bfactor.png"
+      }
+    ]
+  },
+  {
+    "reference": "windows-CLI-1.cif",
+    "query": "windows-CLI-4.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 194,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 237,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "windows-CLI-1.cif",
+    "query": "windows-CLI-5.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 194,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 219,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "windows-CLI-1.cif",
+    "query": "windows-CLI-6.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 194,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 362,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  }
+]

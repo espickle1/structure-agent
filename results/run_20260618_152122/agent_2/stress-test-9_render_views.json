@@ -1,0 +1,39 @@
+{
+  "file": "stress-test-9.cif",
+  "renderer": "matplotlib-ca-trace",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "n_ca": 292,
+  "approx_dimensions": {
+    "long_axis": 75.1,
+    "mid_axis": 37.5,
+    "short_axis": 34.4,
+    "unit": "\u00c5"
+  },
+  "views": {
+    "axis1": "stress-test-9_axis1.png",
+    "axis2": "stress-test-9_axis2.png",
+    "axis3": "stress-test-9_axis3.png"
+  },
+  "cameras": {
+    "axis1": {
+      "label": "down long axis",
+      "elev": 0,
+      "azim": 0
+    },
+    "axis2": {
+      "label": "down mid axis",
+      "elev": 0,
+      "azim": -90
+    },
+    "axis3": {
+      "label": "down short axis",
+      "elev": 90,
+      "azim": -90
+    }
+  },
+  "failures": {}
+}

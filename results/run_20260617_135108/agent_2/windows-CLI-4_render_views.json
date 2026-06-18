@@ -1,0 +1,39 @@
+{
+  "file": "windows-CLI-4.cif",
+  "renderer": "matplotlib-ca-trace",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "n_ca": 237,
+  "approx_dimensions": {
+    "long_axis": 105.4,
+    "mid_axis": 30.7,
+    "short_axis": 28.1,
+    "unit": "\u00c5"
+  },
+  "views": {
+    "axis1": "windows-CLI-4_axis1.png",
+    "axis2": "windows-CLI-4_axis2.png",
+    "axis3": "windows-CLI-4_axis3.png"
+  },
+  "cameras": {
+    "axis1": {
+      "label": "down long axis",
+      "elev": 0,
+      "azim": 0
+    },
+    "axis2": {
+      "label": "down mid axis",
+      "elev": 0,
+      "azim": -90
+    },
+    "axis3": {
+      "label": "down short axis",
+      "elev": 90,
+      "azim": -90
+    }
+  },
+  "failures": {}
+}

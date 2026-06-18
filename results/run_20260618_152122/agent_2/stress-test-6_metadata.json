@@ -1,0 +1,45 @@
+{
+  "file": "stress-test-6.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 165,
+  "total_atoms": 1361,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 165,
+      "num_atoms": 1361,
+      "sequence": "MKTSRLPIAIQQAVMRRLREKLAQANLKLGRNYPEPKLSYTQRGTSAGTAWLESYEIRLNPVLLLENSEAFIEEVVPHELAHLLVWKHFGRVAPHGKEWKWMMENVLGVPARRTHQFELQSVRRNTFPYRCKCQEHQLTVRRHNRVVRGEAVYRCVHCGEQLVAK",
+      "sequence_length": 165,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 83.86,
+        "median": 87.54,
+        "min": 46.38,
+        "max": 94.68,
+        "std": 10.64
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

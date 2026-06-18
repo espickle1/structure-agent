@@ -1,0 +1,212 @@
+{
+  "file": "2E7L.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 8,
+  "total_residues": 814,
+  "total_atoms": 6682,
+  "total_missing_residues": 24,
+  "experimental_method": "X-RAY DIFFRACTION",
+  "resolution": 2.5,
+  "alphafold_detection": {
+    "is_predicted": false,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": false
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 112,
+      "num_atoms": 912,
+      "sequence": "QSVTQPDARVTVSEGASLQLRCKYSYSATPYLFWYVQYPRQGPQLLLKYYSGDPVVQGVNGFEAEFSKSNSSFHLRKASVHRSDSAVYFCAVSHQGRYLTFGSGTKVIVLPY",
+      "sequence_length": 112,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 22,
+      "modified_residues": [],
+      "chain_breaks": [
+        {
+          "after_resid": 93,
+          "before_resid": 99,
+          "gap_size": 5
+        }
+      ],
+      "bfactor_stats": {
+        "mean": 34.34,
+        "median": 33.28,
+        "min": 21.75,
+        "max": 59.64,
+        "std": 7.56
+      }
+    },
+    {
+      "chain_id": "B",
+      "num_residues": 110,
+      "num_atoms": 890,
+      "sequence": "SVTQPDARVTVSEGASLQLRCKYSYSATPYLFWYVQYPRQGPQLLLKYYSGDPVVQGVNGFEAEFSKSNSSFHLRKASVHRSDSAVYFCAVSHQGRYLTFGSGTKVIVLP",
+      "sequence_length": 110,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 21,
+      "modified_residues": [],
+      "chain_breaks": [
+        {
+          "after_resid": 93,
+          "before_resid": 99,
+          "gap_size": 5
+        }
+      ],
+      "bfactor_stats": {
+        "mean": 30.42,
+        "median": 30.24,
+        "min": 18.34,
+        "max": 46.26,
+        "std": 6.82
+      }
+    },
+    {
+      "chain_id": "C",
+      "num_residues": 112,
+      "num_atoms": 871,
+      "sequence": "EAAVTQSPRNKVAVTGEKVTLSCNQTNNHNNMYWYRQDTGHELRLIYYSYGAGSTEKGDIPDGYKASRPSQENFSLTLESATPSQTSVYFCASGGGGTLYFGAGTRLSVLSS",
+      "sequence_length": 112,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 19,
+      "modified_residues": [],
+      "chain_breaks": [
+        {
+          "after_resid": 63,
+          "before_resid": 65,
+          "gap_size": 1
+        },
+        {
+          "after_resid": 98,
+          "before_resid": 105,
+          "gap_size": 6
+        }
+      ],
+      "bfactor_stats": {
+        "mean": 28.74,
+        "median": 27.82,
+        "min": 17.5,
+        "max": 49.67,
+        "std": 7.04
+      }
+    },
+    {
+      "chain_id": "D",
+      "num_residues": 112,
+      "num_atoms": 865,
+      "sequence": "EAAVTQSPRNKVAVTGEKVTLSCNQTNNHNNMYWYRQDTGHELRLIYYSYGAGSTEKGDIPDGYKASRPSQENFSLTLESATPSQTSVYFCASGGGGTLYFGAGTRLSVLSS",
+      "sequence_length": 112,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 13,
+      "modified_residues": [],
+      "chain_breaks": [
+        {
+          "after_resid": 63,
+          "before_resid": 65,
+          "gap_size": 1
+        },
+        {
+          "after_resid": 98,
+          "before_resid": 105,
+          "gap_size": 6
+        }
+      ],
+      "bfactor_stats": {
+        "mean": 35.24,
+        "median": 35.72,
+        "min": 20.0,
+        "max": 59.71,
+        "std": 6.65
+      }
+    },
+    {
+      "chain_id": "E",
+      "num_residues": 175,
+      "num_atoms": 1496,
+      "sequence": "GPHSMRYFETAVSRRGLGEPRYISVGYVDDKEFVRFDSDAENPRYEPQVPWMEQEGPEYWERITQVAKGQEQWFRVNLRTLLGYYNQSAGGTHTLQRMYGCDVGSDGRLLRGYEQFAYDGCDYIALNEDLRTWTAADMAAQITRRKWEQAGAAEYYRAYLEGECVEWLHRYLKNG",
+      "sequence_length": 175,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 48,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 31.2,
+        "median": 29.86,
+        "min": 20.0,
+        "max": 50.98,
+        "std": 7.29
+      }
+    },
+    {
+      "chain_id": "F",
+      "num_residues": 175,
+      "num_atoms": 1490,
+      "sequence": "GPHSMRYFETAVSRRGLGEPRYISVGYVDDKEFVRFDSDAENPRYEPQVPWMEQEGPEYWERITQVAKGQEQWFRVNLRTLLGYYNQSAGGTHTLQRMYGCDVGSDGRLLRGYEQFAYDGCDYIALNEDLRTWTAADMAAQITRRKWEQAGAAEYYRAYLEGECVEWLHRYLKNG",
+      "sequence_length": 175,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 42,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 27.1,
+        "median": 25.58,
+        "min": 16.93,
+        "max": 49.03,
+        "std": 7.13
+      }
+    },
+    {
+      "chain_id": "P",
+      "num_residues": 9,
+      "num_atoms": 80,
+      "sequence": "QLSPFPFDL",
+      "sequence_length": 9,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 5,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 21.54,
+        "median": 19.47,
+        "min": 18.87,
+        "max": 28.94,
+        "std": 3.37
+      }
+    },
+    {
+      "chain_id": "Q",
+      "num_residues": 9,
+      "num_atoms": 78,
+      "sequence": "QLSPFPFDL",
+      "sequence_length": 9,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 3,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 26.91,
+        "median": 26.99,
+        "min": 23.78,
+        "max": 31.71,
+        "std": 2.42
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": true
+}

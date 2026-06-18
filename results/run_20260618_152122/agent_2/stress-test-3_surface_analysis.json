@@ -1,0 +1,101 @@
+{
+  "file": "stress-test-3.cif",
+  "shape": {
+    "radius_of_gyration": 25.47,
+    "asphericity": 0.221,
+    "principal_eigenvalues": [
+      411.1,
+      168.88,
+      68.66
+    ],
+    "axis_ratios": {
+      "long_mid": 2.43,
+      "long_short": 5.99
+    },
+    "approximate_dimensions": {
+      "long_axis": 89.8,
+      "mid_axis": 52.9,
+      "short_axis": 36.8,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 326
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 33,
+      "fraction": 0.101
+    },
+    "sheet": {
+      "count": 119,
+      "fraction": 0.365
+    },
+    "coil": {
+      "count": 174,
+      "fraction": 0.534
+    },
+    "total_assigned": 326,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 326,
+    "exposed": {
+      "count": 123,
+      "fraction": 0.377
+    },
+    "partial": {
+      "count": 109,
+      "fraction": 0.334
+    },
+    "buried": {
+      "count": 94,
+      "fraction": 0.288
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.829,
+      "std": 2.866
+    },
+    "surface_net_charge": -2.9,
+    "surface_positive_residues": 16,
+    "surface_negative_residues": 18,
+    "total_sasa": 19060.0,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 3,
+        "end_resid": 5,
+        "length": 3,
+        "mean_hydrophobicity": 3.93
+      },
+      {
+        "start_resid": 15,
+        "end_resid": 23,
+        "length": 9,
+        "mean_hydrophobicity": 2.97
+      },
+      {
+        "start_resid": 236,
+        "end_resid": 239,
+        "length": 4,
+        "mean_hydrophobicity": 2.65
+      },
+      {
+        "start_resid": 256,
+        "end_resid": 258,
+        "length": 3,
+        "mean_hydrophobicity": 3.37
+      },
+      {
+        "start_resid": 297,
+        "end_resid": 299,
+        "length": 3,
+        "mean_hydrophobicity": 4.2
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "stress-test-3_surface_profile.png",
+    "exposure_pie": "stress-test-3_exposure_pie.png"
+  },
+  "surface_csv": "stress-test-3_surface.csv"
+}

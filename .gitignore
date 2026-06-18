@@ -226,7 +226,7 @@ src/agent_1/test_data/
 .DS_Store
 
 # Runtime outputs — regenerable, never commit
-results/
+# results/
 
 # Structure files in data/ — large, regenerable
 data/**/*.cif

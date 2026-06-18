@@ -1,0 +1,45 @@
+{
+  "file": "stress-test-4.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 640,
+  "total_atoms": 4733,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 640,
+      "num_atoms": 4733,
+      "sequence": "MRTMALWLGAVLMACGLGSASVSNEGLANERTPASNAAEAGESAAGRDPALPSEAGRMQERTVWLTQPVHFTGAQGQDVVVGPGSYQVGAESTNRISLVPTEDGESVVIDAANLTHQQTIESPVPVIVPDPEQPDVLHLALLFPAGTGLNAIGTYSGVKPRAVAKTAIVVQAMQLAPTRTMQIAATVAAPTVVIYENPNFGGRSQTLGVGGYVFAELNDLASSIRVPAGLVAVLYEHVDAGGGYGLSVDLLEDRPDLSQVNFNNKLSYICVFSSPDPQGFIWARGSVQNGQFVAGHWERQRASGTPVNTVAVVAPLLAPHPANAPPASCGGGVIVRDHRGQPLPPNDVANDSDGDGLGDQLEAALGTCASRTSSVAGVNCNGIADPRDTDGDGLQDGWEVLGKRTTNSQNQPVFLDLPKWGADPRHKDVFIEVDFRRLDLAENQQGVASRMTPAAARQMAAVYADAATTDPTLRAAHAASIANPDGLPGIRLHLDTGVPPERPEDATIYGDWGGYNPVDALPTGPQRPEQVWQTQMDRSRHGVFHYVMGYTTGGGACGKGIACGFNMTSVANASHEFGHTLGLDHNGPYSVENEPNCKPHYMSLMGSGSGDDDDKLEGKPIPNPLLGLDSTRTGHHHHHH",
+      "sequence_length": 640,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 69.76,
+        "median": 73.4,
+        "min": 35.53,
+        "max": 96.25,
+        "std": 17.76
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

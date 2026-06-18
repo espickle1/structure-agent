@@ -1,0 +1,45 @@
+{
+  "file": "stress-test-5.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 278,
+  "total_atoms": 2235,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 278,
+      "num_atoms": 2235,
+      "sequence": "VVRVADTMPSGPSNSESIPALTAAETGHTSQVVPSDTIQTRHVRNFHVRSESSVENFLSRSACVYIVEYKTRDDTPDKMYDSWVINTRQVAQLRRKLEFFTYVRFDVEVTFVITSVQDDSTRQNTDTPALTHQIMYVPPGGPIPQAVDDYNWQTSTNPSVFWTEGNAPPRMSIPFMSVGNAYSNFYDGWSHFSQTGVYGFNTLNNMGKLYFRHVNDKTISPITSKVRIYFKPKHVKAWVPRPPRLCEYTHKDNVDFEPKGVTTSRTQLTISNSTHVEN",
+      "sequence_length": 278,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 77.6,
+        "median": 83.88,
+        "min": 45.68,
+        "max": 95.86,
+        "std": 15.13
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

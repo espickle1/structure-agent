@@ -1,0 +1,39 @@
+{
+  "file": "stress-test-second-1.cif",
+  "renderer": "matplotlib-ca-trace",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "n_ca": 875,
+  "approx_dimensions": {
+    "long_axis": 107.5,
+    "mid_axis": 78.1,
+    "short_axis": 79.9,
+    "unit": "\u00c5"
+  },
+  "views": {
+    "axis1": "stress-test-second-1_axis1.png",
+    "axis2": "stress-test-second-1_axis2.png",
+    "axis3": "stress-test-second-1_axis3.png"
+  },
+  "cameras": {
+    "axis1": {
+      "label": "down long axis",
+      "elev": 0,
+      "azim": 0
+    },
+    "axis2": {
+      "label": "down mid axis",
+      "elev": 0,
+      "azim": -90
+    },
+    "axis3": {
+      "label": "down short axis",
+      "elev": 90,
+      "azim": -90
+    }
+  },
+  "failures": {}
+}

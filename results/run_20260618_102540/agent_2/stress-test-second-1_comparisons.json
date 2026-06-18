@@ -1,0 +1,48 @@
+[
+  {
+    "reference": "stress-test-second-1.cif",
+    "query": "stress-test-second-3.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 875,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 134,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  },
+  {
+    "reference": "stress-test-second-1.cif",
+    "query": "stress-test-second-4.cif",
+    "chain_matching": [
+      {
+        "ref_chain_id": "A",
+        "query_chain_id": null,
+        "sequence_identity": null,
+        "ref_length": 875,
+        "query_length": null,
+        "status": "unmatched_in_query"
+      },
+      {
+        "ref_chain_id": null,
+        "query_chain_id": "A",
+        "sequence_identity": null,
+        "ref_length": null,
+        "query_length": 174,
+        "status": "absent_in_reference"
+      }
+    ],
+    "superpositions": []
+  }
+]

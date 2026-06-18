@@ -1,0 +1,70 @@
+{
+  "file": "windows-CLI-3.cif",
+  "shape": {
+    "radius_of_gyration": 16.68,
+    "asphericity": 0.1926,
+    "principal_eigenvalues": [
+      173.83,
+      57.64,
+      46.64
+    ],
+    "axis_ratios": {
+      "long_mid": 3.02,
+      "long_short": 3.73
+    },
+    "approximate_dimensions": {
+      "long_axis": 53.0,
+      "mid_axis": 34.8,
+      "short_axis": 30.4,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 201
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 25,
+      "fraction": 0.124
+    },
+    "sheet": {
+      "count": 64,
+      "fraction": 0.318
+    },
+    "coil": {
+      "count": 112,
+      "fraction": 0.557
+    },
+    "total_assigned": 201,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 201,
+    "exposed": {
+      "count": 55,
+      "fraction": 0.274
+    },
+    "partial": {
+      "count": 62,
+      "fraction": 0.308
+    },
+    "buried": {
+      "count": 84,
+      "fraction": 0.418
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.54,
+      "std": 2.355
+    },
+    "surface_net_charge": -9,
+    "surface_positive_residues": 5,
+    "surface_negative_residues": 14,
+    "total_sasa": 10008.9,
+    "hydrophobic_patches": []
+  },
+  "plots": {
+    "surface_profile": "windows-CLI-3_surface_profile.png",
+    "exposure_pie": "windows-CLI-3_exposure_pie.png"
+  },
+  "surface_csv": "windows-CLI-3_surface.csv"
+}

@@ -1,0 +1,70 @@
+{
+  "file": "stress-test-6.cif",
+  "shape": {
+    "radius_of_gyration": 18.62,
+    "asphericity": 0.3077,
+    "principal_eigenvalues": [
+      242.26,
+      68.78,
+      35.57
+    ],
+    "axis_ratios": {
+      "long_mid": 3.52,
+      "long_short": 6.81
+    },
+    "approximate_dimensions": {
+      "long_axis": 59.1,
+      "mid_axis": 35.5,
+      "short_axis": 25.0,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 165
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 70,
+      "fraction": 0.424
+    },
+    "sheet": {
+      "count": 25,
+      "fraction": 0.152
+    },
+    "coil": {
+      "count": 70,
+      "fraction": 0.424
+    },
+    "total_assigned": 165,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 165,
+    "exposed": {
+      "count": 57,
+      "fraction": 0.345
+    },
+    "partial": {
+      "count": 56,
+      "fraction": 0.339
+    },
+    "buried": {
+      "count": 52,
+      "fraction": 0.315
+    },
+    "surface_hydrophobicity": {
+      "mean": -1.93,
+      "std": 2.944
+    },
+    "surface_net_charge": 15.1,
+    "surface_positive_residues": 22,
+    "surface_negative_residues": 6,
+    "total_sasa": 10293.3,
+    "hydrophobic_patches": []
+  },
+  "plots": {
+    "surface_profile": "stress-test-6_surface_profile.png",
+    "exposure_pie": "stress-test-6_exposure_pie.png"
+  },
+  "surface_csv": "stress-test-6_surface.csv"
+}
