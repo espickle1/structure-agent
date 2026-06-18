@@ -380,13 +380,17 @@ you author from the measured facts plus the interpretation guide (Step 8):
   internal inconsistencies — measurements that directly contradict one another — but an
   elongated shape is **not** one: it never contradicts the fold class (see Fold-class
   framing, step 4). Anchor every "unexpected" to the baseline you compared against.
+  End with the one-line scope statement (below).
 - **Coherence assessment** — state whether the structural-coherence signals
   (compactness, core, coil) agree with the confidence score, or
   whether a low pLDDT sits alongside a coherent fold (common for low-homology
   targets). pLDDT is reported context, **never** a gate.
-- **What cannot be determined** — identity, function, mechanism, homology. State
-  these plainly as the limits of structural analysis; "insufficient structural
-  evidence to assign function" is a valid, expected conclusion, not a failure.
+- **Scope line (one sentence, no separate section).** There is no "what cannot be
+  determined" section — the generic limits of structural analysis live in the
+  README. Instead, close **Independent observations** with a single sentence: this
+  is structural description, not an identity, fold-name, or function call, and
+  "insufficient structural evidence to assign function" when the structure does not
+  support one. One line only; do **not** re-enumerate identity / homology / mechanism.
 - **Stay descriptive:** describe and compare. "Consistent with profile X" —
   never "is an X." Leave the deterministic facts the assembler wrote intact; only
   fill the placeholders.
@@ -407,6 +411,15 @@ fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
    unavailable, stop; substantial helix/sheet ⇒ treat as reliable and continue. Do not
    read the 0%/0%/all-coil fallback as a genuinely all-coil protein, and do not withhold a
    class from real SS just because the flag is missing.
+
+   **SS method (`secondary_structure_content.source`).** If the source is `pydssp` — the
+   fallback used when mkdssp is absent — the assignment is approximate: pydssp can over- or
+   under-call short helix/sheet segments on imperfect (e.g. predicted) backbones. When the
+   source is `pydssp`, cap fold-class confidence at **Moderate** (real DSSP is required for
+   High, below), treat any helix or sheet fraction within a few points of the ~5% floor as
+   provisional (name it, but hedge), and do **not** build conclusions on the precise
+   helix-vs-coil split — e.g. "highest coil of the set" or a coil-is-not-disorder argument —
+   without flagging that mkdssp would be needed to confirm.
 2. **Class from SS presence/absence** (`secondary_structure_content` fractions). Treat
    helix or sheet below **~5% of assigned residues** as not a defining component — a
    provisional, arbitrary starting cutoff, not calibrated; revise it when a real
@@ -440,9 +453,9 @@ fold or superfamily, and never emit SCOP fold / CATH identifiers. Procedure:
    needed to name a specific fold."
 
 Confidence:
-- **High** — real DSSP; one type cleanly absent or both clearly present (≥~10%); ordering
-  unambiguous. (Shape does not bear on the class — see step 4 — so it neither raises nor
-  lowers this.)
+- **High** — real DSSP (mkdssp, **not** the pydssp fallback); one type cleanly absent or
+  both clearly present (≥~10%); ordering unambiguous. (Shape does not bear on the class —
+  see step 4 — so it neither raises nor lowers this.)
 - **Moderate** — a fraction sits near the ~5% floor, or the α/β-vs-α+β ordering is
   ambiguous: state the class, hedge the sub-call.
 - **Low / withhold** — DSSP failed (→ step 1), `total_assigned` tiny, or multi-domain:
