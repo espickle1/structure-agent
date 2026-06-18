@@ -228,7 +228,23 @@ src/agent_1/test_data/
 # Runtime outputs — regenerable, never commit
 results/
 
-# Structure files in data/ — large, regenerable
+# Runs archive — keep only the curated stress_test validation evidence
+runs/*
+!runs/stress_test/
+
+# Persisted Agent 1/2 output trees that had been committed (regenerable)
+data/new_results/
+data/esmfold2_validation/
+src/agent_1/step1_results/
+
+# Output artifacts under data/ — regenerable. Inputs are *.fasta and stay tracked;
+# everything an agent writes here (structures, JSON/CSV sidecars, plots, reports) is ignored.
 data/**/*.cif
 data/**/*.pdb
 data/**/*.mmcif
+data/**/*.faa
+data/**/*.jsonl
+data/**/*.json
+data/**/*.csv
+data/**/*.png
+data/**/*.html
