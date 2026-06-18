@@ -123,7 +123,10 @@ Arguments:
 
 By default the final step runs `claude -p --permission-mode acceptEdits
 --add-dir <output-dir> "$TASK"` — a non-interactive synthesis with no permission
-prompts, suited to most users, CI, and batch. `$TASK` is the prompt file content
+prompts, suited to most users, CI, and batch. Web search/fetch are disabled in
+that call (`--disallowedTools WebSearch,WebFetch`) so a PDB ID or protein name in
+the metadata cannot trigger an external lookup — the report stays identity-agnostic.
+`$TASK` is the prompt file content
 plus a context block (output directory, repo root, provenance note) appended by
 the script. With `--interactive` / `-Interactive` it instead opens a supervised
 `claude "$TASK"` session (useful during development).

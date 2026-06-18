@@ -10,8 +10,11 @@
 # drive it as a supervised `claude` session instead (handy during development).
 # The synthesis model is pinned with -Model (default claude-opus-4-8[1m]) and the
 # non-interactive agent loop is bounded with -MaxTurns (default 50) for reproducible,
-# self-terminating batch runs. `claude` is preflighted before any work runs, so a
-# missing CLI fails fast rather than after the (slow, metered) Modal folds.
+# self-terminating batch runs. Web search/fetch are disabled in the synthesis call
+# (--disallowedTools WebSearch,WebFetch), so a PDB ID or protein name in the metadata
+# cannot trigger an external lookup - the report stays identity-agnostic. `claude` is
+# preflighted before any work runs, so a missing CLI fails fast rather than after the
+# (slow, metered) Modal folds.
 # Run from a plain PowerShell prompt, NOT from inside an interactive Claude Code
 # session (avoids nesting a second `claude` process).
 #
@@ -257,9 +260,9 @@ Context for this run:
 "@
 
 if ($Interactive) {
-    & claude --model $Model $task
+    & claude --disallowedTools "WebSearch,WebFetch" --model $Model $task
 } else {
-    & claude -p --permission-mode acceptEdits --add-dir $OutputDir --model $Model --max-turns $MaxTurns $task
+    & claude -p --disallowedTools "WebSearch,WebFetch" --permission-mode acceptEdits --add-dir $OutputDir --model $Model --max-turns $MaxTurns $task
     if ($LASTEXITCODE -ne 0) {
         Write-Error "[Synthesis] claude exited with code $LASTEXITCODE - the report skeleton was written but SYNTHESIS placeholders may be unfilled. Re-run synthesis or inspect $OutputDir\agent_2."
         exit 1

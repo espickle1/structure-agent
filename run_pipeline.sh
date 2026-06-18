@@ -11,7 +11,9 @@
 # drive it as a supervised `claude` session instead (handy during development).
 # The synthesis model is pinned with --model (default claude-opus-4-8[1m]) and the
 # non-interactive agent loop is bounded with --max-turns (default 50) for
-# reproducible, self-terminating batch runs.
+# reproducible, self-terminating batch runs. Web search/fetch are disabled in the
+# synthesis call (--disallowedTools WebSearch,WebFetch) so a PDB ID or protein name in
+# the metadata cannot trigger an external lookup, keeping the report identity-agnostic.
 # The `claude` CLI must be installed and authenticated; the script preflights this
 # before any work runs, so a missing CLI fails fast (not after the Modal folds).
 # Run this from a plain shell, NOT from inside an interactive Claude Code session
@@ -228,9 +230,9 @@ Context for this run:
 - Structures analyzed: $(IFS=', '; echo "${STRUCTURES[*]}")"
 
 if $INTERACTIVE; then
-    claude --model "$MODEL" "$TASK"
+    claude --disallowedTools "WebSearch,WebFetch" --model "$MODEL" "$TASK"
 else
-    if ! claude -p --permission-mode acceptEdits --add-dir "$OUTPUT_DIR" \
+    if ! claude -p --disallowedTools "WebSearch,WebFetch" --permission-mode acceptEdits --add-dir "$OUTPUT_DIR" \
             --model "$MODEL" --max-turns "$MAX_TURNS" "$TASK"; then
         echo "ERROR: [Synthesis] claude exited non-zero — the report skeleton was written but SYNTHESIS placeholders may be unfilled. Inspect $OUTPUT_DIR/agent_2." >&2
         exit 1

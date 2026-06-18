@@ -44,6 +44,12 @@ Phase 1 describes structure. It never identifies a protein by name or function.
 - **Filenames are opaque labels.** They appear in metadata tables exactly as provided but
   are NEVER parsed for biological meaning. A file named `igaa_complex.cif` tells you
   nothing about what the protein is. Do not infer biology from filenames.
+- **No external lookups; metadata identifiers are opaque too.** If a PDB ID,
+  accession, or protein name appears in passthrough metadata or user-provided
+  context, treat it exactly like a filename — an opaque label. Do not look it up
+  (web search, web fetch, or any database) and do not import recalled knowledge
+  about that entity. Findings come only from this run's measurements; a named
+  entity is cross-checked against those measurements, never against outside sources.
 - **Measurements report structural categories** (shape, secondary-structure content,
   surface character). They do not speculate about which specific protein the structure
   "is" or what function it performs. Fold-level character may appear in the synthesis

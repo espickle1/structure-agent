@@ -93,6 +93,12 @@ identity / homology / mechanism here.
 - **Never say "this is protein X."** The pipeline is identity-agnostic.
   If the user named the protein in the context block, cross-check the claim
   against structural evidence; note agreement or discrepancy.
+- **No external lookups or outside knowledge.** Treat any PDB ID, accession, or
+  protein name appearing in the metadata or context as an opaque label. Do NOT
+  look it up (web search, web fetch, or any database) and do NOT import external
+  or recalled knowledge about it into the report. Record it verbatim if present;
+  every statement must trace to a measurement from this run, cross-checked only
+  against the provided context — never against outside sources.
 
 ---
 
