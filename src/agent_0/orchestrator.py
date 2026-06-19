@@ -22,9 +22,8 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
-import modal
-
 from agent_0.ingest import parse_fasta
+from agent_0.modal_app import app, process_record
 from agent_0.config import (
     OUTPUT_FASTA_NAME,
     OUTPUT_REJECTIONS_NAME,
@@ -82,11 +81,12 @@ def run(input_path: Path, output_dir: Path, metadata_path: Path | None) -> None:
     inputs = _attach_metadata(raw, metadata)
     print(f"[orchestrator] loaded {len(inputs)} records", file=sys.stderr)
 
-    # 2. Fast-path fanout. Look up the deployed function by app+name.
-    process_record = modal.Function.from_name("agent_0-fast", "process_record")
-    fast_results = list(
-        process_record.map([asdict(r) for r in inputs])
-    )
+    # 2. Fast-path fanout. Run the app ephemerally — it spins up on enter and
+    # tears down on exit, so no Modal app lingers after the batch completes.
+    with app.run():
+        fast_results = list(
+            process_record.map([asdict(r) for r in inputs])
+        )
 
     translated: list[dict] = []
     rejections: list[dict] = []

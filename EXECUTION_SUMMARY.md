@@ -210,9 +210,8 @@ brew install brewsci/bio/dssp  # macOS
 # Modal auth (one-time)
 modal token set --token-id <id> --token-secret <secret>
 
-# Deploy Modal apps (one-time, or after image changes)
-modal deploy src/agent_1/fold_app/modal_app.py
-python -m modal deploy -m agent_0.modal_app   # run from src/
+# No deploy step — the Modal apps run ephemerally (the orchestrators enter
+# `with app.run()`) and tear down after each batch.
 
 # The `claude` CLI must be installed and authenticated — the synthesis step
 # shells out to it (`claude -p` by default, or `claude` interactive with --interactive).

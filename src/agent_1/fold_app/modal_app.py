@@ -9,7 +9,8 @@ Model / fold / GPU constants are defined HERE rather than imported from
 ``shared/config.py`` so the app is self-contained inside the container (no
 package-mounting dependency). The orchestrator-side knobs live in config.py.
 
-Deploy:  modal deploy src/agent_1/fold_app/modal_app.py
+Run ephemerally from the orchestrator (no deploy step). Smoke test directly with:
+    modal run src/agent_1/fold_app/modal_app.py
 """
 
 import modal

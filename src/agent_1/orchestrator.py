@@ -1,7 +1,7 @@
 """Agent 1 orchestrator — Agent 0 output → folded, confidence-annotated structures.
 
 Reads Agent 0's ``cleaned.faa`` (and, optionally, its ``sidecar.jsonl`` for
-metadata passthrough), fans folds across the deployed ESMFold2-Fast app on
+metadata passthrough), fans folds across an ephemeral ESMFold2-Fast app on
 Modal, annotates each fold with a confidence tier (NO rejection on quality —
 only genuine fold failures are logged), and writes:
 
@@ -9,10 +9,8 @@ only genuine fold failures are logged), and writes:
   <output_dir>/structures.jsonl             StructureRecord per fold + Agent 0 passthrough
   <output_dir>/rejections.jsonl             FoldFailure per errored fold (logged, not escalated)
 
-Deploy the fold app first:
-    modal deploy src/agent_1/fold_app/modal_app.py
-
-Then run from src/ (so the agent_1 package is importable):
+The fold app runs ephemerally (spins up and tears down per batch — no
+``modal deploy`` needed). Run from src/ so the agent_1 package is importable:
     python -m agent_1.orchestrator \\
         --input-fasta /path/to/cleaned.faa \\
         [--sidecar /path/to/sidecar.jsonl] \\
@@ -25,8 +23,7 @@ import argparse
 import json
 from pathlib import Path
 
-import modal
-
+from agent_1.fold_app.modal_app import app, ESMFold2Inference
 from agent_1.shared import config
 from agent_1.shared.schemas import (
     FoldFailure,
@@ -80,56 +77,60 @@ def main() -> int:
     cif_dir = args.output_dir / config.OUTPUT_CIF_SUBDIR
     cif_dir.mkdir(parents=True, exist_ok=True)
 
-    inference = modal.Cls.from_name(config.FOLD_APP_NAME, config.FOLD_CLASS_NAME)()
     requests = [{"record_id": rid, "aa_sequence": seq} for rid, seq in records]
 
     structures_path = args.output_dir / config.OUTPUT_STRUCTURES_NAME
     rejections_path = args.output_dir / config.OUTPUT_REJECTIONS_NAME
     n_ok = n_fail = 0
 
-    with open(structures_path, "w") as sf, open(rejections_path, "w") as rf:
-        for result in inference.fold.map(requests):
-            rid = result["record_id"]
-            up = upstream.get(rid, {})
-            pid = up.get("parent_id", rid)
+    # Run the fold app ephemerally — it spins up on enter and tears down on exit,
+    # so no Modal app lingers after the batch. The model still loads once per
+    # container (@modal.enter) and is reused across the whole .map() fan-out.
+    with app.run():
+        inference = ESMFold2Inference()
+        with open(structures_path, "w") as sf, open(rejections_path, "w") as rf:
+            for result in inference.fold.map(requests):
+                rid = result["record_id"]
+                up = upstream.get(rid, {})
+                pid = up.get("parent_id", rid)
 
-            if result.get("status") != "folded":
-                fail = FoldFailure(
+                if result.get("status") != "folded":
+                    fail = FoldFailure(
+                        record_id=rid,
+                        parent_id=pid,
+                        stage="fold",
+                        detail=result.get("detail", "unknown"),
+                        upstream=up,
+                    )
+                    rf.write(json.dumps(fail.to_log_dict()) + "\n")
+                    n_fail += 1
+                    print(f"[agent1] FAILED {rid}: {result.get('detail')}")
+                    continue
+
+                cif_rel = f"{config.OUTPUT_CIF_SUBDIR}/{rid}.cif"
+                (args.output_dir / cif_rel).write_text(result["cif"])
+                plddt_mean = result["plddt_mean"]
+                plddt_norm = plddt_mean / 100.0 if plddt_mean > 1.0 else plddt_mean
+                tier = classify_confidence(
+                    plddt_norm, config.PLDDT_HIGH, config.PLDDT_MEDIUM
+                )
+                rec = StructureRecord(
                     record_id=rid,
                     parent_id=pid,
-                    stage="fold",
-                    detail=result.get("detail", "unknown"),
+                    cif_path=cif_rel,
+                    plddt_mean=round(plddt_norm, 4),
+                    ptm=round(result["ptm"], 4),
+                    iptm=round(result["iptm"], 4),
+                    confidence_tier=tier,
+                    sequence_length=seq_len[rid],
+                    model=result["model"],
+                    model_revision=result.get("model_revision"),
+                    fold_params=result["fold_params"],
                     upstream=up,
                 )
-                rf.write(json.dumps(fail.to_log_dict()) + "\n")
-                n_fail += 1
-                print(f"[agent1] FAILED {rid}: {result.get('detail')}")
-                continue
-
-            cif_rel = f"{config.OUTPUT_CIF_SUBDIR}/{rid}.cif"
-            (args.output_dir / cif_rel).write_text(result["cif"])
-            plddt_mean = result["plddt_mean"]
-            plddt_norm = plddt_mean / 100.0 if plddt_mean > 1.0 else plddt_mean
-            tier = classify_confidence(
-                plddt_norm, config.PLDDT_HIGH, config.PLDDT_MEDIUM
-            )
-            rec = StructureRecord(
-                record_id=rid,
-                parent_id=pid,
-                cif_path=cif_rel,
-                plddt_mean=round(plddt_norm, 4),
-                ptm=round(result["ptm"], 4),
-                iptm=round(result["iptm"], 4),
-                confidence_tier=tier,
-                sequence_length=seq_len[rid],
-                model=result["model"],
-                model_revision=result.get("model_revision"),
-                fold_params=result["fold_params"],
-                upstream=up,
-            )
-            sf.write(json.dumps(rec.to_sidecar_dict()) + "\n")
-            n_ok += 1
-            print(f"[agent1] {rid}: pLDDT {plddt_norm:.3f} ({tier.value})")
+                sf.write(json.dumps(rec.to_sidecar_dict()) + "\n")
+                n_ok += 1
+                print(f"[agent1] {rid}: pLDDT {plddt_norm:.3f} ({tier.value})")
 
     print(f"[agent1] done: {n_ok} folded, {n_fail} failed → {args.output_dir}")
     return 0

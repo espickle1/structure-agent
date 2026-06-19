@@ -39,13 +39,12 @@ sidecar.jsonl┤
 | `esmfold2_eval.py`      | Single-fold benchmark tool (used for the 6EQE / 1UBQ validations). |
 | `boltz_fallback/`       | Prior Boltz-2 Step 1 engine, kept as a documented fallback. |
 
-## Deployment
+## Running
 
 ```bash
-# 1. Deploy the fold app (one-time, or after image changes):
-modal deploy src/agent_1/fold_app/modal_app.py
-
-# 2. Run a batch (from src/, so the agent_1 package imports):
+# Run a batch from src/ (so the agent_1 package imports). The fold app runs
+# ephemerally (the orchestrator enters `with app.run()`) — no deploy step; it
+# spins up and tears down per batch, leaving nothing running afterwards.
 python -m agent_1.orchestrator \
     --input-fasta /path/to/cleaned.faa \
     [--sidecar /path/to/sidecar.jsonl] \
@@ -83,7 +82,7 @@ separate validation exercise.
 
 ## Known gaps / TODOs
 
-1. **Live batch runs executed.** The `.map()` fan-out over the deployed app has now
+1. **Live batch runs executed.** The `.map()` fan-out over the fold app has now
    been run end-to-end — two batches totalling 8 sequences (216–886 aa), 0 fold
    failures — feeding Agent 2. Larger-scale throughput characterization is still open.
 2. **GPU is A100, not yet throughput-tuned.** `fold_app/modal_app.py` uses A100

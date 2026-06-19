@@ -56,7 +56,7 @@ input.fasta ─┐
 Module independence: each stage receives one dataclass and returns another.
 No module reads internal state of another's records.
 
-## Deployment
+## Running
 
 All commands below assume the working directory is `src/` (the parent of the
 `agent_0/` package). Run them from there so Python's import system can resolve
@@ -66,14 +66,9 @@ All commands below assume the working directory is `src/` (the parent of the
 # 1. Install dependencies for the host orchestrator:
 pip install -r agent_0/requirements-orchestrator.txt
 
-# 2. Deploy Modal apps (one-time, or after image changes).
-#    The `-m` flag tells Modal to interpret the argument as a Python module
-#    path (required by recent Modal versions; bare module paths are deprecated).
-python -m modal deploy -m agent_0.modal_app
-# Slow path is not yet implemented; deploy when added:
-# python -m modal deploy -m agent_0.slow_modal_app
-
-# 3. Run a batch:
+# 2. Run a batch. The Modal app runs ephemerally (the orchestrator enters
+#    `with app.run()`), so there is NO deploy step — the app spins up and tears
+#    down per batch, leaving nothing running afterwards.
 python -m agent_0.orchestrator \
     --input /path/to/input.fasta \
     --output-dir /path/to/output \

@@ -62,5 +62,5 @@ artifacts back or fail on unrelated histories.
   surgery is needed.
 - Run the pipeline from a **plain terminal**, not inside a Claude Code session
   (the synthesis step spawns its own `claude`).
-- Full pipeline needs Modal auth + deployed apps (`agent_0-fast`,
-  `agent1-esmfold2`); Agent 2 / BYO runs need neither.
+- Full pipeline needs Modal auth (the `agent_0-fast` / `agent1-esmfold2` apps run
+  ephemerally — no deploy step); Agent 2 / BYO runs need neither.
