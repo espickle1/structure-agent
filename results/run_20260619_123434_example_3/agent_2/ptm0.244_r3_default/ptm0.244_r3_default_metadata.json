@@ -1,0 +1,45 @@
+{
+  "file": "ptm0.244_r3_default.pdb",
+  "format": "pdb",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 99,
+  "total_atoms": 672,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 99,
+      "num_atoms": 672,
+      "sequence": "GPVPLGGLAGLVVLAVVAAVLGPLLALLPLPPGLPCPPGSPLCKALLLSPAVLAAIAALLGPLLAPLLVLLLALLPPGLLLGGLLPAALLEERLKPPLG",
+      "sequence_length": 99,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 54.63,
+        "median": 55.51,
+        "min": 39.45,
+        "max": 65.08,
+        "std": 5.63
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

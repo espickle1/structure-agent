@@ -1,0 +1,89 @@
+{
+  "file": "fold_c_o2_700_1126_3man_model_0.cif",
+  "shape": {
+    "radius_of_gyration": 32.61,
+    "asphericity": 0.2303,
+    "principal_eigenvalues": [
+      684.86,
+      259.13,
+      119.22
+    ],
+    "axis_ratios": {
+      "long_mid": 2.64,
+      "long_short": 5.74
+    },
+    "approximate_dimensions": {
+      "long_axis": 112.2,
+      "mid_axis": 85.7,
+      "short_axis": 52.7,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 436
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "sheet": {
+      "count": 163,
+      "fraction": 0.374
+    },
+    "coil": {
+      "count": 273,
+      "fraction": 0.626
+    },
+    "total_assigned": 436,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 436,
+    "exposed": {
+      "count": 177,
+      "fraction": 0.406
+    },
+    "partial": {
+      "count": 94,
+      "fraction": 0.216
+    },
+    "buried": {
+      "count": 165,
+      "fraction": 0.378
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.745,
+      "std": 2.531
+    },
+    "surface_net_charge": -6,
+    "surface_positive_residues": 13,
+    "surface_negative_residues": 19,
+    "total_sasa": 26884.4,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 183,
+        "end_resid": 185,
+        "length": 3,
+        "mean_hydrophobicity": 3.4
+      },
+      {
+        "start_resid": 334,
+        "end_resid": 337,
+        "length": 4,
+        "mean_hydrophobicity": 2.9
+      },
+      {
+        "start_resid": 4,
+        "end_resid": 2,
+        "length": 4,
+        "mean_hydrophobicity": 1.8
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "fold_c_o2_700_1126_3man_model_0_surface_profile.png",
+    "exposure_pie": "fold_c_o2_700_1126_3man_model_0_exposure_pie.png"
+  },
+  "surface_csv": "fold_c_o2_700_1126_3man_model_0_surface.csv"
+}

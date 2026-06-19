@@ -49,9 +49,9 @@ The intended workflow:
 1. Open Claude Code at the repo root.
 2. Ask Claude to analyse a directory of structures, e.g.:
 
-   > "Run Agent 2 on `./data/`."
-   > "Analyse the `.cif` files in `./runs/stress_test/a1/structures/`."
-   > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./inputs/`."
+   > "Run Agent 2 on `./input/example_1/`."
+   > "Analyse the `.cif` files in `./results/run_20260616_example_6/agent_1/structures/`."
+   > "Use `src/agent_2/SKILL.md` to analyse the `.cif` files in `./input/example_3/`."
 
 3. Claude reads `src/agent_2/SKILL.md`, follows its decision tree, runs the
    measurement scripts on each structure, and presents the assembled result.
@@ -96,7 +96,7 @@ debugging, scripting, or one-off use; it bypasses the orchestration in
 Per-script signatures are documented in §Internals below.
 
 ```bash
-python src/agent_2/scripts/parse_structure.py ./data/example.cif --output-dir ./out
+python src/agent_2/scripts/parse_structure.py ./input/example_1/fold_c_o2_700_1126_3man_model_0.cif --output-dir ./out
 ```
 
 ## Environment differences — claude.ai vs Claude Code
@@ -166,9 +166,9 @@ running the skill consults during synthesis. Agent 2's scripts never read it.
 
 **Inputs** (typical paths):
 
-- `./data/` — ad-hoc structure files you drop in for analysis.
+- `./input/example_*/` — curated example inputs (FASTA records and structure sets).
 - `results/run_*/agent_1/structures/` — predicted structures from a pipeline run
-  (Agent 1, ESMFold2-Fast; one CIF per folded record). `runs/stress_test/a1/structures/`
+  (Agent 1, ESMFold2-Fast; one CIF per folded record). `results/run_20260616_example_6/agent_1/structures/`
   holds a tracked set you can point at directly.
 - Anywhere else — point Claude at any directory containing PDB or mmCIF.
 - *(optional)* expected-parameter profiles from `references/profiles/` — pass

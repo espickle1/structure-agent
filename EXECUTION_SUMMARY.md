@@ -97,13 +97,13 @@ not as a repeated flag. The examples below use the bash form.
 ```bash
 # Full pipeline
 ./run_pipeline.sh \
-  --input data/demo/rbp.fasta \
+  --input input/example_4/three_environmental_samples.fasta \
   --output-dir results/run_001 \
   --prompt prompts/report.md
 
-# BYO structure
+# BYO structures (a directory of .cif/.pdb)
 ./run_pipeline.sh \
-  --input data/demo/reference.cif \
+  --input input/example_1/ \
   --output-dir results/run_001 \
   --prompt prompts/report.md \
   --profile src/agent_2/references/profiles/globular_enzyme.md
@@ -219,10 +219,10 @@ modal token set --token-id <id> --token-secret <secret>
 
 **Run from repo root:**
 ```bash
-./run_pipeline.sh --input data/demo/rbp.fasta --prompt prompts/report.md
+./run_pipeline.sh --input input/example_4/three_environmental_samples.fasta --prompt prompts/report.md
 ```
 
-**Outputs** persist in `results/` under version control (gitignored).
+**Outputs** persist in `results/` under version control.
 Re-runs are diffable. Scripts are editable and version-controlled.
 
 ---

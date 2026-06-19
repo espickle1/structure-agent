@@ -1,0 +1,45 @@
+{
+  "file": "s2.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 166,
+  "total_atoms": 1257,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 166,
+      "num_atoms": 1257,
+      "sequence": "MSWSQALAMATGSVVDMAGTISNIVAQHRQIAVMEEANRIQADWVRRQEKLAYRAQDITADLAVNGLSRKVDSLVQSGFTPLDARRLAGGTEVVLHGTMERPVLPRTVLQGISDTHHMQSNLMAARAFNTGLSSGTPPPPQGFGNPNYQSGRPKINLGPRPPQTNV",
+      "sequence_length": 166,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 76.97,
+        "median": 81.22,
+        "min": 45.31,
+        "max": 96.45,
+        "std": 13.17
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

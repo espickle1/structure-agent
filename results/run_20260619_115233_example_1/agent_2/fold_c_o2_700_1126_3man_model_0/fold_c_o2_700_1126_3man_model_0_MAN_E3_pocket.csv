@@ -1,0 +1,7 @@
+chain_id,resname,resid,one_letter,classification
+A,LEU,5,L,hydrophobic
+A,ASN,169,N,polar
+A,VAL,227,V,hydrophobic
+A,GLY,228,G,glycine
+A,TYR,390,Y,polar
+C,ALA,1,A,hydrophobic

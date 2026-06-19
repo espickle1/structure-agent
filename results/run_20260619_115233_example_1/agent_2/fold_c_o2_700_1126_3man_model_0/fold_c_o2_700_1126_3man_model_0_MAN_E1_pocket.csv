@@ -1,0 +1,5 @@
+chain_id,resname,resid,one_letter,classification
+A,ASN,169,N,polar
+C,SER,3,S,polar
+C,ALA,4,A,hydrophobic
+C,ALA,5,A,hydrophobic

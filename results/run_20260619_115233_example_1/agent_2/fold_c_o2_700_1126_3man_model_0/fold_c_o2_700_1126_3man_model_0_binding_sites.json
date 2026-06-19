@@ -1,0 +1,647 @@
+{
+  "file": "fold_c_o2_700_1126_3man_model_0.cif",
+  "ligands_found": 6,
+  "pocket_cutoff": 5.0,
+  "excluded_hetresidues": [
+    "ACT",
+    "BCT",
+    "BIG",
+    "BME",
+    "CA",
+    "CAC",
+    "CD",
+    "CIT",
+    "CL",
+    "CO",
+    "CU",
+    "DMS",
+    "DOD",
+    "EDO",
+    "EOH",
+    "EPE",
+    "FE",
+    "FMT",
+    "GOL",
+    "H2O",
+    "HED",
+    "HOH",
+    "IMD",
+    "IPA",
+    "K",
+    "MES",
+    "MG",
+    "MLI",
+    "MN",
+    "MPD",
+    "NA",
+    "NI",
+    "NO3",
+    "PEG",
+    "PGE",
+    "PO4",
+    "SO4",
+    "TAR",
+    "TRS",
+    "UNK",
+    "UNL",
+    "UNX",
+    "WAT",
+    "ZN"
+  ],
+  "sites": [
+    {
+      "ligand": "MAN",
+      "chain_id": "D",
+      "resid": 1,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "TRP",
+          "resid": 386,
+          "one_letter": "W",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "B",
+          "resname": "SER",
+          "resid": 3,
+          "one_letter": "S",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "B",
+          "resname": "ALA",
+          "resid": 4,
+          "one_letter": "A",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "B",
+          "resname": "ALA",
+          "resid": 5,
+          "one_letter": "A",
+          "classification": "hydrophobic"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 3,
+          "fraction": 0.75
+        },
+        "polar": {
+          "count": 1,
+          "fraction": 0.25
+        },
+        "positive": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "negative": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "glycine": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 4
+      },
+      "interactions": [
+        {
+          "ligand_atom": "O5",
+          "protein_chain": "B",
+          "protein_resname": "SER",
+          "protein_resid": 3,
+          "protein_atom": "OG",
+          "distance": 2.16,
+          "type": "hydrogen_bond"
+        },
+        {
+          "ligand_atom": "C5",
+          "protein_chain": "B",
+          "protein_resname": "ALA",
+          "protein_resid": 5,
+          "protein_atom": "CB",
+          "distance": 4.213,
+          "type": "hydrophobic"
+        }
+      ],
+      "interaction_counts": {
+        "hydrogen_bond": 1,
+        "hydrophobic": 1
+      },
+      "ligand_bfactor_stats": {
+        "mean": 70.14,
+        "max": 76.19,
+        "min": 63.2
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_D1_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_D1_pocket.csv"
+    },
+    {
+      "ligand": "MAN",
+      "chain_id": "D",
+      "resid": 2,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "VAL",
+          "resid": 385,
+          "one_letter": "V",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "B",
+          "resname": "SER",
+          "resid": 3,
+          "one_letter": "S",
+          "classification": "polar"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 1,
+          "fraction": 0.5
+        },
+        "polar": {
+          "count": 1,
+          "fraction": 0.5
+        },
+        "positive": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "negative": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "glycine": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 2
+      },
+      "interactions": [
+        {
+          "ligand_atom": "C1",
+          "protein_chain": "A",
+          "protein_resname": "VAL",
+          "protein_resid": 385,
+          "protein_atom": "CG2",
+          "distance": 4.369,
+          "type": "hydrophobic"
+        }
+      ],
+      "interaction_counts": {
+        "hydrophobic": 1
+      },
+      "ligand_bfactor_stats": {
+        "mean": 73.67,
+        "max": 80.73,
+        "min": 66.75
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_D2_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_D2_pocket.csv"
+    },
+    {
+      "ligand": "MAN",
+      "chain_id": "D",
+      "resid": 3,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "GLU",
+          "resid": 347,
+          "one_letter": "E",
+          "classification": "negative"
+        },
+        {
+          "chain_id": "A",
+          "resname": "GLN",
+          "resid": 349,
+          "one_letter": "Q",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "A",
+          "resname": "TYR",
+          "resid": 381,
+          "one_letter": "Y",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "A",
+          "resname": "VAL",
+          "resid": 385,
+          "one_letter": "V",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "A",
+          "resname": "TRP",
+          "resid": 386,
+          "one_letter": "W",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "A",
+          "resname": "TYR",
+          "resid": 388,
+          "one_letter": "Y",
+          "classification": "polar"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 2,
+          "fraction": 0.3333
+        },
+        "polar": {
+          "count": 3,
+          "fraction": 0.5
+        },
+        "positive": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "negative": {
+          "count": 1,
+          "fraction": 0.1667
+        },
+        "glycine": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 6
+      },
+      "interactions": [
+        {
+          "ligand_atom": "O4",
+          "protein_chain": "A",
+          "protein_resname": "TYR",
+          "protein_resid": 381,
+          "protein_atom": "OH",
+          "distance": 2.692,
+          "type": "hydrogen_bond"
+        },
+        {
+          "ligand_atom": "C6",
+          "protein_chain": "A",
+          "protein_resname": "VAL",
+          "protein_resid": 385,
+          "protein_atom": "CB",
+          "distance": 4.303,
+          "type": "hydrophobic"
+        }
+      ],
+      "interaction_counts": {
+        "hydrogen_bond": 1,
+        "hydrophobic": 1
+      },
+      "ligand_bfactor_stats": {
+        "mean": 76.57,
+        "max": 80.44,
+        "min": 73.13
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_D3_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_D3_pocket.csv"
+    },
+    {
+      "ligand": "MAN",
+      "chain_id": "E",
+      "resid": 1,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "ASN",
+          "resid": 169,
+          "one_letter": "N",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "C",
+          "resname": "SER",
+          "resid": 3,
+          "one_letter": "S",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "C",
+          "resname": "ALA",
+          "resid": 4,
+          "one_letter": "A",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "C",
+          "resname": "ALA",
+          "resid": 5,
+          "one_letter": "A",
+          "classification": "hydrophobic"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 2,
+          "fraction": 0.5
+        },
+        "polar": {
+          "count": 2,
+          "fraction": 0.5
+        },
+        "positive": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "negative": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "glycine": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 4
+      },
+      "interactions": [
+        {
+          "ligand_atom": "O5",
+          "protein_chain": "C",
+          "protein_resname": "SER",
+          "protein_resid": 3,
+          "protein_atom": "OG",
+          "distance": 1.967,
+          "type": "hydrogen_bond"
+        },
+        {
+          "ligand_atom": "O6",
+          "protein_chain": "C",
+          "protein_resname": "ALA",
+          "protein_resid": 4,
+          "protein_atom": "O",
+          "distance": 3.156,
+          "type": "hydrogen_bond"
+        }
+      ],
+      "interaction_counts": {
+        "hydrogen_bond": 2
+      },
+      "ligand_bfactor_stats": {
+        "mean": 75.74,
+        "max": 81.86,
+        "min": 69.77
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_E1_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_E1_pocket.csv"
+    },
+    {
+      "ligand": "MAN",
+      "chain_id": "E",
+      "resid": 2,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "HIS",
+          "resid": 6,
+          "one_letter": "H",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "A",
+          "resname": "GLY",
+          "resid": 117,
+          "one_letter": "G",
+          "classification": "glycine"
+        },
+        {
+          "chain_id": "A",
+          "resname": "LYS",
+          "resid": 135,
+          "one_letter": "K",
+          "classification": "positive"
+        },
+        {
+          "chain_id": "A",
+          "resname": "PRO",
+          "resid": 168,
+          "one_letter": "P",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "A",
+          "resname": "ASN",
+          "resid": 169,
+          "one_letter": "N",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "A",
+          "resname": "THR",
+          "resid": 170,
+          "one_letter": "T",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "C",
+          "resname": "SER",
+          "resid": 3,
+          "one_letter": "S",
+          "classification": "polar"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 1,
+          "fraction": 0.1429
+        },
+        "polar": {
+          "count": 4,
+          "fraction": 0.5714
+        },
+        "positive": {
+          "count": 1,
+          "fraction": 0.1429
+        },
+        "negative": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "glycine": {
+          "count": 1,
+          "fraction": 0.1429
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 7
+      },
+      "interactions": [
+        {
+          "ligand_atom": "O6",
+          "protein_chain": "A",
+          "protein_resname": "PRO",
+          "protein_resid": 168,
+          "protein_atom": "O",
+          "distance": 3.104,
+          "type": "hydrogen_bond"
+        },
+        {
+          "ligand_atom": "O6",
+          "protein_chain": "A",
+          "protein_resname": "LYS",
+          "protein_resid": 135,
+          "protein_atom": "NZ",
+          "distance": 3.999,
+          "type": "salt_bridge"
+        },
+        {
+          "ligand_atom": "C6",
+          "protein_chain": "A",
+          "protein_resname": "PRO",
+          "protein_resid": 168,
+          "protein_atom": "C",
+          "distance": 4.136,
+          "type": "hydrophobic"
+        }
+      ],
+      "interaction_counts": {
+        "hydrogen_bond": 1,
+        "salt_bridge": 1,
+        "hydrophobic": 1
+      },
+      "ligand_bfactor_stats": {
+        "mean": 86.16,
+        "max": 89.04,
+        "min": 82.63
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_E2_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_E2_pocket.csv"
+    },
+    {
+      "ligand": "MAN",
+      "chain_id": "E",
+      "resid": 3,
+      "num_ligand_atoms": 11,
+      "pocket_cutoff": 5.0,
+      "pocket_residues": [
+        {
+          "chain_id": "A",
+          "resname": "LEU",
+          "resid": 5,
+          "one_letter": "L",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "A",
+          "resname": "ASN",
+          "resid": 169,
+          "one_letter": "N",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "A",
+          "resname": "VAL",
+          "resid": 227,
+          "one_letter": "V",
+          "classification": "hydrophobic"
+        },
+        {
+          "chain_id": "A",
+          "resname": "GLY",
+          "resid": 228,
+          "one_letter": "G",
+          "classification": "glycine"
+        },
+        {
+          "chain_id": "A",
+          "resname": "TYR",
+          "resid": 390,
+          "one_letter": "Y",
+          "classification": "polar"
+        },
+        {
+          "chain_id": "C",
+          "resname": "ALA",
+          "resid": 1,
+          "one_letter": "A",
+          "classification": "hydrophobic"
+        }
+      ],
+      "composition": {
+        "hydrophobic": {
+          "count": 3,
+          "fraction": 0.5
+        },
+        "polar": {
+          "count": 2,
+          "fraction": 0.3333
+        },
+        "positive": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "negative": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "glycine": {
+          "count": 1,
+          "fraction": 0.1667
+        },
+        "other": {
+          "count": 0,
+          "fraction": 0.0
+        },
+        "total_residues": 6
+      },
+      "interactions": [
+        {
+          "ligand_atom": "C4",
+          "protein_chain": "A",
+          "protein_resname": "VAL",
+          "protein_resid": 227,
+          "protein_atom": "CG2",
+          "distance": 4.143,
+          "type": "hydrophobic"
+        }
+      ],
+      "interaction_counts": {
+        "hydrophobic": 1
+      },
+      "ligand_bfactor_stats": {
+        "mean": 85.5,
+        "max": 88.92,
+        "min": 79.68
+      },
+      "summary_plot": "fold_c_o2_700_1126_3man_model_0_MAN_E3_summary.png",
+      "pocket_csv": "fold_c_o2_700_1126_3man_model_0_MAN_E3_pocket.csv"
+    }
+  ]
+}

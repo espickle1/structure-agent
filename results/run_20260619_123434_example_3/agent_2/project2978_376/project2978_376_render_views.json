@@ -1,0 +1,39 @@
+{
+  "file": "project2978_376.pdb",
+  "renderer": "matplotlib-ca-trace",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "n_ca": 330,
+  "approx_dimensions": {
+    "long_axis": 62.3,
+    "mid_axis": 61.2,
+    "short_axis": 39.1,
+    "unit": "\u00c5"
+  },
+  "views": {
+    "axis1": "project2978_376_axis1.png",
+    "axis2": "project2978_376_axis2.png",
+    "axis3": "project2978_376_axis3.png"
+  },
+  "cameras": {
+    "axis1": {
+      "label": "down long axis",
+      "elev": 0,
+      "azim": 0
+    },
+    "axis2": {
+      "label": "down mid axis",
+      "elev": 0,
+      "azim": -90
+    },
+    "axis3": {
+      "label": "down short axis",
+      "elev": 90,
+      "azim": -90
+    }
+  },
+  "failures": {}
+}

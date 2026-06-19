@@ -1,0 +1,180 @@
+{
+  "file": "fold_c_o2_700_1126_3man_model_0.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 5,
+  "total_residues": 436,
+  "total_atoms": 3355,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 426,
+      "num_atoms": 3235,
+      "sequence": "GIQSLHSPAVVHYKNQIWMFAVDLNGRLAYSYTSAWNCSPNVDNCPVPKFVQPGIRDIGPISAIDAKTFTVNGVEMIIIVGIRPDGTMFYTWVTVSSTGLNVWDSVITIDGSSPAAGEPSLANPRSKTSLSLAYKGTDNVVRTRRFTGNSWSPEQIVTIGGQPLAVHPNTSPALAFVYLPLGVVAGQEHLVGAFTDPQGYIQLYTPQLPGPRWGRLPIPYDPMHSPVGRPVMTWTPGPADGGVMTTSGATAAGSTFSRGLSPATESASSLAQAQEDNAKPLAEEDRPLTSLSEQGQEPQEETPAGEIQERAVRRKLPLDVTGLPSLEMAPTSGAVLATGRFYILFLEYQPPPPGYPATNAIRMAMSYAGSDGKLRIGLNSYFDNVWAYAYGLSLVTPSEAALRAAVTYSIHKPWAENHVFFRPHAD",
+      "sequence_length": 426,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 77.81,
+        "median": 94.14,
+        "min": 18.59,
+        "max": 98.99,
+        "std": 28.69
+      }
+    },
+    {
+      "chain_id": "B",
+      "num_residues": 5,
+      "num_atoms": 27,
+      "sequence": "AASAA",
+      "sequence_length": 5,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 55.08,
+        "median": 55.1,
+        "min": 44.77,
+        "max": 61.21,
+        "std": 5.86
+      }
+    },
+    {
+      "chain_id": "C",
+      "num_residues": 5,
+      "num_atoms": 27,
+      "sequence": "AASAA",
+      "sequence_length": 5,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 52.27,
+        "median": 52.11,
+        "min": 45.61,
+        "max": 59.7,
+        "std": 5.07
+      }
+    },
+    {
+      "chain_id": "D",
+      "num_residues": 0,
+      "num_atoms": 33,
+      "sequence": "",
+      "sequence_length": 0,
+      "ligands": [
+        {
+          "resname": "MAN",
+          "resid": 1,
+          "num_atoms": 11
+        },
+        {
+          "resname": "MAN",
+          "resid": 2,
+          "num_atoms": 11
+        },
+        {
+          "resname": "MAN",
+          "resid": 3,
+          "num_atoms": 11
+        }
+      ],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {}
+    },
+    {
+      "chain_id": "E",
+      "num_residues": 0,
+      "num_atoms": 33,
+      "sequence": "",
+      "sequence_length": 0,
+      "ligands": [
+        {
+          "resname": "MAN",
+          "resid": 1,
+          "num_atoms": 11
+        },
+        {
+          "resname": "MAN",
+          "resid": 2,
+          "num_atoms": 11
+        },
+        {
+          "resname": "MAN",
+          "resid": 3,
+          "num_atoms": 11
+        }
+      ],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {}
+    }
+  ],
+  "unique_ligands": [
+    "MAN"
+  ],
+  "all_ligands": [
+    {
+      "resname": "MAN",
+      "resid": 1,
+      "num_atoms": 11,
+      "chain_id": "D"
+    },
+    {
+      "resname": "MAN",
+      "resid": 2,
+      "num_atoms": 11,
+      "chain_id": "D"
+    },
+    {
+      "resname": "MAN",
+      "resid": 3,
+      "num_atoms": 11,
+      "chain_id": "D"
+    },
+    {
+      "resname": "MAN",
+      "resid": 1,
+      "num_atoms": 11,
+      "chain_id": "E"
+    },
+    {
+      "resname": "MAN",
+      "resid": 2,
+      "num_atoms": 11,
+      "chain_id": "E"
+    },
+    {
+      "resname": "MAN",
+      "resid": 3,
+      "num_atoms": 11,
+      "chain_id": "E"
+    }
+  ],
+  "all_metals": [],
+  "has_ligands": true,
+  "is_oligomeric": true
+}

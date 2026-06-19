@@ -1,0 +1,5 @@
+chain_id,resname,resid,one_letter,classification
+A,TRP,386,W,hydrophobic
+B,SER,3,S,polar
+B,ALA,4,A,hydrophobic
+B,ALA,5,A,hydrophobic

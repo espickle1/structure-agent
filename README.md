@@ -62,12 +62,12 @@ inside Claude Code would nest a second one.
 
 ```powershell
 # Windows (PowerShell)
-.\run_pipeline.ps1 -Input data\demo\rbp.fasta -Prompt prompts\report.md
+.\run_pipeline.ps1 -Input input\example_4\three_environmental_samples.fasta -Prompt prompts\report.md
 ```
 
 ```bash
 # macOS / Linux
-./run_pipeline.sh --input data/demo/rbp.fasta --prompt prompts/report.md
+./run_pipeline.sh --input input/example_4/three_environmental_samples.fasta --prompt prompts/report.md
 ```
 
 `--input` takes a FASTA (full pipeline) or a `.cif` / `.pdb` (BYO — Agents 0/1
@@ -138,7 +138,8 @@ evidence to reason *from*, not an identification.
 - Per-agent setup and invocation: [src/agent_0/README.md](src/agent_0/README.md),
   [src/agent_1/README.md](src/agent_1/README.md),
   [src/agent_2/README.md](src/agent_2/README.md).
-- Worked examples / end-to-end validation: [runs/stress_test/](runs/stress_test/) —
-  eight sequences folded and analysed Agent 1 → Agent 2, with five full Agent 2 reports.
+- Worked examples / end-to-end validation: [results/run_20260616_example_5/](results/run_20260616_example_5/)
+  and [results/run_20260616_example_6/](results/run_20260616_example_6/) — eight sequences folded and
+  analysed Agent 1 → Agent 2 (example_6's t1–t5 carry five full Agent 2 reports).
 - Architectural rules and working style: [CLAUDE.md](CLAUDE.md).
 - License: Apache 2.0 — see [LICENSE](LICENSE).

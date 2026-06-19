@@ -1,0 +1,107 @@
+{
+  "file": "ptm0.199_r6_seed2_LM_m0.15.pdb",
+  "shape": {
+    "radius_of_gyration": 15.91,
+    "asphericity": 0.1565,
+    "principal_eigenvalues": [
+      134.36,
+      97.55,
+      21.09
+    ],
+    "axis_ratios": {
+      "long_mid": 1.38,
+      "long_short": 6.37
+    },
+    "approximate_dimensions": {
+      "long_axis": 48.6,
+      "mid_axis": 34.0,
+      "short_axis": 17.6,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "oblate (disc-like)",
+    "num_ca_atoms": 79
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 51,
+      "fraction": 0.646
+    },
+    "sheet": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "coil": {
+      "count": 28,
+      "fraction": 0.354
+    },
+    "total_assigned": 79,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 79,
+    "exposed": {
+      "count": 60,
+      "fraction": 0.759
+    },
+    "partial": {
+      "count": 19,
+      "fraction": 0.241
+    },
+    "buried": {
+      "count": 0,
+      "fraction": 0.0
+    },
+    "surface_hydrophobicity": {
+      "mean": 0.195,
+      "std": 2.739
+    },
+    "surface_net_charge": 4.1,
+    "surface_positive_residues": 8,
+    "surface_negative_residues": 3,
+    "total_sasa": 7584.9,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 14,
+        "end_resid": 16,
+        "length": 3,
+        "mean_hydrophobicity": 2.93
+      },
+      {
+        "start_resid": 28,
+        "end_resid": 30,
+        "length": 3,
+        "mean_hydrophobicity": 2.13
+      },
+      {
+        "start_resid": 36,
+        "end_resid": 40,
+        "length": 5,
+        "mean_hydrophobicity": 2.74
+      },
+      {
+        "start_resid": 59,
+        "end_resid": 61,
+        "length": 3,
+        "mean_hydrophobicity": 1.8
+      },
+      {
+        "start_resid": 70,
+        "end_resid": 74,
+        "length": 5,
+        "mean_hydrophobicity": 2.0
+      },
+      {
+        "start_resid": 76,
+        "end_resid": 78,
+        "length": 3,
+        "mean_hydrophobicity": 2.8
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "ptm0.199_r6_seed2_LM_m0.15_surface_profile.png",
+    "exposure_pie": "ptm0.199_r6_seed2_LM_m0.15_exposure_pie.png"
+  },
+  "surface_csv": "ptm0.199_r6_seed2_LM_m0.15_surface.csv"
+}

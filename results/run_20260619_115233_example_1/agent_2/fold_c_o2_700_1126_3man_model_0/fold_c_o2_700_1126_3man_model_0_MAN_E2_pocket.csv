@@ -1,0 +1,8 @@
+chain_id,resname,resid,one_letter,classification
+A,HIS,6,H,polar
+A,GLY,117,G,glycine
+A,LYS,135,K,positive
+A,PRO,168,P,hydrophobic
+A,ASN,169,N,polar
+A,THR,170,T,polar
+C,SER,3,S,polar

@@ -1,0 +1,7 @@
+chain_id,resname,resid,one_letter,classification
+A,GLU,347,E,negative
+A,GLN,349,Q,polar
+A,TYR,381,Y,polar
+A,VAL,385,V,hydrophobic
+A,TRP,386,W,hydrophobic
+A,TYR,388,Y,polar
