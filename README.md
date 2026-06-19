@@ -133,13 +133,29 @@ These limits are generic, so they live here rather than being restated in every
 report; each report keeps only a one-line scope statement. A report is structural
 evidence to reason *from*, not an identification.
 
+## Examples
+
+Seven worked examples ship with the repo — each a real run, with inputs in
+`input/example_N/` and the matching output in `results/run_*_example_N/`
+(`agent_0/` · `agent_1/` · `agent_2/`, with per-protein report `.zip`s). Together
+they cover both entry modes and a spread of hard cases:
+
+| # | Input | Mode | Exercises |
+| --- | --- | --- | --- |
+| 1 | 3 structures | BYO directory batch | per-protein + comparative analysis; ligand-pocket detection |
+| 2 | FASTA, 3 records | Full pipeline | sequence → fold → report |
+| 3 | 3 structures | BYO directory batch | mixed predicted models |
+| 4 | FASTA, 3 records | Full pipeline | environmental / metagenomic samples |
+| 5 | FASTA, 3 records | Full pipeline | structures + measurements only (early validation) |
+| 6 | FASTA, 5 records | Full pipeline | full reports + coarse fold-class verdicts (see the run's `README.md`) |
+| 7 | FASTA, 8 records | Full pipeline | disordered, archaeal, small + large, mixed secondary structure |
+
 ## Pointers
 
 - Per-agent setup and invocation: [src/agent_0/README.md](src/agent_0/README.md),
   [src/agent_1/README.md](src/agent_1/README.md),
   [src/agent_2/README.md](src/agent_2/README.md).
-- Worked examples / end-to-end validation: [results/run_20260616_example_5/](results/run_20260616_example_5/)
-  and [results/run_20260616_example_6/](results/run_20260616_example_6/) — eight sequences folded and
-  analysed Agent 1 → Agent 2 (example_6's t1–t5 carry five full Agent 2 reports).
+- Worked examples: see [Examples](#examples) above — seven curated `input/` → `results/` runs
+  spanning BYO batches, full-pipeline FASTA, and mixed-challenge validation.
 - Architectural rules and working style: [CLAUDE.md](CLAUDE.md).
 - License: Apache 2.0 — see [LICENSE](LICENSE).
