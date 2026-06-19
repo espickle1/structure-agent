@@ -98,8 +98,12 @@ def _render(coords, vals, cmap, out_png, title, elev, azim):
     ax = fig.add_subplot(111, projection="3d")
     for i in range(n - 1):
         ax.plot(coords[i:i + 2, 0], coords[i:i + 2, 1], coords[i:i + 2, 2],
-                color=cmap(float(vals[i])), lw=2.0)
-    sc = ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=vals, cmap=cmap, s=8)
+                color=cmap(float(vals[i])), lw=1.0, solid_capstyle="round")
+    # Cα markers hidden (s=0): show the trace only. The scatter is kept purely as
+    # the ScalarMappable backing the colorbar. Round line caps on each segment
+    # overlap at every Cα, so a change of chain direction reads as a smooth,
+    # rounded bend rather than a sharp kink.
+    sc = ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=vals, cmap=cmap, s=0)
     fig.colorbar(sc, ax=ax, shrink=0.55, pad=0.1)
     ax.view_init(elev=elev, azim=azim)
     ax.set_axis_off()
