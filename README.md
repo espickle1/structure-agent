@@ -84,13 +84,14 @@ file: Agent 0 classifies each record independently, passes protein through, and
 translates nucleotide records (genetic code 11 by default, with a fallback
 cascade). Give every record a unique FASTA header — it becomes the record ID.
 Records outside 50–2000 aa (after translation) are logged to `rejections.jsonl`
-and skipped, not folded. BYO mode is a single `.cif` / `.pdb` and skips Agent 0
-entirely.
+and skipped, not folded. BYO mode takes a `.cif` / `.pdb` / `.mmcif` structure —
+or a directory of them for a batch — and skips Agent 0 entirely.
 
 **Prerequisites:** Python deps (`biopython numpy scipy pandas matplotlib
 seaborn gemmi`), `mkdssp` for reference-grade secondary structure (optional — a
 `pydssp` fallback runs if it's absent, but is less accurate on predicted
-backbones), Modal auth + deployed apps (prediction half only — Agents 0/1), and
+backbones), Modal auth (prediction half only — Agents 0/1; the Modal apps run
+ephemerally — no deploy step), and
 the **`claude` CLI installed and authenticated** (the synthesis step shells out
 to it).
 

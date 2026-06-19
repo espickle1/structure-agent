@@ -24,7 +24,7 @@
 # Prerequisites (one-time):
 #   pip install modal biopython numpy scipy pandas matplotlib seaborn gemmi
 #   modal token set --token-id <id> --token-secret <secret>
-#   modal deploy src/agent_1/fold_app/modal_app.py
+#   (no `modal deploy` needed - the Modal apps run ephemerally and tear down per run)
 #   the `claude` CLI installed and authenticated (used for the synthesis step)
 
 param(
@@ -56,6 +56,11 @@ $ErrorActionPreference = "Stop"
 # Force UTF-8 mode so the Modal client's progress glyphs (checkmark, emoji) and the
 # Agent 2 scripts' Unicode output don't crash under the Windows cp1252 console.
 $env:PYTHONUTF8 = "1"
+
+# PowerShell pipes strings to native commands using $OutputEncoding, which defaults
+# to US-ASCII on 5.1 and would mangle the synthesis prompt's Unicode (em-dashes,
+# etc.) when piped to `claude`. Force UTF-8 so the prompt reaches it intact.
+$OutputEncoding = [System.Text.UTF8Encoding]::new()
 
 $repoRoot  = $PSScriptRoot
 $srcDir    = Join-Path $repoRoot "src"
@@ -286,13 +291,72 @@ Context for this run:
 - Structures analyzed: $structuresList
 "@
 
+# Pipe the prompt via stdin, never as a positional arg: Windows PowerShell 5.1
+# mangles multi-line, quote-containing arguments to native executables (it splits
+# the prompt at the first embedded double-quote), silently truncating the prompt
+# and dropping the context block appended at its end. Stdin avoids that entirely.
 if ($Interactive) {
-    & claude --disallowedTools "WebSearch,WebFetch" --model $Model $task
+    $task | & claude --disallowedTools "WebSearch,WebFetch" --model $Model
 } else {
-    & claude -p --disallowedTools "WebSearch,WebFetch" --permission-mode acceptEdits --add-dir $OutputDir --model $Model --max-turns $MaxTurns $task
+    $task | & claude -p --disallowedTools "WebSearch,WebFetch" --permission-mode acceptEdits --add-dir $OutputDir --model $Model --max-turns $MaxTurns
     if ($LASTEXITCODE -ne 0) {
         Write-Error "[Synthesis] claude exited with code $LASTEXITCODE - the report skeleton was written but SYNTHESIS placeholders may be unfilled. Re-run synthesis or inspect $OutputDir\agent_2."
         exit 1
+    }
+}
+
+# --------------------------------------------------------------------------- #
+# Package outputs - one zip per protein, plus a separate comparative.zip for the
+# cross-protein comparison files. Runs after synthesis so the report is bundled.
+# Files are stored flat (by basename) so the report's relative image links stay
+# valid on extraction; loose copies are removed once their zip is written.
+# Packaging is best-effort: a failure warns and leaves that protein's files loose
+# rather than discarding outputs synthesis already produced.
+# --------------------------------------------------------------------------- #
+Write-Host ""
+Write-Host "[Agent 2] Packaging outputs (one zip per protein)..."
+$a2 = "$OutputDir\agent_2"
+
+foreach ($struct in $structures) {
+    $stem = [System.IO.Path]::GetFileNameWithoutExtension($struct)
+    $files = @(
+        Get-ChildItem -Path $a2 -File | Where-Object {
+            $_.Name.StartsWith("${stem}_") -and
+            $_.Name -notmatch '_vs_' -and $_.Name -notlike '*_comparisons.json'
+        }
+    )
+    if ($files.Count -eq 0) {
+        Write-Warning "No output files found for '$stem' - skipping its package."
+        continue
+    }
+    $zipPath = Join-Path $a2 "$stem.zip"
+    if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+    try {
+        Compress-Archive -LiteralPath $files.FullName -DestinationPath $zipPath -ErrorAction Stop
+        $files | Remove-Item -Force
+        Write-Host "  $stem.zip ($($files.Count) files)"
+    } catch {
+        Write-Warning "Failed to package '$stem' - leaving its files loose. $($_.Exception.Message)"
+    }
+}
+
+# Cross-protein comparison files -> comparative.zip (only when >1 structure)
+if ($structures.Count -gt 1) {
+    $compFiles = @(
+        Get-ChildItem -Path $a2 -File | Where-Object {
+            $_.Name -match '_vs_' -or $_.Name -like '*_comparisons.json'
+        }
+    )
+    if ($compFiles.Count -gt 0) {
+        $compZip = Join-Path $a2 "comparative.zip"
+        if (Test-Path $compZip) { Remove-Item $compZip -Force }
+        try {
+            Compress-Archive -LiteralPath $compFiles.FullName -DestinationPath $compZip -ErrorAction Stop
+            $compFiles | Remove-Item -Force
+            Write-Host "  comparative.zip ($($compFiles.Count) files)"
+        } catch {
+            Write-Warning "Failed to package comparative files - leaving them loose. $($_.Exception.Message)"
+        }
     }
 }
 

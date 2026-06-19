@@ -266,6 +266,64 @@ else
 fi
 
 # --------------------------------------------------------------------------- #
+# Package outputs — one zip per protein, plus a separate comparative.zip for the
+# cross-protein comparison files. Runs after synthesis so the report is bundled.
+# Files are stored flat (by basename) so the report's relative image links stay
+# valid on extraction; loose copies are removed once their zip is written.
+# Uses Python's zipfile (already a pipeline dependency) rather than a `zip` binary,
+# which isn't present on all platforms. Best-effort: a failure warns and leaves
+# that protein's files loose rather than discarding outputs already produced.
+# --------------------------------------------------------------------------- #
+echo ""
+echo "[Agent 2] Packaging outputs (one zip per protein)..."
+A2="$OUTPUT_DIR/agent_2"
+
+make_zip() {  # make_zip <out.zip> <file>...
+    local out="$1"; shift
+    python - "$out" "$@" <<'PY'
+import os, sys, zipfile
+out, files = sys.argv[1], sys.argv[2:]
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    for f in files:
+        z.write(f, arcname=os.path.basename(f))
+PY
+}
+
+for STRUCT in "${STRUCTURES[@]}"; do
+    STEM="$(basename "${STRUCT%.*}")"
+    mapfile -t PFILES < <(find "$A2" -maxdepth 1 -type f -name "${STEM}_*" \
+        ! -name "*_vs_*" ! -name "*_comparisons.json" | sort)
+    if [[ ${#PFILES[@]} -eq 0 ]]; then
+        echo "  WARNING: no output files found for '$STEM' — skipping its package." >&2
+        continue
+    fi
+    ZIP="$A2/$STEM.zip"
+    rm -f "$ZIP"
+    if make_zip "$ZIP" "${PFILES[@]}" && [[ -f "$ZIP" ]]; then
+        rm -f "${PFILES[@]}"
+        echo "  $STEM.zip (${#PFILES[@]} files)"
+    else
+        echo "  WARNING: failed to package '$STEM' — leaving its files loose." >&2
+    fi
+done
+
+# Cross-protein comparison files -> comparative.zip (only when >1 structure)
+if [[ ${#STRUCTURES[@]} -gt 1 ]]; then
+    mapfile -t CFILES < <(find "$A2" -maxdepth 1 -type f \
+        \( -name "*_vs_*" -o -name "*_comparisons.json" \) | sort)
+    if [[ ${#CFILES[@]} -gt 0 ]]; then
+        CZIP="$A2/comparative.zip"
+        rm -f "$CZIP"
+        if make_zip "$CZIP" "${CFILES[@]}" && [[ -f "$CZIP" ]]; then
+            rm -f "${CFILES[@]}"
+            echo "  comparative.zip (${#CFILES[@]} files)"
+        else
+            echo "  WARNING: failed to package comparative files — leaving them loose." >&2
+        fi
+    fi
+fi
+
+# --------------------------------------------------------------------------- #
 echo ""
 echo "=========================================="
 echo " Done. Results in $OUTPUT_DIR/agent_2"
