@@ -1,0 +1,113 @@
+{
+  "file": "test-7-s4.cif",
+  "shape": {
+    "radius_of_gyration": 32.65,
+    "asphericity": 0.2187,
+    "principal_eigenvalues": [
+      684.3,
+      232.22,
+      149.6
+    ],
+    "axis_ratios": {
+      "long_mid": 2.95,
+      "long_short": 4.57
+    },
+    "approximate_dimensions": {
+      "long_axis": 113.2,
+      "mid_axis": 82.0,
+      "short_axis": 58.8,
+      "unit": "\u00c5"
+    },
+    "shape_classification": "prolate (elongated)",
+    "num_ca_atoms": 1151
+  },
+  "secondary_structure_content": {
+    "helix": {
+      "count": 547,
+      "fraction": 0.475
+    },
+    "sheet": {
+      "count": 168,
+      "fraction": 0.146
+    },
+    "coil": {
+      "count": 436,
+      "fraction": 0.379
+    },
+    "total_assigned": 1151,
+    "source": "pydssp",
+    "reliable": true
+  },
+  "surface_stats": {
+    "total_residues": 1151,
+    "exposed": {
+      "count": 219,
+      "fraction": 0.19
+    },
+    "partial": {
+      "count": 411,
+      "fraction": 0.357
+    },
+    "buried": {
+      "count": 521,
+      "fraction": 0.453
+    },
+    "surface_hydrophobicity": {
+      "mean": -0.745,
+      "std": 3.071
+    },
+    "surface_net_charge": 2.0,
+    "surface_positive_residues": 42,
+    "surface_negative_residues": 31,
+    "total_sasa": 49085.3,
+    "hydrophobic_patches": [
+      {
+        "start_resid": 226,
+        "end_resid": 228,
+        "length": 3,
+        "mean_hydrophobicity": 2.8
+      },
+      {
+        "start_resid": 423,
+        "end_resid": 425,
+        "length": 3,
+        "mean_hydrophobicity": 2.8
+      },
+      {
+        "start_resid": 431,
+        "end_resid": 433,
+        "length": 3,
+        "mean_hydrophobicity": 2.13
+      },
+      {
+        "start_resid": 553,
+        "end_resid": 555,
+        "length": 3,
+        "mean_hydrophobicity": 3.27
+      },
+      {
+        "start_resid": 1025,
+        "end_resid": 1027,
+        "length": 3,
+        "mean_hydrophobicity": 3.93
+      },
+      {
+        "start_resid": 1088,
+        "end_resid": 1090,
+        "length": 3,
+        "mean_hydrophobicity": 3.47
+      },
+      {
+        "start_resid": 1120,
+        "end_resid": 1122,
+        "length": 3,
+        "mean_hydrophobicity": 4.03
+      }
+    ]
+  },
+  "plots": {
+    "surface_profile": "test-7-s4_surface_profile.png",
+    "exposure_pie": "test-7-s4_exposure_pie.png"
+  },
+  "surface_csv": "test-7-s4_surface.csv"
+}

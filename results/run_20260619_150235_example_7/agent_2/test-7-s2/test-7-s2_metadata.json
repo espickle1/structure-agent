@@ -1,0 +1,45 @@
+{
+  "file": "test-7-s2.cif",
+  "format": "mmcif",
+  "num_models": 1,
+  "num_chains": 1,
+  "total_residues": 674,
+  "total_atoms": 5169,
+  "total_missing_residues": 0,
+  "experimental_method": null,
+  "resolution": null,
+  "alphafold_detection": {
+    "is_predicted": true,
+    "detection_signals": {
+      "filename_match": false,
+      "no_resolution": true,
+      "bfactor_is_plddt": true
+    }
+  },
+  "chains": [
+    {
+      "chain_id": "A",
+      "num_residues": 674,
+      "num_atoms": 5169,
+      "sequence": "GENVERWQGQYEGLRGQDLGQAVLDAGHSVSTLEKTLPQLLAKLSILENRGVHNASLALSASIGRVRELCAQARGAASKVKVPMKFNGRSGVQLRTPRDLADLAAYTALKFYLQGPEPEPGQGTEDRFVMYMGSRQATGDYMGVSLRDKKVHWVYQLGEAGPAVLSIDEDIGEQFAAVSLDRTLQFGHMSVTVERQMIQETKGDTVAPGAEGLLNLRPDDFVFYVGGYPSTFTPPPLLRFPGYRGCIEMDTLNEEVVSLYNFERTFQLDTAVDRPCARSKSTGDPWLTDGSYLDGTGFARISFDSQISTTKRFEQELRLVSYSGVLFFLKQQSQFLCLAVQEGSLVLLYDFGAGLKKAVPLQPPPPLTSASKAIQVFLLGGSRKRVLVRVERATVYSVEQDNDLELADAYYLGGVPPDQLPPSLRRLFPTGGSVRGCVKGIKALGKYVDLKRLNTTGVSAGCTADLLVGRAMTFHGHGFLRLALSNVAPLTGNVYSGFGFHSAQDSALLYYRASPDGLCQVSLQQGRVSLQLLRTEVKTQAGFADGAPHYVAFYSNATGVWLYVDDQLQQMKPHRGPPPELQPQPEGPPRLLLGGLPESGTIYNFSGCISNVFVQRLLGPQRVFDLQQNLGSVNVSTGCAPALQAQTPGLGPRGLQATARKASRRSRQPARHPA",
+      "sequence_length": 674,
+      "ligands": [],
+      "metals": [],
+      "num_waters": 0,
+      "modified_residues": [],
+      "chain_breaks": [],
+      "bfactor_stats": {
+        "mean": 82.75,
+        "median": 86.52,
+        "min": 39.03,
+        "max": 98.02,
+        "std": 12.3
+      }
+    }
+  ],
+  "unique_ligands": [],
+  "all_ligands": [],
+  "all_metals": [],
+  "has_ligands": false,
+  "is_oligomeric": false
+}

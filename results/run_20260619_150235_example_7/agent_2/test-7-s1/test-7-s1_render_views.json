@@ -1,0 +1,39 @@
+{
+  "file": "test-7-s1.cif",
+  "renderer": "matplotlib-ca-trace",
+  "color_mode": "pLDDT",
+  "size": [
+    1024,
+    1024
+  ],
+  "n_ca": 376,
+  "approx_dimensions": {
+    "long_axis": 81.3,
+    "mid_axis": 44.0,
+    "short_axis": 41.6,
+    "unit": "\u00c5"
+  },
+  "views": {
+    "axis1": "test-7-s1_axis1.png",
+    "axis2": "test-7-s1_axis2.png",
+    "axis3": "test-7-s1_axis3.png"
+  },
+  "cameras": {
+    "axis1": {
+      "label": "down long axis",
+      "elev": 0,
+      "azim": 0
+    },
+    "axis2": {
+      "label": "down mid axis",
+      "elev": 0,
+      "azim": -90
+    },
+    "axis3": {
+      "label": "down short axis",
+      "elev": 90,
+      "azim": -90
+    }
+  },
+  "failures": {}
+}
