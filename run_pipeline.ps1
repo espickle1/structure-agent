@@ -2,8 +2,11 @@
 #
 # Full pipeline:  .\run_pipeline.ps1 -Input sequences.fasta -Prompt prompts\report.md
 # BYO structure:  .\run_pipeline.ps1 -Input structure.cif   -Prompt prompts\report.md
+# BYO batch:      .\run_pipeline.ps1 -Input structures_dir\ -Prompt prompts\report.md
 #
-# BYO mode is auto-detected from .cif / .pdb / .mmcif extension, or forced with -Byo.
+# BYO mode is auto-detected from a .cif / .pdb / .mmcif extension or a directory input,
+# or forced with -Byo. A directory input analyzes every .cif/.pdb/.mmcif file it
+# directly contains (non-recursive).
 #
 # Synthesis runs non-interactively by default (`claude -p --permission-mode
 # acceptEdits` - no prompts; for most users, CI, and batch). Pass -Interactive to
@@ -64,7 +67,7 @@ $scriptsDir = Join-Path $srcDir "agent_2\scripts"
 if (-not [System.IO.Path]::IsPathRooted($InputPath))  { $InputPath  = (Resolve-Path $InputPath).Path }
 if (-not [System.IO.Path]::IsPathRooted($Prompt)) { $Prompt = (Resolve-Path $Prompt).Path }
 
-if (-not (Test-Path $InputPath))  { Write-Error "Input file not found: $InputPath";  exit 1 }
+if (-not (Test-Path $InputPath))  { Write-Error "Input not found: $InputPath";  exit 1 }
 if (-not (Test-Path $Prompt)) { Write-Error "Prompt file not found: $Prompt"; exit 1 }
 
 # Preflight the synthesis CLI now. It is the last step, but the Modal folds before it
@@ -90,9 +93,10 @@ foreach ($p in $ProfilePath) {
     $profileArgs += "--profile", $rp
 }
 
-# Auto-detect BYO from extension
+# Auto-detect BYO from a structure-file extension or a directory of structures
+$inputIsDir = Test-Path -Path $InputPath -PathType Container
 $ext = [System.IO.Path]::GetExtension($InputPath).ToLower().TrimStart('.')
-if ($ext -in @('cif', 'pdb', 'mmcif')) { $Byo = $true }
+if ($inputIsDir -or $ext -in @('cif', 'pdb', 'mmcif')) { $Byo = $true }
 
 # --------------------------------------------------------------------------- #
 # Directory setup
@@ -148,7 +152,21 @@ if (-not $Byo) {
 # Collect structure files
 # --------------------------------------------------------------------------- #
 if ($Byo) {
-    $structures = @($InputPath)
+    if ($inputIsDir) {
+        # Directory BYO: analyze every structure file directly inside (non-recursive)
+        $structures = @(
+            Get-ChildItem -Path $InputPath -File |
+                Where-Object { $_.Extension.ToLower() -in @('.cif', '.pdb', '.mmcif') } |
+                Sort-Object Name |
+                ForEach-Object { $_.FullName }
+        )
+        if ($structures.Count -eq 0) {
+            Write-Error "No .cif/.pdb/.mmcif files found in directory: $InputPath"
+            exit 1
+        }
+    } else {
+        $structures = @($InputPath)
+    }
 } else {
     $structures = @(
         Get-ChildItem -Path "$OutputDir\agent_1\structures" -Recurse |
@@ -161,6 +179,15 @@ if ($Byo) {
 if ($structures.Count -eq 0) {
     Write-Error "No structure files found after Agent 1"
     exit 1
+}
+
+# Agent 2 keys every output on the file stem, so inputs that share a basename
+# (e.g. foo.cif + foo.pdb) would overwrite each other. Warn rather than clobber.
+$dupStems = $structures |
+    ForEach-Object { [System.IO.Path]::GetFileNameWithoutExtension($_) } |
+    Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name }
+if ($dupStems) {
+    Write-Warning "Duplicate structure basenames ($($dupStems -join ', ')) - their Agent 2 outputs will overwrite each other. Rename inputs to keep them distinct."
 }
 
 Write-Host ""

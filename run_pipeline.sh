@@ -3,8 +3,11 @@
 #
 # Full pipeline:  ./run_pipeline.sh --input sequences.fasta --output-dir results/ --prompt prompts/report.md
 # BYO structure:  ./run_pipeline.sh --input structure.cif  --output-dir results/ --prompt prompts/report.md
+# BYO batch:      ./run_pipeline.sh --input structures_dir/ --output-dir results/ --prompt prompts/report.md
 #
-# BYO mode is auto-detected from .cif / .pdb / .mmcif extension, or forced with --byo.
+# BYO mode is auto-detected from a .cif / .pdb / .mmcif extension or a directory input,
+# or forced with --byo. A directory input analyzes every .cif/.pdb/.mmcif file it
+# directly contains (non-recursive).
 #
 # Synthesis runs non-interactively by default (`claude -p --permission-mode
 # acceptEdits` — no prompts; for most users, CI, and batch). Pass --interactive to
@@ -43,7 +46,8 @@ usage() {
 Usage: $(basename "$0") --input <file> --prompt <markdown>
                         [--output-dir <dir>] [--profile <path>] [--metadata <json>] [--byo]
 
-  --input        Input FASTA (full pipeline) or CIF/PDB (BYO structure)
+  --input        Input FASTA (full pipeline), a CIF/PDB/mmCIF structure, or a
+                 directory of structures (BYO batch, non-recursive)
   --output-dir   Root output directory; subdirs agent_0/, agent_1/, agent_2/ created automatically
                  (default: results/run_YYYYMMDD_HHMMSS/)
   --prompt       Markdown prompt file passed to Claude for the synthesis step
@@ -76,14 +80,19 @@ done
 
 [[ -z "$INPUT" || -z "$PROMPT_FILE" ]] && usage
 [[ -z "$OUTPUT_DIR" ]] && OUTPUT_DIR="${REPO_ROOT}/results/run_$(date +%Y%m%d_%H%M%S)"
-[[ ! -f "$INPUT"       ]] && { echo "ERROR: input file not found: $INPUT";       exit 1; }
+[[ ! -e "$INPUT"       ]] && { echo "ERROR: input not found: $INPUT";       exit 1; }
 [[ ! -f "$PROMPT_FILE" ]] && { echo "ERROR: prompt file not found: $PROMPT_FILE"; exit 1; }
 
 # Preflight the synthesis CLI now — it is the last step, but the Modal folds before it
 # are slow and metered, so fail fast if `claude` is missing rather than after all that.
 command -v claude >/dev/null 2>&1 || { echo "ERROR: 'claude' CLI not found on PATH. Install and authenticate it (it runs the synthesis step)." >&2; exit 1; }
 
-# Auto-detect BYO from extension
+# Auto-detect BYO from a structure-file extension or a directory of structures
+INPUT_IS_DIR=false
+if [[ -d "$INPUT" ]]; then
+    INPUT_IS_DIR=true
+    BYO=true
+fi
 EXT="${INPUT##*.}"
 if [[ "$EXT" =~ ^(cif|pdb|mmcif)$ ]]; then
     BYO=true
@@ -137,7 +146,17 @@ fi
 # Collect structure files
 # --------------------------------------------------------------------------- #
 if $BYO; then
-    STRUCTURES=("$INPUT")
+    if $INPUT_IS_DIR; then
+        # Directory BYO: analyze every structure file directly inside (non-recursive)
+        mapfile -t STRUCTURES < <(find "$INPUT" -maxdepth 1 -type f \
+            \( -iname "*.cif" -o -iname "*.pdb" -o -iname "*.mmcif" \) | sort)
+        if [[ ${#STRUCTURES[@]} -eq 0 ]]; then
+            echo "ERROR: no .cif/.pdb/.mmcif files found in directory: $INPUT"
+            exit 1
+        fi
+    else
+        STRUCTURES=("$INPUT")
+    fi
 else
     mapfile -t STRUCTURES < <(find "$OUTPUT_DIR/agent_1/structures" \
         \( -name "*.cif" -o -name "*.pdb" \) | sort)
@@ -146,6 +165,13 @@ fi
 if [[ ${#STRUCTURES[@]} -eq 0 ]]; then
     echo "ERROR: no structure files found after Agent 1"
     exit 1
+fi
+
+# Agent 2 keys every output on the file stem, so inputs that share a basename
+# (e.g. foo.cif + foo.pdb) would overwrite each other. Warn rather than clobber.
+DUP_STEMS="$(for s in "${STRUCTURES[@]}"; do basename "${s%.*}"; done | sort | uniq -d)"
+if [[ -n "$DUP_STEMS" ]]; then
+    echo "WARNING: duplicate structure basenames ($(echo "$DUP_STEMS" | tr '\n' ' ')) - their Agent 2 outputs will overwrite each other. Rename inputs to keep them distinct." >&2
 fi
 
 echo ""
