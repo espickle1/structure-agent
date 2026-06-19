@@ -220,14 +220,7 @@ foreach ($struct in $structures) {
 
     # Binding site - only if ligands present
     $metaPath = "$OutputDir\agent_2\${stem}_metadata.json"
-    $hasLigands = python -c "
-import json, sys
-try:
-    m = json.load(open(r'$metaPath'))
-    print('true' if m.get('has_ligands') else 'false')
-except:
-    print('false')
-" 2>$null
+    $hasLigands = python "$scriptsDir\has_ligands.py" "$metaPath" 2>$null
     if ($hasLigands -eq 'true') {
         Write-Host "  Ligands present - running binding site analysis..."
         Push-Location $scriptsDir

@@ -287,8 +287,8 @@ def quality_section(meta: dict, surf: dict) -> str:
     is_plddt = bool(_dig(af, "detection_signals", "bfactor_is_plddt"))
     metric = "pLDDT" if is_plddt else "B-factor"
     lines = ["## Prediction quality / structural coherence", ""]
-    lines.append(f"Confidence is **reported, never gated** — these signals are inputs for the "
-                 f"synthesis below, not a pass/fail.")
+    lines.append("Confidence is **reported, never gated** — these signals are inputs for the "
+                 "synthesis below, not a pass/fail.")
     lines.append("")
     # confidence
     for ch in meta.get("chains", []):

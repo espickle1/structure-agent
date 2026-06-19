@@ -19,7 +19,6 @@ Usage (from local machine, after `modal token set ...`):
 """
 
 import json
-import os
 import subprocess
 import time
 from pathlib import Path
@@ -93,10 +92,10 @@ def _write_boltz_yaml(sequence: str, structure_id: str, stoichiometry: int, work
     lines = ["version: 1", "sequences:"]
     for cid in chain_ids:
         lines += [
-            f"  - protein:",
+            "  - protein:",
             f"      id: {cid}",
             f"      sequence: {sequence}",
-            f"      msa: empty",
+            "      msa: empty",
         ]
     yaml_path = workdir / f"{structure_id}.yaml"
     yaml_path.write_text("\n".join(lines) + "\n")

@@ -27,7 +27,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from Bio.PDB import PDBParser, MMCIFParser, NeighborSearch, Selection
+    from Bio.PDB import NeighborSearch
     from Bio.PDB.Polypeptide import is_aa
     from cif_io import read_structure
 except ImportError:
@@ -507,7 +507,7 @@ def print_site_summary(site: dict):
         parts = [f"{k}={v}" for k, v in counts.items()]
         print(f"  Interactions: {', '.join(parts)}")
     else:
-        print(f"  Interactions: none detected")
+        print("  Interactions: none detected")
 
     bf = site.get("ligand_bfactor_stats", {})
     if bf:

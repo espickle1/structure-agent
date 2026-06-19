@@ -58,7 +58,9 @@ def read_ca(path: Path):
         bf = col("_atom_site.B_iso_or_equiv") or ["0"] * len(atom)
         for i, name in enumerate(atom):
             if name == "CA" and group[i] != "HETATM":
-                xs.append(float(cx[i])); ys.append(float(cy[i])); zs.append(float(cz[i]))
+                xs.append(float(cx[i]))
+                ys.append(float(cy[i]))
+                zs.append(float(cz[i]))
                 try:
                     bs.append(float(bf[i]))
                 except (TypeError, ValueError):
@@ -66,7 +68,9 @@ def read_ca(path: Path):
     else:
         for line in path.read_text(errors="replace").splitlines():
             if line.startswith("ATOM") and line[12:16].strip() == "CA":
-                xs.append(float(line[30:38])); ys.append(float(line[38:46])); zs.append(float(line[46:54]))
+                xs.append(float(line[30:38]))
+                ys.append(float(line[38:46]))
+                zs.append(float(line[46:54]))
                 try:
                     bs.append(float(line[60:66]))
                 except ValueError:

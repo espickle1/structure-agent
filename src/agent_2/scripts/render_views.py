@@ -40,7 +40,6 @@ from pathlib import Path
 import numpy as np
 
 try:
-    from Bio.PDB import MMCIFParser, PDBParser
     from Bio.PDB.Polypeptide import is_aa
 except ImportError:
     print("ERROR: BioPython is required. pip install biopython", file=sys.stderr)

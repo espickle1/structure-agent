@@ -119,7 +119,7 @@ class ESMFold2FastInference:
 def _parse_fasta(fasta_path: str) -> tuple[str, str]:
     """Parse a single-record FASTA. Returns (header, sequence)."""
     text = Path(fasta_path).read_text().strip()
-    lines = [l for l in text.splitlines() if l.strip()]
+    lines = [ln for ln in text.splitlines() if ln.strip()]
     if not lines or not lines[0].startswith(">"):
         raise ValueError(f"Not a FASTA file: {fasta_path}")
     header = lines[0][1:].strip()

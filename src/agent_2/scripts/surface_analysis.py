@@ -26,7 +26,6 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from collections import Counter
 
 import numpy as np
 import matplotlib
@@ -34,10 +33,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from Bio.PDB import MMCIFParser, PDBParser, NeighborSearch, PDBIO
+    from Bio.PDB import PDBIO
     from Bio.PDB.DSSP import make_dssp_dict
     from Bio.PDB.Polypeptide import is_aa
-    from Bio.PDB.ResidueDepth import get_surface
     from cif_io import read_structure
 except ImportError:
     print("ERROR: BioPython is required.", file=sys.stderr)
@@ -551,7 +549,7 @@ def plot_exposure_pie(stats, output_dir, stem):
     labels = ["Exposed", "Partial", "Buried"]
     sizes = [stats["exposed"]["count"], stats["partial"]["count"], stats["buried"]["count"]]
     colors = ["#4682B4", "#87CEEB", "#D3D3D3"]
-    ax.pie(sizes, labels=[f"{l} ({s})" for l, s in zip(labels, sizes)],
+    ax.pie(sizes, labels=[f"{lbl} ({s})" for lbl, s in zip(labels, sizes)],
            colors=colors, autopct="%1.0f%%", startangle=90)
     ax.set_title("Residue Exposure Distribution")
     fig.tight_layout()
@@ -573,12 +571,12 @@ def print_summary(shape, ss_content, surface_stats):
     dims = shape["approximate_dimensions"]
     print(f"  Approximate dimensions: {dims['long_axis']} × {dims['mid_axis']} × {dims['short_axis']} Å")
 
-    print(f"\n--- Secondary Structure ---")
+    print("\n--- Secondary Structure ---")
     print(f"  Helix: {ss_content['helix']['count']} residues ({ss_content['helix']['fraction']:.0%})")
     print(f"  Sheet: {ss_content['sheet']['count']} residues ({ss_content['sheet']['fraction']:.0%})")
     print(f"  Coil:  {ss_content['coil']['count']} residues ({ss_content['coil']['fraction']:.0%})")
 
-    print(f"\n--- Surface Properties ---")
+    print("\n--- Surface Properties ---")
     print(f"  Total SASA: {surface_stats['total_sasa']} Å²")
     print(f"  Exposed: {surface_stats['exposed']['count']} ({surface_stats['exposed']['fraction']:.0%}), "
           f"Partial: {surface_stats['partial']['count']} ({surface_stats['partial']['fraction']:.0%}), "

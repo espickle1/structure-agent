@@ -23,12 +23,10 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from collections import Counter
 
 import numpy as np
 
 try:
-    from Bio.PDB import PDBParser, MMCIFParser
     from Bio.PDB.Polypeptide import is_aa
     from cif_io import read_structure
 except ImportError:
@@ -185,7 +183,6 @@ def analyze_chain(chain) -> dict:
     residues = list(chain.get_residues())
     
     standard_residues = []
-    het_residues = []
     waters = []
     metals = []
     ligands = []
@@ -376,11 +373,11 @@ def print_summary(meta: dict):
 
     af = meta["alphafold_detection"]
     if af["is_predicted"]:
-        print(f"Source:              AlphaFold prediction (pLDDT in B-factor)")
+        print("Source:              AlphaFold prediction (pLDDT in B-factor)")
     else:
-        print(f"Source:              Experimental")
+        print("Source:              Experimental")
 
-    print(f"\n--- Chains ---")
+    print("\n--- Chains ---")
     for ch in meta["chains"]:
         label = f"  Chain {ch['chain_id']}"
         print(f"{label}: {ch['num_residues']} residues, {ch['num_atoms']} atoms")
@@ -390,7 +387,7 @@ def print_summary(meta: dict):
             print(f"    {col}: mean={bf['mean']}, median={bf['median']}, "
                   f"range=[{bf['min']}, {bf['max']}]")
         if ch["ligands"]:
-            lig_names = [l["resname"] for l in ch["ligands"]]
+            lig_names = [lg["resname"] for lg in ch["ligands"]]
             print(f"    Ligands: {', '.join(lig_names)}")
         if ch["metals"]:
             met_names = [m["resname"] for m in ch["metals"]]
@@ -404,10 +401,10 @@ def print_summary(meta: dict):
             print(f"    Chain breaks: {', '.join(breaks)}")
 
     if meta["unique_ligands"]:
-        print(f"\n--- Ligands (non-solvent) ---")
+        print("\n--- Ligands (non-solvent) ---")
         print(f"  {', '.join(meta['unique_ligands'])}")
     else:
-        print(f"\nNo non-solvent ligands detected.")
+        print("\nNo non-solvent ligands detected.")
 
     print("=" * 60)
 

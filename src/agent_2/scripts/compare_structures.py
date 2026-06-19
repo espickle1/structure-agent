@@ -28,7 +28,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from itertools import product as iter_product
 
 import numpy as np
 import matplotlib
@@ -36,7 +35,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from Bio.PDB import PDBParser, MMCIFParser, Superimposer
+    from Bio.PDB import Superimposer
     from Bio.PDB.Polypeptide import is_aa
     from cif_io import read_structure
 except ImportError:

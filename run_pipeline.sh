@@ -198,14 +198,7 @@ for STRUCT in "${STRUCTURES[@]}"; do
         "$STRUCT" --output-dir "$OUTPUT_DIR/agent_2" --color pLDDT)
 
     # Step 5: binding site — only if ligands present
-    HAS_LIGANDS=$(python3 -c "
-import json, sys
-try:
-    m = json.load(open('$OUTPUT_DIR/agent_2/${STEM}_metadata.json'))
-    print('true' if m.get('has_ligands') else 'false')
-except:
-    print('false')
-")
+    HAS_LIGANDS=$(python "$SCRIPTS_DIR/has_ligands.py" "$OUTPUT_DIR/agent_2/${STEM}_metadata.json")
     if [[ "$HAS_LIGANDS" == "true" ]]; then
         echo "  Ligands present — running binding site analysis..."
         (cd "$SCRIPTS_DIR" && python binding_site.py \

@@ -40,7 +40,7 @@ fetch_cif = modal.Function.from_name(_APP_NAME, "fetch_cif")
 def parse_fasta(fasta_path: Path) -> tuple[str, str]:
     """Parse a single-record FASTA. Returns (header, sequence)."""
     text = fasta_path.read_text().strip()
-    lines = [l for l in text.splitlines() if l.strip()]
+    lines = [ln for ln in text.splitlines() if ln.strip()]
     if not lines or not lines[0].startswith(">"):
         raise ValueError(f"Not a FASTA file: {fasta_path}")
     header = lines[0][1:].strip()
@@ -67,7 +67,7 @@ def main():
     print(f"[step1] Sequence length: {len(sequence)} aa")
     print(f"[step1] Structure ID: {args.structure_id}")
     print(f"[step1] Stoichiometry: {args.stoichiometry}")
-    print(f"[step1] Submitting to Modal (Boltz-2 A100)...")
+    print("[step1] Submitting to Modal (Boltz-2 A100)...")
 
     t_submit = time.time()
     result = predict_structure.remote(
@@ -90,7 +90,7 @@ def main():
         return 1
 
     # Download the CIF back locally
-    print(f"[step1] Fetching predicted CIF from scratch volume...")
+    print("[step1] Fetching predicted CIF from scratch volume...")
     cif_bytes = fetch_cif.remote(result["cif_path"])
     local_cif = args.output_dir / f"{args.structure_id}_predicted.cif"
     local_cif.write_bytes(cif_bytes)
@@ -104,7 +104,7 @@ def main():
     print(f"Structure ID:        {result['structure_id']}")
     print(f"GPU runtime (s):     {result['runtime_seconds']}")
     print(f"Wall-clock (s):      {result['local_wall_clock_seconds']}")
-    print(f"Confidence metrics:")
+    print("Confidence metrics:")
     for k, v in (result.get("metrics") or {}).items():
         if v is not None:
             print(f"  {k:25s} {v}")

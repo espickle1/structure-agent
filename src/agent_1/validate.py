@@ -169,17 +169,17 @@ def main():
         print(f"  ✓ Cα RMSD {rmsd} Å is acceptable.")
     elif rmsd < 4.0:
         print(f"  ⚠ Cα RMSD {rmsd} Å is marginal. Inspect before trusting:")
-        print(f"    - flexible regions (loops, termini) inflating the RMSD")
-        print(f"    - disordered / unresolved residues in the overlap")
+        print("    - flexible regions (loops, termini) inflating the RMSD")
+        print("    - disordered / unresolved residues in the overlap")
     else:
         print(f"  ✗ Cα RMSD {rmsd} Å is concerning. Check:")
-        print(f"    - did the prediction converge?")
-        print(f"    - was the correct sequence submitted?")
-        print(f"    - is the residue numbering mismatched (large shift)?")
+        print("    - did the prediction converge?")
+        print("    - was the correct sequence submitted?")
+        print("    - is the residue numbering mismatched (large shift)?")
 
     if shared < min(pred_res_count, ref_res_count) * 0.5:
         print(f"\n  Note: only {shared} residues overlap between prediction and")
-        print(f"  reference — likely signal-peptide or terminal residues absent")
+        print("  reference — likely signal-peptide or terminal residues absent")
         print(f"  from the crystal. RMSD is over the {shared}-residue overlap only.")
 
     return 0
