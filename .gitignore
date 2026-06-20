@@ -227,3 +227,6 @@ src/agent_1/test_data/
 
 # Boltz-2 fallback Step 1 outputs (regenerable)
 src/agent_1/step1_results/
+
+# Internal cross-machine handoff notes — keep local, not published
+HANDOFF.md
