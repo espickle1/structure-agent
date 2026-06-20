@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_pipeline.sh — structure-agent pipeline coordinator
+# run_pipeline.sh — APSARA pipeline coordinator
 #
 # Full pipeline:  ./run_pipeline.sh --input sequences.fasta --output-dir results/ --prompt prompts/report.md
 # BYO structure:  ./run_pipeline.sh --input structure.cif  --output-dir results/ --prompt prompts/report.md
@@ -106,7 +106,7 @@ mkdir -p "$OUTPUT_DIR/agent_0" \
          "$OUTPUT_DIR/agent_2"
 
 echo "=========================================="
-echo " structure-agent pipeline"
+echo " APSARA pipeline"
 echo " Input:   $INPUT"
 echo " Output:  $OUTPUT_DIR"
 echo " Mode:    $(if $BYO; then echo 'BYO structure (Agents 0/1 skipped)'; else echo 'full pipeline'; fi)"

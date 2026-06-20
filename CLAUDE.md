@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Multi-agent pipeline for high-throughput protein structure prediction and analysis, focused on novel and metagenomic single-chain proteins — targets where homologs and MSAs are scarce. Sequences in, structures + analysis out.
+APSARA (Automated Protein Structure Analysis & Reporting Agent) is a multi-agent pipeline for high-throughput protein structure prediction and analysis, focused on novel and metagenomic single-chain proteins — targets where homologs and MSAs are scarce. Sequences in, structures + analysis out.
 
 ## Agents
 

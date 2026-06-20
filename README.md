@@ -1,4 +1,6 @@
-# structure-agent
+# APSARA
+
+**A**utomated **P**rotein **S**tructure **A**nalysis & **R**eporting **A**gent
 
 Multi-agent pipeline for high-throughput protein structure prediction and
 analysis, focused on novel and metagenomic single-chain proteins — targets

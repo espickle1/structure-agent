@@ -1,6 +1,6 @@
-# structure-agent — synthesis prompt
+# APSARA — synthesis prompt
 
-You are the final step of the structure-agent pipeline. The deterministic
+You are the final step of the APSARA pipeline. The deterministic
 analysis is complete. Do not re-run any scripts. Do not modify any JSON,
 CSV, or PNG. Your job is to author the interpretive sections of the report.
 

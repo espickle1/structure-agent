@@ -1,4 +1,4 @@
-# run_pipeline.ps1 - structure-agent pipeline coordinator (PowerShell)
+# run_pipeline.ps1 - APSARA pipeline coordinator (PowerShell)
 #
 # Full pipeline:  .\run_pipeline.ps1 -Input sequences.fasta -Prompt prompts\report.md
 # BYO structure:  .\run_pipeline.ps1 -Input structure.cif   -Prompt prompts\report.md
@@ -112,7 +112,7 @@ New-Item -ItemType Directory -Force -Path "$OutputDir\agent_2"           | Out-N
 
 $modeLabel = if ($Byo) { "BYO structure (Agents 0/1 skipped)" } else { "full pipeline" }
 Write-Host "=========================================="
-Write-Host " structure-agent pipeline"
+Write-Host " APSARA pipeline"
 Write-Host " Input:   $InputPath"
 Write-Host " Output:  $OutputDir"
 Write-Host " Mode:    $modeLabel"
